@@ -1,4 +1,4 @@
-# HolPro landing
+# HolPro web app
 
 Next.js App Router implementation of `reference-landing.html`, following
 `../../brand-assets/STYLE.md`. The page uses the approved editorial hero,
@@ -8,10 +8,10 @@ The prototype's custom-element runtime is not needed.
 From the repository root (Node 24.21+ and pnpm 12+):
 
 ```sh
-pnpm --filter landing dev
-pnpm --filter landing lint
-pnpm --filter landing build
-pnpm --filter landing start
+pnpm --filter web-app dev
+pnpm --filter web-app lint
+pnpm --filter web-app build
+pnpm --filter web-app start
 ```
 
 The homepage is at http://localhost:3000. Build before using `start`.

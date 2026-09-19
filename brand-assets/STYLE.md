@@ -1,6 +1,6 @@
 # HolPro UI Style Guide
 
-This guide defines how HolPro user interfaces look and behave. It is derived from the reference landing page in `packages/landing/reference-landing.html` and the brand assets in this folder. Apply it to the landing site, the web app, emails and any other surface that carries the HolPro brand.
+This guide defines how HolPro user interfaces look and behave. It is derived from the reference landing page in `packages/web-app/reference-landing.html` and the brand assets in this folder. Apply it to the landing site, the web app, emails and any other surface that carries the HolPro brand.
 
 Tagline: **Unlock yourself.**
 
@@ -579,7 +579,7 @@ a:hover { color: var(--accent); }
 
 ### 11.2 Tailwind CSS v4 theme
 
-The landing package uses Tailwind v4. Put this in `globals.css` after `@import "tailwindcss";`. The block is `@theme inline` so that utilities resolve the `next/font` variables.
+The web-app package uses Tailwind v4. Put this in `globals.css` after `@import "tailwindcss";`. The block is `@theme inline` so that utilities resolve the `next/font` variables.
 
 ```css
 @theme inline {
