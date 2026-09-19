@@ -1,0 +1,70 @@
+.form-dialog {
+  color: var(--pine);
+  background: var(--parchment);
+  border: 1px solid var(--pine-18);
+  border-radius: var(--radius-panel);
+  padding: var(--space-10);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.form-dialog::backdrop {
+  background: var(--pine-30);
+}
+.form-dialog h2 {
+  font: 400 clamp(28px, 2.6vw, 38px)/1.05 var(--font-serif);
+  padding-bottom: var(--space-8);
+}
+.pro-form,
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.pro-form {
+  gap: var(--space-6);
+}
+.pro-form fieldset {
+  display: contents;
+}
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 16px 20px;
+  border: 1.5px solid var(--pine);
+  border-radius: var(--radius-pill);
+  color: var(--pine);
+  background: transparent;
+  font: inherit;
+}
+.form-field textarea {
+  border-radius: var(--radius-panel);
+  min-height: 120px;
+  resize: vertical;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--cumin);
+}
+.form-field :focus-visible,
+.form-dialog button:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+}
+.form-field [role="alert"] {
+  font-size: 14px;
+}
+.form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.form-actions button {
+  min-height: 44px;
+}

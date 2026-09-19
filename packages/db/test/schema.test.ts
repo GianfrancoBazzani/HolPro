@@ -23,8 +23,11 @@ describe("migration contract", () => {
     );
     expect(sql).toMatch(/CHECK.*planned.*done.*skipped/i);
     expect(sql).toMatch(/CHECK.*end_date.*>=.*start_date/i);
+    expect(sql).toMatch(/CHECK.*'call'.*'event'/i);
+    expect(sql).toMatch(/CHECK.*duration_minutes.*between 5 and 1440/i);
+    expect(sql.match(/ON DELETE set null/gi)).toHaveLength(1);
     expect(sql.match(/ON DELETE restrict/gi)).toHaveLength(2);
-    expect(sql.match(/ON DELETE cascade/gi)?.length).toBeGreaterThanOrEqual(9);
+    expect(sql.match(/ON DELETE cascade/gi)?.length).toBeGreaterThanOrEqual(10);
     expect(sql).toMatch(/UNIQUE.*email/i);
     expect(sql).toMatch(/UNIQUE.*token/i);
     expect(sql).toContain("rate_limits");

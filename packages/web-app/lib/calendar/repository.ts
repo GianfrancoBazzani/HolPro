@@ -18,32 +18,7 @@ export async function loadCalendar(userId: string): Promise<CalendarData> {
       where: eq(calendarPreferences.userId, userId),
     }),
   ]);
-  const items = rows.flatMap((engagement) =>
-    engagement.planItems.map((item) => ({
-      id: item.id,
-      engagementId: engagement.id,
-      kind: item.kind,
-      title: item.title,
-      description: item.description,
-      createdAt: item.createdAt.toISOString(),
-      checkpoints: item.checkpoints.map(
-        ({ id, date, title, note, status }) => ({
-          id,
-          date,
-          title,
-          note,
-          status,
-        }),
-      ),
-      periods: item.periods.map(({ id, startDate, endDate, title, note }) => ({
-        id,
-        startDate,
-        endDate,
-        title,
-        note,
-      })),
-    })),
-  );
+  const items = rows.flatMap(mapPlanItems);
   const knownItems = new Set(items.map((item) => item.id)),
     knownEngagements = new Set(rows.map((row) => row.id));
   const strings = (values: unknown): string[] =>
@@ -68,4 +43,33 @@ export async function loadCalendar(userId: string): Promise<CalendarData> {
       ),
     },
   };
+}
+
+type PlanRow = typeof import("@holpro/db").planItems.$inferSelect & {
+  checkpoints: (typeof import("@holpro/db").planCheckpoints.$inferSelect)[];
+  periods: (typeof import("@holpro/db").planPeriods.$inferSelect)[];
+};
+export function mapPlanItems(engagement: { id: string; planItems: PlanRow[] }) {
+  return engagement.planItems.map((item) => ({
+    id: item.id,
+    engagementId: engagement.id,
+    kind: item.kind,
+    title: item.title,
+    description: item.description,
+    createdAt: item.createdAt.toISOString(),
+    checkpoints: item.checkpoints.map(({ id, date, title, note, status }) => ({
+      id,
+      date,
+      title,
+      note,
+      status,
+    })),
+    periods: item.periods.map(({ id, startDate, endDate, title, note }) => ({
+      id,
+      startDate,
+      endDate,
+      title,
+      note,
+    })),
+  }));
 }

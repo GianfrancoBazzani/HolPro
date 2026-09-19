@@ -5,8 +5,8 @@ export const addDays = (day: string, days: number) =>
 export const daysBetween = (start: string, end: string) =>
   Math.round((dayDate(end).getTime() - dayDate(start).getTime()) / DAY);
 const weekday = (day: string) => dayDate(day).getUTCDay() || 7;
-const monday = (day: string) => addDays(day, 1 - weekday(day));
-const sunday = (day: string) => addDays(day, 7 - weekday(day));
+export const monday = (day: string) => addDays(day, 1 - weekday(day));
+export const sunday = (day: string) => addDays(day, 7 - weekday(day));
 export type CalendarWindow = { start: string; end: string; clipped: boolean };
 type Entry = { date: string } | { startDate: string; endDate: string };
 export function computeWindow(entries: Entry[], today: string): CalendarWindow {
@@ -50,18 +50,20 @@ export function monthSpans(columns: { date: string }[]) {
   });
   return spans;
 }
-export function todayIn(timezone: string): string {
+export function dayIn(instant: Date, timezone: string): string {
   try {
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: timezone,
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    }).formatToParts(new Date());
+    }).formatToParts(instant);
     const value = (type: string) => parts.find((p) => p.type === type)!.value;
     return `${value("year")}-${value("month")}-${value("day")}`;
   } catch (error) {
     if (!(error instanceof RangeError)) throw error;
-    return todayIn("UTC");
+    return dayIn(instant, "UTC");
   }
 }
+
+export const todayIn = (timezone: string) => dayIn(new Date(), timezone);

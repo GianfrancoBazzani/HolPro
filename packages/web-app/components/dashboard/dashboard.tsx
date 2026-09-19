@@ -1,18 +1,15 @@
-import Image from "next/image";
-import Link from "next/link";
 import { requirePortalUser } from "@/lib/auth/gate";
 import { portals } from "@/lib/auth/portals";
 import { loadCalendar } from "@/lib/calendar/repository";
 import { todayIn } from "@/lib/calendar/dates";
 import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/config";
-import { localePath } from "@/lib/i18n/routes";
 import { I18nProvider } from "@/components/i18n/provider";
-import { AccountControls } from "@/components/account/account-controls";
 import { Timeline } from "./timeline";
-import { PlanArtifact } from "./plan-artifact";
+import { PlanOutline } from "./plan-outline";
+import { Topbar } from "./topbar";
+import { saveCalendarPreferences } from "@/lib/calendar/actions";
 import { ChatPanel } from "./chat-panel";
-import wordmark from "@/public/brand/wordmark.png";
 import "./dashboard.css";
 export async function Dashboard({ locale }: { locale: Locale }) {
   const user = await requirePortalUser(portals.coachee);
@@ -28,21 +25,12 @@ export async function Dashboard({ locale }: { locale: Locale }) {
       messages={{ dashboard: messages.dashboard, settings: messages.settings }}
     >
       <main className="container dashboard">
-        <header className="dashboard-topbar">
-          <Link href={localePath(locale, "/")}>
-            <Image
-              className="dashboard-wordmark"
-              src={wordmark}
-              alt={t("topbar.wordmarkAlt")}
-              priority
-            />
-          </Link>
-          <div className="dashboard-identity">
-            <span className="eyebrow">{t("topbar.eyebrow")}</span>
-            <span>{user.name}</span>
-          </div>
-          <AccountControls />
-        </header>
+        <Topbar
+          locale={locale}
+          messages={messages.dashboard}
+          eyebrow={t("topbar.eyebrow")}
+          name={user.name}
+        />
         <div className="dashboard-layout">
           <div className="dashboard-main">
             <section
@@ -51,9 +39,17 @@ export async function Dashboard({ locale }: { locale: Locale }) {
             >
               <span className="eyebrow">{t("calendar.eyebrow")}</span>
               <h1 id="calendar-heading">{t("calendar.title")}</h1>
-              <Timeline data={data} today={todayIn(user.timezone)} />
+              <Timeline
+                data={data}
+                today={todayIn(user.timezone)}
+                onSave={saveCalendarPreferences}
+              />
             </section>
-            <PlanArtifact engagementId={engagementId} />
+            <section className="dashboard-panel">
+              <span className="eyebrow">{t("outline.eyebrow")}</span>
+              <h2>{t("outline.title")}</h2>
+              <PlanOutline items={data.items} engagements={data.engagements} />
+            </section>
           </div>
           <ChatPanel engagementId={engagementId} />
         </div>

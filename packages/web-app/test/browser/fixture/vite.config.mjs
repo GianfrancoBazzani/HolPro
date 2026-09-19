@@ -1,0 +1,30 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const root = path.dirname(fileURLToPath(import.meta.url));
+const web = path.resolve(root, "../../..");
+const config = {
+  root,
+  resolve: {
+    alias: [
+      {
+        find: "@/lib/pro/agenda-actions",
+        replacement: path.join(root, "actions.ts"),
+      },
+      {
+        find: "@/lib/pro/plan-actions",
+        replacement: path.join(root, "actions.ts"),
+      },
+      { find: "next/link", replacement: path.join(root, "link.jsx") },
+      { find: "@", replacement: web },
+    ],
+  },
+  esbuild: { jsx: "automatic" },
+  server: {
+    host: "127.0.0.1",
+    port: 4180,
+    strictPort: true,
+    fs: { allow: [path.resolve(web, "../..")] },
+  },
+};
+
+export default config;

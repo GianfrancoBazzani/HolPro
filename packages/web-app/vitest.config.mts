@@ -14,5 +14,5 @@ export default defineConfig({
     },
   ],
   resolve: { alias: { "@": fileURLToPath(new URL(".", import.meta.url)) } },
-  test: { environment: "node" },
+  test: { environment: "node", include: ["test/**/*.test.{ts,tsx}"] },
 });

@@ -14,42 +14,85 @@ import {
   stackPeriods,
 } from "@/lib/calendar/view";
 import { createSaveQueue } from "@/lib/calendar/save-queue";
-import { saveCalendarPreferences } from "@/lib/calendar/actions";
 import type { CalendarData } from "@/lib/calendar/types";
 import type { CalendarPreferences } from "@/lib/calendar/schemas";
 import { TimelineControls, StatusDot } from "./timeline-controls";
-export function Timeline({
-  data,
-  today,
-}: {
+type TimelineProps = {
   data: CalendarData;
   today: string;
-}) {
-  const t = useT("dashboard"),
-    locale = useLocale();
+  onSave?: (preferences: CalendarPreferences) => Promise<{ ok: boolean }>;
+};
+export function Timeline(props: TimelineProps) {
+  return props.onSave ? (
+    <PersistentTimeline {...props} onSave={props.onSave} />
+  ) : (
+    <LocalTimeline {...props} />
+  );
+}
+function LocalTimeline({ data, today }: TimelineProps) {
+  const [preferences, change] = useState(data.preferences);
+  return (
+    <TimelineView
+      data={data}
+      today={today}
+      preferences={preferences}
+      change={change}
+    />
+  );
+}
+function PersistentTimeline({
+  data,
+  today,
+  onSave,
+}: TimelineProps & { onSave: NonNullable<TimelineProps["onSave"]> }) {
   const [preferences, setPreferences] = useState(data.preferences);
   const [, setConfirmed] = useState(data.preferences);
   const [failed, setFailed] = useState(false);
   const [pending, startTransition] = useTransition();
   const [queue] = useState(() =>
-    createSaveQueue(data.preferences, saveCalendarPreferences, {
+    createSaveQueue(data.preferences, onSave, {
       shown: setPreferences,
       confirmed: setConfirmed,
       failed: setFailed,
     }),
   );
-  const [selection, setSelection] = useState<{
-    itemId: string;
-    date: string;
-  } | null>(null);
-  const todayCell = useRef<HTMLDivElement>(null);
   const change = (next: CalendarPreferences) => {
-    // queue.update publishes the optimistic value synchronously, outside the transition.
     const saved = queue.update(next);
     startTransition(async () => {
       await saved;
     });
   };
+  return (
+    <TimelineView
+      data={data}
+      today={today}
+      preferences={preferences}
+      change={change}
+      failed={failed}
+      pending={pending}
+    />
+  );
+}
+function TimelineView({
+  data,
+  today,
+  preferences,
+  change,
+  failed = false,
+  pending = false,
+}: Omit<TimelineProps, "onSave"> & {
+  preferences: CalendarPreferences;
+  change: (next: CalendarPreferences) => void;
+  failed?: boolean;
+  pending?: boolean;
+}) {
+  const t = useT("dashboard"),
+    locale = useLocale();
+  const [selection, setSelection] = useState<{
+    itemId: string;
+    date: string;
+  } | null>(null);
+  const todayCell = useRef<HTMLDivElement>(null);
   const entries = data.items.flatMap((item) => [
     ...item.checkpoints,
     ...item.periods,
@@ -63,7 +106,7 @@ export function Timeline({
   }));
   const ordered = orderRows(enriched, preferences.rowOrder);
   const rows = visibleRows(ordered, {
-    engagements: preferences.hiddenEngagements,
+    engagements: data.engagements.length >= 2 ? preferences.hiddenEngagements : [],
     kinds: preferences.hiddenKinds,
   });
   const dayFormat = new Intl.DateTimeFormat(locale, {
@@ -143,7 +186,9 @@ export function Timeline({
                       gridColumn: `${span.startIndex + 2} / span ${span.length}`,
                     }}
                   >
-                    <span>{monthFormat.format(dayDate(`${span.month}-01`))}</span>
+                    <span>
+                      {monthFormat.format(dayDate(`${span.month}-01`))}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -183,7 +228,11 @@ export function Timeline({
                       <span className="calendar-kind">
                         {t(`kind.${item.kind}`)}
                       </span>
-                      <span className="calendar-coach">{coach.coachName}</span>
+                      {data.engagements.length >= 2 && (
+                        <span className="calendar-coach">
+                          {coach.coachName}
+                        </span>
+                      )}
                       <div className="calendar-move">
                         {(["up", "down"] as const).map((direction) => (
                           <button

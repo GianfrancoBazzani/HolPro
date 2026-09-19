@@ -60,7 +60,7 @@ pnpm --filter web-app dev
 ```
 
 `/login` is the coachee portal and `/pro/login` is the coach portal. The
-placeholder homes are `/app` and `/pro`.
+dashboards are `/app` and `/pro`.
 
 A signed-in user who opens the other portal keeps the session and lands on
 `/login/switch` or `/pro/login/switch`. That page names the account type and
@@ -108,7 +108,7 @@ Unmatched routes use Next.js's documented `experimental.globalNotFound` support 
 
 ## Coachee calendar dashboard
 
-`/app` aggregates the plan items of every active engagement. Coaches see the existing `/pro` home. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. Plan-document and assistant panels are placeholders.
+`/app` aggregates the plan items of every active engagement. Coaches see their agenda and clients at `/pro`. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. The plan outline is read-only; the assistant panel is a placeholder.
 
 Apply `packages/db/drizzle/0002_aromatic_bulldozer.sql` through the normal migration workflow before using the dashboard. The migration adds `plan_items`, `plan_checkpoints`, `plan_periods`, and `calendar_preferences` without changing existing rows.
 
@@ -121,3 +121,45 @@ pnpm --filter @holpro/db db:seed:plan -- coachee@example.com
 This command reads `packages/web-app/.env.local`, rejects production mode, and replaces the first active engagement's plan in a transaction. It creates a sample coach/engagement if necessary. It seeds eight weeks beginning two weeks before the current UTC week. Re-running replaces that plan, including its checkpoints and periods; use only development data.
 
 Whole-day plan dates are ISO strings and always formatted with `Intl` in UTC to preserve the day. Today is computed in the user's stored timezone, falling back to UTC for an invalid timezone. The range is capped at 52 whole weeks with a notice for clipped entries. Dashboard copy is in the `dashboard` namespace; Spanish and Italian dashboard additions are drafts requiring native-speaker review.
+
+## Coach dashboard
+
+`/pro` shows the coach’s month agenda and active clients. `/pro/clients/<engagementId>`
+shows one client’s timeline and editable plan outline. Coach filters and row order
+are local to the page; coachee preferences remain persisted. Forms support creating,
+editing and deleting events, items, checkpoints and periods, with explicit delete confirmation.
+
+Apply `packages/db/drizzle/0003_yummy_mercury.sql` through the normal migration
+workflow before using the agenda. It adds `agenda_events` without changing existing rows.
+Generation and tests do not apply the migration.
+
+After registering a coach and coachee in development, seed their engagement with:
+
+```sh
+pnpm --filter @holpro/db db:seed:plan -- coachee@example.com coach@example.com
+```
+
+This replaces that active engagement’s plan; without a coach email, the previous
+sample-coach behavior remains. Use development data only.
+
+Event input is interpreted in the coach’s stored timezone, persisted in UTC and
+shown in the coach’s timezone. Missing or doubled daylight-saving times resolve
+to the later instant; invalid timezones fall back to UTC. Plan dates remain
+whole-day ISO dates formatted in UTC. Agenda events remain coach-owned when a
+linked engagement ends; assigning a client requires an active owned engagement.
+
+The `pro` namespace and new `dashboard.outline.*` keys are translated into all
+supported languages. Spanish and Italian are drafts requiring native review.
+
+Browser interaction regressions run against real dashboard components with stubbed
+server actions (no database or accounts required):
+
+```sh
+pnpm --filter web-app exec playwright install chromium
+pnpm --filter web-app test:browser
+```
+
+These cover dialog focus, failed-submit input retention, pending-action locks,
+and responsive layouts in all languages. `PLAYWRIGHT_CHROMIUM_EXECUTABLE` can
+point to an existing Chromium binary. Live authenticated CRUD still requires a
+migrated development database.

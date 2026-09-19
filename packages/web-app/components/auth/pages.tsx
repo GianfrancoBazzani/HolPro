@@ -12,8 +12,6 @@ import { signOut } from "@/lib/auth/actions";
 import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import { pageLocale, type LocaleParams } from "@/lib/i18n/page";
 import { Rich } from "@/components/i18n/rich";
-import { AccountControls } from "@/components/account/account-controls";
-import { I18nProvider } from "@/components/i18n/provider";
 export type Search = Promise<Record<string, string | string[] | undefined>>;
 export type PageProps = { params: LocaleParams; searchParams: Search };
 type Props = { portal: Portal } & PageProps;
@@ -131,21 +129,5 @@ export async function SwitchPage({ portal, params }: Props) {
         </form>
       </div>
     </AuthShell>
-  );
-}
-export async function HomePage({ portal, params }: Props) {
-  const user = await requirePortalUser(portal);
-  const { locale, t, messages } = await copy(params);
-  return (
-    <I18nProvider locale={locale} messages={{ settings: messages.settings }}>
-      <main className="container auth-home">
-        <header className="auth-home-topbar">
-          <span className="eyebrow">{t(`portal.${portal.key}.label`)}</span>
-          <AccountControls />
-        </header>
-        <h1>{t("home.title", { name: user.name })}</h1>
-        <p>{t(`home.body.${portal.key}`)}</p>
-      </main>
-    </I18nProvider>
   );
 }

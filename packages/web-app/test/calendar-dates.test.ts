@@ -59,3 +59,15 @@ it("computes today on both sides of midnight and falls back to UTC", () => {
   expect(todayIn("Asia/Tokyo")).toBe("2026-09-19");
   expect(todayIn("invalid")).toBe("2026-09-19");
 });
+it("maps instants across midnight with UTC fallback", async () => {
+  const { dayIn, monday, sunday } = await import("../lib/calendar/dates");
+  expect(dayIn(new Date("2026-09-19T00:30:00Z"), "America/Los_Angeles")).toBe(
+    "2026-09-18",
+  );
+  expect(dayIn(new Date("2026-09-19T00:30:00Z"), "Asia/Tokyo")).toBe(
+    "2026-09-19",
+  );
+  expect(dayIn(new Date("2026-09-19T00:30:00Z"), "invalid")).toBe("2026-09-19");
+  expect(monday("2026-09-19")).toBe("2026-09-14");
+  expect(sunday("2026-09-14")).toBe("2026-09-20");
+});

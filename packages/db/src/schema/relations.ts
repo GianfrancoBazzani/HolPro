@@ -1,12 +1,13 @@
+import { relations } from "drizzle-orm";
+import { users, sessions, accounts } from "./auth";
+import { coaches, coachees, coachSpecialties, engagements } from "./coaching";
 import {
   planItems,
   planCheckpoints,
   planPeriods,
   calendarPreferences,
 } from "./plans";
-import { relations } from "drizzle-orm";
-import { users, sessions, accounts } from "./auth";
-import { coaches, coachees, coachSpecialties, engagements } from "./coaching";
+import { agendaEvents } from "./agenda";
 export const usersRelations = relations(users, ({ one, many }) => ({
   calendarPreference: one(calendarPreferences),
   coach: one(coaches),
@@ -18,6 +19,7 @@ export const coachesRelations = relations(coaches, ({ one, many }) => ({
   user: one(users, { fields: [coaches.userId], references: [users.id] }),
   specialties: many(coachSpecialties),
   engagements: many(engagements),
+  agendaEvents: many(agendaEvents),
 }));
 export const coacheesRelations = relations(coachees, ({ one, many }) => ({
   user: one(users, { fields: [coachees.userId], references: [users.id] }),
@@ -37,6 +39,7 @@ export const specialtiesRelations = relations(coachSpecialties, ({ one }) => ({
 }));
 export const engagementsRelations = relations(engagements, ({ one, many }) => ({
   planItems: many(planItems),
+  agendaEvents: many(agendaEvents),
   coach: one(coaches, {
     fields: [engagements.coachId],
     references: [coaches.userId],
@@ -46,7 +49,6 @@ export const engagementsRelations = relations(engagements, ({ one, many }) => ({
     references: [coachees.userId],
   }),
 }));
-
 export const planItemsRelations = relations(planItems, ({ one, many }) => ({
   engagement: one(engagements, {
     fields: [planItems.engagementId],
@@ -79,3 +81,13 @@ export const calendarPreferencesRelations = relations(
     }),
   }),
 );
+export const agendaEventsRelations = relations(agendaEvents, ({ one }) => ({
+  coach: one(coaches, {
+    fields: [agendaEvents.coachId],
+    references: [coaches.userId],
+  }),
+  engagement: one(engagements, {
+    fields: [agendaEvents.engagementId],
+    references: [engagements.id],
+  }),
+}));

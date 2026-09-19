@@ -37,21 +37,25 @@ export function TimelineControls({
         <button className="button button-secondary" onClick={onToday}>
           {t("controls.today")}
         </button>
-        {data.engagements.map((e) => (
-          <button
-            className="calendar-chip"
-            key={e.id}
-            aria-pressed={!preferences.hiddenEngagements.includes(e.id)}
-            onClick={() =>
-              onChange({
-                ...preferences,
-                hiddenEngagements: toggle(preferences.hiddenEngagements, e.id),
-              })
-            }
-          >
-            {e.coachName}
-          </button>
-        ))}
+        {data.engagements.length >= 2 &&
+          data.engagements.map((e) => (
+            <button
+              className="calendar-chip"
+              key={e.id}
+              aria-pressed={!preferences.hiddenEngagements.includes(e.id)}
+              onClick={() =>
+                onChange({
+                  ...preferences,
+                  hiddenEngagements: toggle(
+                    preferences.hiddenEngagements,
+                    e.id,
+                  ),
+                })
+              }
+            >
+              {e.coachName}
+            </button>
+          ))}
         {itemKinds
           .filter((kind) => data.items.some((item) => item.kind === kind))
           .map((kind) => (

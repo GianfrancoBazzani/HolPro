@@ -69,7 +69,7 @@ for (const locale of localeKeys) {
     const d = (await getDictionary(locale)).dashboard;
     for (const key of [
       "empty.noEngagement",
-      "artifact.body",
+      "empty.noItems",
       "chat.body",
     ] as const)
       expect(html).toContain(d[key].replaceAll("'", "&#x27;"));
@@ -82,6 +82,9 @@ for (const locale of localeKeys) {
     const d = (await getDictionary(locale)).dashboard;
     expect(html).toContain("Strength programme");
     expect(html).toContain("Base phase");
+    expect(html).toContain("Stay steady");
+    expect(html).not.toContain("calendar-coach");
+    expect(html).not.toContain("Plan artifact");
     expect(html).toContain(d["kind.training"]);
     expect(html).toContain(
       new Intl.DateTimeFormat(locale, {
@@ -122,3 +125,11 @@ for (const locale of localeKeys) {
     );
   });
 }
+it("reveals the remaining engagement even when old preferences hide it", async () => {
+  vi.mocked(loadCalendar).mockResolvedValue({
+    ...sample,
+    preferences: { ...empty.preferences, hiddenEngagements: ["e"] },
+  });
+  const html = renderToStaticMarkup(await Dashboard({ locale: "en" }));
+  expect(html).toContain('role="grid"');
+});

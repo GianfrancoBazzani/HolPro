@@ -28,6 +28,7 @@
   --font-serif: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-manrope), system-ui, sans-serif;
   --radius-pill: 999px;
+  --radius-dot: 50%;
   --radius-card: 24px;
   --radius-panel: 20px;
   --radius-leaf: 100% 0 100% 0;

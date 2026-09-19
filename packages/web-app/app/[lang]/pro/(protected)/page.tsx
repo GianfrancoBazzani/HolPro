@@ -1,5 +1,6 @@
-import { HomePage, type PageProps } from "@/components/auth/pages";
-import { portals } from "@/lib/auth/portals";
-export default function Page(props: PageProps) {
-  return <HomePage portal={portals.coach} {...props} />;
+import {CoachHome} from "@/components/pro/coach-home";
+import {pageLocale,type LocaleParams} from "@/lib/i18n/page";
+export default async function Page({params,searchParams}:{params:LocaleParams;searchParams:Promise<Record<string,string|string[]|undefined>>}) {
+ const [locale,query]=await Promise.all([pageLocale(params),searchParams]);
+ return <CoachHome locale={locale} month={query.month}/>;
 }
