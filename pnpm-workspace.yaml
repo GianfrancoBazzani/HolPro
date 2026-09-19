@@ -1,0 +1,5 @@
+packages:
+  - 'packages/*'
+nodeLinker: hoisted
+saveExact: true
+engineStrict: true
