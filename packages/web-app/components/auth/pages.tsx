@@ -8,6 +8,7 @@ import {
   type Portal,
 } from "@/lib/auth/portals";
 import { requirePortalUser } from "@/lib/auth/gate";
+import { signOut } from "@/lib/auth/actions";
 import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import { pageLocale, type LocaleParams } from "@/lib/i18n/page";
 import { Rich } from "@/components/i18n/rich";
