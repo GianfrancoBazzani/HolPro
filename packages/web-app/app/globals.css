@@ -232,6 +232,10 @@ section[id] {
   padding: 11px 20px;
   font-size: 15px;
 }
+.nav-login:hover,
+.nav-login:focus-visible {
+  color: var(--cumin);
+}
 .hero {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
@@ -582,43 +586,23 @@ h1 em {
   font-weight: 700;
   max-width: 520px;
 }
-.signup-preview {
+.cta-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  max-width: 520px;
-  padding: 24px;
-  border-radius: var(--radius-card);
-  background: var(--parchment);
-  color: var(--pine);
+  align-items: center;
+  gap: var(--space-4);
 }
-.signup-preview > p {
-  font-size: 14px;
-  color: var(--muted);
+.cta-alt {
+  font-size: 19px;
+  font-weight: 600;
 }
-.signup-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 100%;
+.cta-alt a {
+  color: var(--parchment);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-.signup-form input {
-  min-width: 0;
-  flex: 1 1 240px;
-  width: 100%;
-  padding: 16px 20px;
-  border: 1.5px solid var(--pine);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--pine);
-  font: 400 16px/1 var(--font-sans);
-}
-.signup-form input::placeholder {
-  color: var(--pine-70);
-}
-.signup-form input:focus-visible {
-  border-color: var(--cumin);
+.cta-alt a:hover {
+  color: rgba(245, 244, 239, 0.75);
 }
 .button:disabled {
   opacity: 0.5;
@@ -627,9 +611,6 @@ h1 em {
 .button-primary:disabled:hover {
   background: var(--pine);
   color: var(--parchment);
-}
-.signup-form input:disabled {
-  cursor: not-allowed;
 }
 .site-footer {
   display: flex;

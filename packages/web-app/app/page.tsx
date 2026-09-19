@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import wordmark from "../public/brand/wordmark.png";
 import logomark from "../public/brand/logomark.png";
 import session from "../public/brand/coach-session.jpg";
@@ -115,9 +116,12 @@ export default function Home() {
               {label}
             </a>
           ))}
-          <a className="button button-primary nav-button" href="#start">
+          <Link className="nav-login" href="/login">
+            Log in
+          </Link>
+          <Link className="button button-primary nav-button" href="/login">
             Start free
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -134,9 +138,9 @@ export default function Home() {
               between sessions.
             </p>
             <div className="button-group">
-              <a className="button button-primary" href="#start">
+              <Link className="button button-primary" href="/login">
                 Start free
-              </a>
+              </Link>
               <a className="button button-secondary" href="#how">
                 Explore the method
               </a>
@@ -310,9 +314,9 @@ export default function Home() {
                 Your methods, applied consistently by the agent
               </li>
             </ul>
-            <a className="button button-secondary" href="#start">
+            <Link className="button button-secondary" href="/pro/login">
               Set up your practice
-            </a>
+            </Link>
           </div>
         </section>
 
@@ -328,30 +332,14 @@ export default function Home() {
             <p className="cta-lead">
               Pick a goal, meet your coach and get started.
             </p>
-            <div className="signup-preview">
-              <form
-                className="signup-form"
-                aria-label="Signup preview"
-                aria-describedby="signup-note"
-              >
-                <label className="sr-only" htmlFor="signup-email">
-                  Email address
-                </label>
-                <input
-                  id="signup-email"
-                  type="email"
-                  placeholder="you@example.com"
-                  disabled
-                />
-                <button
-                  className="button button-primary"
-                  type="submit"
-                  disabled
-                >
-                  Start free
-                </button>
-              </form>
-              <p id="signup-note">Signups are not open yet. Check back soon.</p>
+            <div className="cta-actions">
+              <Link className="button button-primary" href="/login">
+                Start for free
+              </Link>
+              <p className="cta-alt">
+                Are you a coach?{" "}
+                <Link href="/pro/login">Set up your practice</Link>
+              </p>
             </div>
           </div>
         </section>
