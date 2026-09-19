@@ -352,8 +352,10 @@ export default async function Home({ params }: { params: LocaleParams }) {
             sizes="(max-width: 600px) 100vw, 700px"
           />
           <div className="container cta-content">
-            <h2 id="start-heading">{t("cta.title")}</h2>
-            <p className="cta-lead">{t("cta.body")}</p>
+            <div className="cta-text">
+              <h2 id="start-heading">{t("cta.title")}</h2>
+              <p className="cta-lead">{t("cta.body")}</p>
+            </div>
             <div className="cta-actions">
               <Link className="button button-primary" href="/login">
                 {t("cta.button")}

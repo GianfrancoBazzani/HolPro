@@ -34,6 +34,19 @@
   --section-y: clamp(40px, 6vw, 88px);
   --section-y-lg: clamp(48px, 7vw, 104px);
   --section-y-xl: clamp(64px, 10vw, 140px);
+  --space-1: 6px;
+  --space-2: 8px;
+  --space-3: 10px;
+  --space-4: 12px;
+  --space-5: 14px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+  --space-9: 28px;
+  --space-10: 32px;
+  --space-fluid-sm: clamp(16px, 3vw, 36px);
+  --space-fluid-md: clamp(32px, 4vw, 56px);
+  --space-fluid-lg: clamp(32px, 5vw, 72px);
 }
 
 @theme inline {
@@ -573,18 +586,27 @@ h1 em {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 28px;
+  gap: var(--space-fluid-md);
   padding-block: var(--section-y-xl);
+}
+.cta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-7);
 }
 .cta h2 {
   font-size: clamp(48px, 7vw, 104px);
   line-height: 0.95;
   letter-spacing: -0.02em;
+  max-width: 14ch;
+  text-wrap: balance;
 }
 .cta-lead {
   font-size: clamp(19px, 1.3vw, 20px);
   font-weight: 700;
   max-width: 520px;
+  text-wrap: balance;
 }
 .cta-actions {
   display: flex;
