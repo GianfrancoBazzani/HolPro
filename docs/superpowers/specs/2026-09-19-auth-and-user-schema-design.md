@@ -1,7 +1,7 @@
 # Authentication and user schema — design
 
 Date: 2026-09-19
-Status: approved for planning
+Status: approved for planning (revision 2)
 
 ## 1. Goal
 
@@ -12,7 +12,7 @@ Add the first version of identity and access to HolPro:
 - Two login portals with the same components: one for coachees at `/login`, one for coaches at `/pro/login`.
 - Two placeholder signed-in areas: `/app` for coachees and `/pro` for coaches.
 
-Out of scope: OAuth providers, profile editing, coach discovery, engagement creation, any real dashboard content.
+Out of scope: OAuth providers, profile editing, coach discovery, engagement creation, any real dashboard content, admin tools.
 
 ## 2. Decisions
 
@@ -20,10 +20,11 @@ Out of scope: OAuth providers, profile editing, coach discovery, engagement crea
 |---|---|
 | Role model | Class-table inheritance. One `users` row per email. A `coaches` or `coachees` row gives the role. A person can hold both roles later, but registration creates one. |
 | Wrong portal | A login on the wrong portal fails. The app signs the person out and shows an error. |
-| Role assignment | A gate at the boundary of each signed-in area, not a Better Auth hook. See section 5. |
+| Role assignment | A read-only gate at the boundary of each signed-in area sends a user without a role to a welcome page. A Server Action on that page creates the role. No writes happen during a render. See section 5.4. |
 | OAuth | None in this version. The `accounts` table stays because Better Auth stores password hashes there. |
 | Database code | A workspace package `packages/db`, name `@holpro/db`. The web app imports it. |
-| Database | MySQL 8.0.16 or newer. The user provisions it. The app assumes `DATABASE_URL` works. |
+| Database | MySQL 8.0.16 or newer, `utf8mb4`. The user provisions it. The app assumes `DATABASE_URL` works. |
+| Rate limit storage | Database. In-memory storage does not work across several instances or serverless functions. |
 
 ## 3. Package layout
 
@@ -36,7 +37,7 @@ packages/
       index.ts            exports schema, relations, db client
       client.ts           mysql2 pool + drizzle instance, timezone 'Z'
       schema/
-        auth.ts           users, sessions, accounts, verifications
+        auth.ts           users, sessions, accounts, verifications, rate_limits
         coaching.ts       coaches, coach_specialties, coachees, engagements
         relations.ts      drizzle relations()
         index.ts
@@ -44,22 +45,25 @@ packages/
     test/
   web-app/
     proxy.ts
+    .env.example
     app/
-      api/auth/[...all]/route.ts
-      login/                      coachee portal
+      api/auth/[...all]/route.ts     Better Auth handler
+      api/gate/reject/route.ts       sign out + redirect on wrong portal
+      login/                         coachee portal
         page.tsx
         sent/page.tsx
         reset/page.tsx
-        verify/page.tsx
-      pro/login/                  coach portal, same pages
+        welcome/page.tsx
+      pro/login/                     coach portal, same pages
       app/layout.tsx  app/page.tsx
       pro/layout.tsx  pro/page.tsx
     lib/
       auth/
         server.ts         betterAuth() instance
         client.ts         createAuthClient()
-        portals.ts        portal config
-        gate.ts           requirePortalUser()
+        portals.ts        portal config and URL builders
+        gate.ts           requirePortalUser(), decideGate()
+        repository.ts     loadUserWithRoles(), registerRole()
         actions.ts        server actions for forms
         schemas.ts        zod schemas
       email/
@@ -81,6 +85,8 @@ MySQL has no `UUID` and no `TIMESTAMPTZ`.
 | `TEXT` + `CHECK` | `varchar(16)` + `CHECK` | MySQL enforces `CHECK` from 8.0.16. `TEXT` cannot have a default. |
 | `TEXT` timezone | `varchar(64)` | IANA names are at most 40 characters. |
 
+Every table uses `utf8mb4` with the server default collation `utf8mb4_0900_ai_ci`. That collation compares emails without case, so the unique index on `users.email` also rejects `Foo@x.com` next to `foo@x.com`.
+
 ### 4.2 Tables
 
 Better Auth field names are camelCase. The Drizzle schema maps each field to a snake_case column name. Better Auth reads the mapping from the schema.
@@ -90,11 +96,11 @@ Better Auth field names are camelCase. The Drizzle schema maps each field to a s
 | Column | Type | Note |
 |---|---|---|
 | `id` | `char(36)` PK | Better Auth |
-| `full_name` | `varchar(255)` NOT NULL | Better Auth field `name` |
+| `full_name` | `varchar(255)` NOT NULL | Better Auth field `name`. Magic link sign-up leaves it empty until the welcome page. |
 | `email` | `varchar(255)` NOT NULL UNIQUE | Better Auth |
 | `email_verified` | `boolean` NOT NULL default false | Better Auth |
 | `image_url` | `text` nullable | Better Auth field `image` |
-| `timezone` | `varchar(64)` NOT NULL default `'UTC'` | Gate replaces with browser timezone |
+| `timezone` | `varchar(64)` NOT NULL default `'UTC'` | The welcome page sets the browser timezone. |
 | `status` | `varchar(16)` NOT NULL default `'pending'` | CHECK in (`pending`, `active`, `suspended`) |
 | `email_verified_at` | `datetime(3)` nullable | Set when `email_verified` turns true |
 | `created_at` | `datetime(3)` NOT NULL default now | |
@@ -137,6 +143,15 @@ Better Auth field names are camelCase. The Drizzle schema maps each field to a s
 | `expires_at` | `datetime(3)` NOT NULL |
 | `created_at`, `updated_at` | `datetime(3)` NOT NULL |
 
+`rate_limits` (Better Auth model `rateLimit`)
+
+| Column | Type |
+|---|---|
+| `id` | `char(36)` PK |
+| `key` | `varchar(255)` NOT NULL, index |
+| `count` | `int` NOT NULL |
+| `last_request` | `bigint` NOT NULL |
+
 `coaches`
 
 | Column | Type |
@@ -167,11 +182,13 @@ Primary key `(coach_id, specialty)`. MySQL cannot put a `TEXT` column in a prima
 | Column | Type |
 |---|---|
 | `id` | `char(36)` PK |
-| `coach_id` | `char(36)` NOT NULL FK → coaches.user_id ON DELETE RESTRICT, index |
-| `coachee_id` | `char(36)` NOT NULL FK → coachees.user_id ON DELETE RESTRICT, index |
+| `coach_id` | `char(36)` NOT NULL FK → coaches.user_id ON DELETE RESTRICT |
+| `coachee_id` | `char(36)` NOT NULL FK → coachees.user_id ON DELETE RESTRICT |
 | `status` | `varchar(16)` NOT NULL default `'active'`, CHECK in (`active`, `ended`) |
 | `started_at` | `datetime(3)` NOT NULL default now |
 | `ended_at` | `datetime(3)` nullable |
+
+Indexes: `(coach_id, status)` and `(coachee_id, status)`. MySQL has no partial unique index, so "one active engagement per pair" is an application rule, not a constraint.
 
 An engagement is a record. A coach or coachee delete must not remove it. Soft delete on `users` is the intended path.
 
@@ -184,9 +201,15 @@ Drizzle `relations()`:
 - coaches 1:N coach_specialties
 - coaches 1:N engagements, coachees 1:N engagements
 
-### 4.4 Migrations
+### 4.4 Client
 
-`drizzle-kit generate` writes SQL to `packages/db/drizzle/`. The first migration is committed. `drizzle-kit migrate` runs after the MySQL server exists. Scripts in `@holpro/db`: `db:generate`, `db:migrate`, `db:studio`.
+`src/client.ts` creates one `mysql2/promise` pool with `timezone: "Z"`, `connectionLimit: 5` and `charset: "utf8mb4"`. In development the pool is stored on `globalThis`, so hot reload does not open a new pool on each change. The Drizzle instance uses `mode: "default"` and the full schema, so relational queries work.
+
+### 4.5 Migrations and environment
+
+`drizzle-kit generate` writes SQL to `packages/db/drizzle/`. The first migration is committed. `drizzle-kit migrate` runs after the MySQL server exists.
+
+`drizzle.config.ts` reads `DATABASE_URL` from the process environment. It loads `../web-app/.env.local` with `dotenv` when that file exists, so local development has one place for secrets. Scripts in `@holpro/db`: `db:generate`, `db:migrate`, `db:studio`.
 
 ## 5. Authentication
 
@@ -197,19 +220,22 @@ File `packages/web-app/lib/auth/server.ts`.
 - Adapter: `drizzleAdapter(db, { provider: "mysql", usePlural: true, schema })`.
 - `advanced.database.generateId: "uuid"`.
 - `baseURL` from `BETTER_AUTH_URL`, `secret` from `BETTER_AUTH_SECRET`. `trustedOrigins` is `[BETTER_AUTH_URL]`.
-- `user.additionalFields`: `timezone` (string, default `UTC`, input true), `status` (string, default `pending`, input false), `emailVerifiedAt` (date, input false), `deletedAt` (date, input false). Field to column mapping: `name → full_name`, `image → image_url`, and snake_case for every other field.
+- `advanced.ipAddress.ipAddressHeaders: ["x-forwarded-for"]`. The reverse proxy in front of the app must set this header. Without it, every request shares one rate limit bucket.
+- `user.additionalFields`: `timezone` (string, default `UTC`, input false), `status` (string, default `pending`, input false), `emailVerifiedAt` (date, input false), `deletedAt` (date, input false). Only server code changes these. Field to column mapping: `name → full_name`, `image → image_url`, and snake_case for every other field.
 - `emailAndPassword`: enabled, `requireEmailVerification: true`, `minPasswordLength: 12`, `maxPasswordLength: 128`, `autoSignIn: false`, `sendResetPassword`, `resetPasswordTokenExpiresIn: 900`, `revokeSessionsOnPasswordReset: true`.
 - `emailVerification`: `sendOnSignUp: true`, `autoSignInAfterVerification: true`, `sendVerificationEmail`, `afterEmailVerification` sets `status: active` and `emailVerifiedAt: now`.
 - Plugin `magicLink`: `expiresIn: 300`, `disableSignUp: false`, `sendMagicLink`.
 - `session`: `expiresIn` 7 days, `updateAge` 1 day, `cookieCache` enabled for 5 minutes.
 - `advanced.useSecureCookies` true in production. Cookies are `httpOnly` and `sameSite: lax` by default.
-- `rateLimit`: enabled in every environment except test. Custom rules: `/sign-in/magic-link` and `/request-password-reset` 3 per 60 s, `/sign-in/email` 5 per 60 s, `/sign-up/email` 3 per 60 s.
-- `databaseHooks.user.create.before`: if `emailVerified` is true, set `status: active` and `emailVerifiedAt: now`.
-- `databaseHooks.session.create.before`: load the user; if `status` is `suspended` or `deletedAt` is set, throw `APIError("FORBIDDEN")`.
+- `rateLimit`: `enabled: true` except in test, `storage: "database"`, `modelName: "rateLimit"`. Custom rules: `/sign-in/magic-link` and `/request-password-reset` 3 per 60 s, `/sign-in/email` 5 per 60 s, `/sign-up/email` 3 per 60 s.
+- `databaseHooks.user.create.before`: if `emailVerified` is true, set `status: active` and `emailVerifiedAt: now`. Magic link sign-ups arrive this way.
+- `databaseHooks.session.create.before`: load the user; if `status` is `suspended` or `deletedAt` is set, throw `APIError("FORBIDDEN")`. This blocks new logins. The gate blocks existing sessions (section 5.4).
+
+The plan verifies each option name against the installed `better-auth` version before use.
 
 Route handler: `app/api/auth/[...all]/route.ts` exports `GET` and `POST` from `toNextJsHandler(auth)`.
 
-Client: `lib/auth/client.ts` exports `createAuthClient` with `magicLinkClient` and `inferAdditionalFields<typeof auth>()`.
+Client: `lib/auth/client.ts` exports `createAuthClient` with `magicLinkClient` and `inferAdditionalFields<typeof auth>()`. The import of `auth` is type-only.
 
 ### 5.2 Environment variables
 
@@ -221,7 +247,7 @@ Client: `lib/auth/client.ts` exports `createAuthClient` with `magicLinkClient` a
 | `RESEND_API_KEY` | Resend key. Empty in development logs links to the console. |
 | `EMAIL_FROM` | e.g. `HolPro <hello@holpro.app>` |
 
-`deploy/.env.example` lists them with empty values.
+Local development: `packages/web-app/.env.local`, from the template `packages/web-app/.env.example`. Next.js loads it. The `@holpro/db` config loads the same file. Deployment: the platform or Docker sets the variables. `deploy/.env.example` lists all of them with empty values next to `PORT`.
 
 ### 5.3 Portals
 
@@ -238,38 +264,69 @@ type Portal = {
 };
 ```
 
-Every page, action and email receives a `Portal`. Callback URLs are built from it: magic link → `${homePath}`, new user → `${homePath}`, verification → `${basePath}/verify`, reset → `${basePath}/reset`, error → `${basePath}?error=link_invalid`.
+Every page, action and email receives a `Portal`. URL builders on the portal:
+
+| Purpose | URL |
+|---|---|
+| Magic link callback, new and existing user | `homePath` |
+| Magic link error | `${basePath}?error=link_invalid` |
+| Email verification callback | `homePath` |
+| Password reset page | `${basePath}/reset` |
+| Welcome page | `${basePath}/welcome` |
+| Sent page | `${basePath}/sent?kind=magic|verify|reset` |
+
+`portalFromPath(pathname)` returns the portal for `/pro/...` or the coachee portal otherwise. The proxy and the reject handler use it.
 
 ### 5.4 Gate
 
-`lib/auth/gate.ts` exports `requirePortalUser(portal)`. The layouts under `/app` and `/pro` call it. Sequence:
+`lib/auth/gate.ts` exports `requirePortalUser(portal)`. The layouts under `/app` and `/pro` call it. The gate only reads and redirects. It never writes, because a Server Component render cannot set cookies and must not mutate on a GET.
 
-1. `auth.api.getSession({ headers })`. No session → `redirect(portal.basePath)`.
-2. Load the user with `coach` and `coachee` relations in one query.
-3. Decide with the pure function `decideGate({ hasCoach, hasCoachee, portal })`:
+Sequence:
+
+1. `auth.api.getSession({ headers })`. No session → `redirect(basePath + preserved error query)`. Better Auth appends `?error=<code>` to the callback URL when a verification or magic link fails. The gate maps `invalid_token`, `token_expired` and `INVALID_TOKEN` to `link_invalid` and drops unknown codes.
+2. `loadUserWithRoles(userId)` from `repository.ts`. One relational query that returns the user with `coach` and `coachee`.
+3. `decideGate({ status, deletedAt, hasCoach, hasCoachee, portal })`, a pure function:
+   - `blocked` when `status` is `suspended` or `deletedAt` is set.
    - `enter` when the portal role exists.
    - `register` when no role exists.
    - `reject` when only the other role exists.
-4. `register`: in a transaction, insert the child row for the portal, set `timezone` from the `hp_tz` cookie when it is a valid IANA name, set `status: active` when `emailVerified` is true. Return the user.
-5. `reject`: `auth.api.signOut({ headers })`, then `redirect(\`${portal.basePath}?error=wrong_portal\`)`.
+4. `enter`: return the user.
+5. `register`: `redirect(\`${basePath}/welcome\`)`.
+6. `reject`: `redirect(\`/api/gate/reject?portal=${portal.key}\`)`.
+7. `blocked`: `redirect(\`/api/gate/reject?portal=${portal.key}&reason=account_unavailable\`)`.
 
-The login page sets the `hp_tz` cookie on load from `Intl.DateTimeFormat().resolvedOptions().timeZone`. The cookie is not `httpOnly`, lasts 1 year, `sameSite: lax`. The password sign-up form also sends `timezone` in the sign-up body.
+`app/api/gate/reject/route.ts` is a GET route handler. It calls `auth.api.signOut({ headers })`, which clears the session cookie, then redirects to `${basePath}?error=wrong_portal` or `?error=account_unavailable`. It validates `portal` and `reason` against the known values and ignores anything else, so it cannot become an open redirect.
 
-### 5.5 Proxy
+### 5.5 Welcome page
 
-`packages/web-app/proxy.ts` matches `/app/:path*` and `/pro/:path*`. It reads the session cookie with `getSessionCookie(request)` from `better-auth/cookies`. No cookie → redirect to the portal login. This is an optimistic check. The gate is the real check.
+`{basePath}/welcome` completes a registration. It requires a session; without one it redirects to `basePath`. If the user already has this portal's role, it redirects to `homePath`. If the user has only the other role, it redirects to the reject handler.
 
-### 5.6 Pages
+The page shows: "You are creating a {coach/coachee} account for {email}." A form asks for the full name, prefilled when known. A hidden field carries `Intl.DateTimeFormat().resolvedOptions().timeZone`. One button: "Continue".
+
+The Server Action `completeRegistration(portal, form)`:
+
+1. Validates the name (2 to 120 characters) and the timezone (`Intl.supportedValuesOf("timeZone")` contains it, else `UTC`).
+2. Re-runs `decideGate`. Only `register` continues. This closes the race where two tabs submit at once, together with the primary key on the child table.
+3. In one transaction: update `full_name` and `timezone` on `users`, insert the child row for the portal.
+4. Redirects to `homePath`.
+
+This page covers both the cross-device case, where a magic link opens on a phone without any cookie, and the missing-name case for magic link sign-ups. The person confirms the role once, in clear words.
+
+### 5.6 Proxy
+
+`packages/web-app/proxy.ts` runs on `/app`, `/app/:path*`, `/pro` and `/pro/:path*`. In code it returns `NextResponse.next()` for any path that starts with `/pro/login`, because `/pro/:path*` also matches the coach login pages and a redirect there would loop. For the rest, it reads the session cookie with `getSessionCookie(request)` from `better-auth/cookies`. No cookie → redirect to the portal `basePath`. This is an optimistic check. The gate is the real check.
+
+### 5.7 Pages
 
 | Route | Content |
 |---|---|
-| `{basePath}` | Two tabs: "Email me a link" and "Password". The password tab switches between sign-in and sign-up. Sign-up asks for full name, email, password. Link "Forgot password?" opens a small form for the email. Query `error=wrong_portal` shows "This account is not a {coach/coachee} account. Use the other login." Query `error=link_invalid` shows "This link is invalid or expired. Request a new one." |
+| `{basePath}` | Two tabs: "Email me a link" and "Password". The password tab switches between sign-in and sign-up. Sign-up asks for full name, email, password. Link "Forgot password?" opens a small form for the email. Query errors: `wrong_portal` → "This account is not a {coach/coachee} account. Use the other login." `link_invalid` → "This link is invalid or expired. Request a new one." `account_unavailable` → "This account is not available. Contact support." Query `reset=ok` → "Password updated. Sign in." |
 | `{basePath}/sent` | "Check your inbox." Reads `kind=magic|reset|verify` from the query and adapts the copy. Neutral text: "If an account exists for this address, we sent a link." |
 | `{basePath}/reset` | New password and confirmation. Reads `token` from the query. Missing token → error state. On success, redirect to `{basePath}?reset=ok`. |
-| `{basePath}/verify` | Landing after email verification. Shows "Email verified" and a "Continue" button to `homePath`. |
+| `{basePath}/welcome` | Section 5.5. |
 | `{homePath}` | Placeholder. Heading "Welcome, {full_name}", the role label, and a sign-out button. |
 
-### 5.7 Forms and actions
+### 5.8 Forms and actions
 
 Client components with `useActionState` and Server Actions in `lib/auth/actions.ts`. Server-side validation with `zod` schemas in `lib/auth/schemas.ts`. Actions call `auth.api.*` with `headers()` so cookies propagate.
 
@@ -277,14 +334,15 @@ Actions:
 
 - `sendMagicLink(portal, form)` → neutral success, redirect to `sent?kind=magic`.
 - `signInWithPassword(portal, form)` → on success redirect to `homePath`; on `EMAIL_NOT_VERIFIED` show "Verify your email first" with a resend button; on invalid credentials show one generic error.
-- `signUpWithPassword(portal, form)` → neutral success, redirect to `sent?kind=verify`. An existing email gets the same message.
+- `signUpWithPassword(portal, form)` → neutral success, redirect to `sent?kind=verify`. `USER_ALREADY_EXISTS` gets the same message.
 - `requestPasswordReset(portal, form)` → neutral success, redirect to `sent?kind=reset`.
 - `resetPassword(portal, form)` → on success redirect to `{basePath}?reset=ok`; on bad token show the error state.
+- `completeRegistration(portal, form)` → section 5.5.
 - `signOut()` → redirect to `/`.
 
 Every input has a visible label. Errors render under the field with `aria-describedby`. Submit buttons show a busy state and are disabled while pending.
 
-### 5.8 UI
+### 5.9 UI
 
 Follow `brand-assets/STYLE.md`. Layout: a two-column grid, `repeat(auto-fit, minmax(min(100%, 420px), 1fr))`. Left column is a Pine panel with the Pine stem artboard (`Artboard 20`) faded with `mask-image`, the Parchment wordmark and one serif line. Right column is the form on Parchment.
 
@@ -296,9 +354,9 @@ Follow `brand-assets/STYLE.md`. Layout: a two-column grid, `repeat(auto-fit, min
 - Coach portal: the Pine panel uses a Pistachio leaf accent. Coachee portal: an Orchid leaf accent.
 - No shadows, no gradients on surfaces, radius 20px or more on boxes.
 
-### 5.9 Email
+### 5.10 Email
 
-`lib/email/resend.ts` exports `sendEmail({ to, subject, html, text })`. It uses the `resend` package. When `RESEND_API_KEY` is empty and `NODE_ENV !== "production"`, it logs `to`, `subject` and every URL from `text` to the console and returns.
+`lib/email/resend.ts` exports `sendEmail({ to, subject, html, text })`. It uses the `resend` package. When `RESEND_API_KEY` is empty and `NODE_ENV !== "production"`, it logs `to`, `subject` and every URL from `text` to the console and returns. In production a missing key throws at startup.
 
 Templates in `lib/email/templates/`: `magicLink`, `verifyEmail`, `resetPassword`. Each is a function `(params: { url, portal }) => { subject, html, text }`. HTML uses inline styles: Parchment background, Pine text, Manrope with system fallback, one Pine pill button, the Pine wordmark from `BETTER_AUTH_URL/brand/wordmark.png`, and a footer line "If you did not request this, ignore this email." Every template includes the plain URL as text for clients that block buttons.
 
@@ -307,7 +365,8 @@ Templates in `lib/email/templates/`: `magicLink`, `verifyEmail`, `resetPassword`
 - Auth actions catch `APIError` from Better Auth and map known codes to user copy. Unknown errors log server-side and show "Something went wrong. Try again."
 - Email send failures log server-side. The user still sees the neutral "Check your inbox" page. A retry lives in the form.
 - Database connection failure at gate time throws, and the Next.js error boundary shows a generic page.
-- The gate never leaks the other role in the wrong-portal message beyond "not a coach account" or "not a coachee account", which the person already knows from the page they used.
+- The reject handler accepts only known `portal` and `reason` values.
+- The wrong-portal message says only "not a coach account" or "not a coachee account", which the person already knows from the page they used.
 
 ## 7. Testing
 
@@ -316,34 +375,38 @@ Vitest in both packages. Root `pnpm test` runs `pnpm -r run test`.
 `packages/db`:
 
 - Schema drift test: run `drizzle-kit generate` into a temp folder and assert it produces no new migration.
-- SQL assertions on the committed migration: `CHECK` constraints on `users.status` and `engagements.status`, `ON DELETE RESTRICT` on engagement FKs, `ON DELETE CASCADE` on child tables, unique `users.email` and `sessions.token`.
+- SQL assertions on the committed migration: `CHECK` constraints on `users.status` and `engagements.status`, `ON DELETE RESTRICT` on engagement FKs, `ON DELETE CASCADE` on child tables, unique `users.email` and `sessions.token`, the `rate_limits` table.
 
 `packages/web-app`:
 
-- `portals.ts`: URL builders return the expected paths for both portals.
-- `decideGate`: all combinations of `hasCoach`, `hasCoachee`, `portal`.
-- Timezone cookie validation: accepts `America/Lima`, rejects `Evil/Value` and empty. Uses `Intl.supportedValuesOf("timeZone")`.
-- Zod schemas: password length bounds, email format, password confirmation match.
+- `portals.ts`: URL builders and `portalFromPath` return the expected values for both portals.
+- `decideGate`: all combinations of `status`, `deletedAt`, `hasCoach`, `hasCoachee`, `portal`.
+- Error code mapping: `invalid_token` → `link_invalid`, unknown → dropped.
+- Timezone validation: accepts `America/Lima`, falls back to `UTC` for `Evil/Value` and empty.
+- Zod schemas: password length bounds, email format, password confirmation match, name length.
+- Reject handler: rejects unknown `portal` and `reason` values.
 - Email templates: snapshot per template per portal, and every template's `text` contains the URL.
-- The gate uses a repository interface `{ loadUserWithRoles, registerRole }`. Tests pass a fake. No MySQL in tests.
+- The gate and `completeRegistration` use `repository.ts`. Tests pass a fake. No MySQL in tests.
 
 ## 8. Dependencies to add
 
 | Package | Where | Version policy |
 |---|---|---|
 | `drizzle-orm`, `mysql2` | `@holpro/db` | latest stable, exact (workspace `saveExact`) |
-| `drizzle-kit` | `@holpro/db` dev | latest stable |
+| `drizzle-kit`, `dotenv` | `@holpro/db` dev | latest stable |
 | `better-auth` | `web-app` | latest stable |
 | `resend` | `web-app` | latest stable |
 | `zod` | `web-app` | latest stable |
 | `vitest` | both, dev | latest stable |
 | `@holpro/db` | `web-app` | `workspace:*` |
 
-`web-app/tsconfig.json` keeps `@/*`. `next.config.ts` adds `transpilePackages: ["@holpro/db"]` if the package ships TypeScript source.
+`web-app/tsconfig.json` keeps `@/*`. `next.config.ts` adds `transpilePackages: ["@holpro/db"]` because the package ships TypeScript source.
 
 ## 9. Open items for later
 
 - OAuth providers. The `accounts` table and Better Auth make this a config change plus a button.
 - Profile editing: timezone, name, coach bio and specialties.
 - Coach onboarding steps after the placeholder `/pro` page.
-- Engagement creation and the coachee assistant.
+- Engagement creation and the coachee assistant. Enforce one active engagement per pair in the service layer.
+- Admin: suspend a user and revoke their sessions in one step. Soft delete should also replace the email with a tombstone value, or the unique index blocks a new sign-up with that address.
+- Second role for an existing user: an explicit "become a coach" flow, not a wrong-portal login.
