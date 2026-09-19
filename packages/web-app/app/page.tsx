@@ -37,7 +37,7 @@ const audiences = [
 const steps = [
   {
     title: "Share your goal",
-    body: "Tell us what you want to change: a race, a habit, your food, your focus. Any coach type, any level.",
+    body: "Tell us what you want to change. A race, a habit, your food, your focus. Any coach type, any level.",
   },
   {
     title: "Meet your coach",
@@ -84,6 +84,13 @@ const features = [
     body: "Sports, nutrition, mindset, habits and whatever comes next.",
     color: "orchid",
   },
+];
+
+const disciplines = [
+  { label: "Sport", color: "pistachio" },
+  { label: "Nutrition", color: "orchid" },
+  { label: "Mindset", color: "cumin" },
+  { label: "Habits", color: "parchment" },
 ];
 
 export default function Home() {
@@ -150,27 +157,40 @@ export default function Home() {
             </div>
             <div className="hero-tile leaf-alt fill-cumin" />
             <div className="hero-tile leaf fill-pine">
-              <Image
-                src={mindfulness}
-                alt=""
-                fill
-                sizes="(max-width: 940px) 45vw, 260px"
-              />
+              <span className="leaf-decor">
+                <span className="leaf-cluster">
+                  <span className="leaf" />
+                  <span className="leaf-alt" />
+                  <span className="leaf-alt" />
+                  <span className="leaf" />
+                </span>
+              </span>
             </div>
           </div>
         </header>
 
         <section
           className="audiences container section"
-          aria-label="Coaching for you, coaches and teams"
+          aria-labelledby="audiences-heading"
         >
-          {audiences.map(({ label, title, body, surface }) => (
-            <article className={`audience-card surface-${surface}`} key={label}>
-              <p className="eyebrow">{label}</p>
-              <h2>{title}</h2>
-              <p>{body}</p>
-            </article>
-          ))}
+          <div className="section-heading">
+            <p className="eyebrow">Who it is for</p>
+            <h2 id="audiences-heading">
+              Built for the person, the coach and the team.
+            </h2>
+          </div>
+          <div className="audience-grid">
+            {audiences.map(({ label, title, body, surface }) => (
+              <article
+                className={`audience-card surface-${surface}`}
+                key={label}
+              >
+                <p className="eyebrow">{label}</p>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section
@@ -220,10 +240,14 @@ export default function Home() {
                   Everything between sessions, handled.
                 </h2>
               </div>
-              <p>
-                Supports every coach type: sports, nutrition, mindset, habits
-                and more.
-              </p>
+              <ul className="legend" aria-label="Coaching disciplines">
+                {disciplines.map(({ label, color }) => (
+                  <li key={label}>
+                    <span className={`dot fill-${color}`} aria-hidden="true" />
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="features-grid">
               {features.map(({ title, body, color }) => (
@@ -269,8 +293,8 @@ export default function Home() {
             </h2>
             <p>
               Freelancers and teams get an agentic infrastructure that follows
-              up, tracks progress and prepares each session. You stay the coach;
-              the agent does the admin.
+              up, tracks progress and prepares each session. You stay the coach.
+              The agent does the admin.
             </p>
             <ul className="checklist">
               <li>
@@ -305,7 +329,6 @@ export default function Home() {
               Pick a goal, meet your coach and get started.
             </p>
             <div className="signup-preview">
-              <p id="signup-note">Signups are not open yet. Check back soon.</p>
               <form
                 className="signup-form"
                 aria-label="Signup preview"
@@ -328,6 +351,7 @@ export default function Home() {
                   Start free
                 </button>
               </form>
+              <p id="signup-note">Signups are not open yet. Check back soon.</p>
             </div>
           </div>
         </section>

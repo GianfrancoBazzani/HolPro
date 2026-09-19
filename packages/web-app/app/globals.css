@@ -60,6 +60,15 @@
 * {
   box-sizing: border-box;
 }
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+::selection {
+  background: var(--pistachio);
+  color: var(--pine);
+}
 body {
   margin: 0;
   background: var(--bg);
@@ -286,6 +295,31 @@ h1 em {
   max-width: 120px;
   height: auto;
 }
+.leaf-decor {
+  position: absolute;
+  inset: 22%;
+  animation: sway 6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+.leaf-cluster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  height: 100%;
+  transform: rotate(45deg);
+}
+.leaf-cluster > span {
+  background: var(--pine-tint);
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
 .fill-orchid,
 .surface-orchid {
   background: var(--orchid);
@@ -315,6 +349,11 @@ h1 em {
   color: var(--pistachio);
 }
 .audiences {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(32px, 4vw, 56px);
+}
+.audience-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 16px;
@@ -333,10 +372,9 @@ h1 em {
   letter-spacing: 0.1em;
   color: inherit;
 }
-.audience-card h2 {
-  font-size: clamp(28px, 2.6vw, 38px);
-  line-height: 1.05;
-  letter-spacing: 0;
+.audience-card h3 {
+  font: 400 clamp(28px, 2.6vw, 38px) / 1.05 var(--font-serif);
+  text-wrap: balance;
 }
 .audience-card > p:last-child {
   margin-top: auto;
@@ -372,6 +410,9 @@ h1 em {
   padding-block: 28px;
   border-top: 1px solid var(--hairline);
 }
+.steps li:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
 .step-number {
   font: 400 40px/1 var(--font-serif);
   color: var(--cumin);
@@ -404,12 +445,25 @@ h1 em {
   gap: 20px;
   max-width: 640px;
 }
-.features-heading > p {
-  max-width: 380px;
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  /* 320px, not the guide 260px, so the six cards land as 3 by 2, never 4 plus 2. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 16px;
 }
 .feature-card {
@@ -541,6 +595,7 @@ h1 em {
 }
 .signup-preview > p {
   font-size: 14px;
+  color: var(--muted);
 }
 .signup-form {
   display: flex;
@@ -595,7 +650,7 @@ h1 em {
   gap: 8px 24px;
 }
 .copyright {
-  color: var(--pine);
+  color: var(--muted);
 }
 /* Sticky only while the intrinsic grid has room for both columns. */
 @media (min-width: 760px) {
