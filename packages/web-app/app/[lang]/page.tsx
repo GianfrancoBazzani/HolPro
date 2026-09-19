@@ -3,6 +3,7 @@ import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import { localeKeys } from "@/lib/i18n/config";
 import { localePath } from "@/lib/i18n/routes";
 import { baseURL } from "@/lib/auth/portals";
+import { getDashboardHref } from "@/lib/auth/dashboard";
 import { Rich } from "@/components/i18n/rich";
 import { LanguageControl } from "@/components/i18n/language-control";
 import { LocaleHint, type Hints } from "@/components/i18n/locale-hint";
@@ -129,6 +130,7 @@ export default async function Home({ params }: { params: LocaleParams }) {
   const dictionary = await getDictionary(locale);
   const t = translator(dictionary, "landing");
   const common = translator(dictionary, "common");
+  const dashboardHref = await getDashboardHref();
   const hints = Object.fromEntries(
     await Promise.all(
       localeKeys.map(async (key) => [key, (await getDictionary(key)).language]),
@@ -156,11 +158,16 @@ export default async function Home({ params }: { params: LocaleParams }) {
               {t(label)}
             </a>
           ))}
-          <Link className="nav-login" href="/login">
-            {t("nav.login")}
-          </Link>
-          <Link className="button button-primary nav-button" href="/login">
-            {t("start.button")}
+          {!dashboardHref && (
+            <Link className="nav-login" href="/login">
+              {t("nav.login")}
+            </Link>
+          )}
+          <Link
+            className="button button-primary nav-button"
+            href={dashboardHref ?? "/login"}
+          >
+            {t(dashboardHref ? "dashboard.button" : "start.button")}
           </Link>
         </div>
       </nav>
@@ -174,8 +181,11 @@ export default async function Home({ params }: { params: LocaleParams }) {
             </h1>
             <p className="lead">{t("hero.body")}</p>
             <div className="button-group">
-              <Link className="button button-primary" href="/login">
-                {t("start.button")}
+              <Link
+                className="button button-primary"
+                href={dashboardHref ?? "/login"}
+              >
+                {t(dashboardHref ? "dashboard.button" : "start.button")}
               </Link>
               <a className="button button-secondary" href="#how">
                 {t("hero.method")}
@@ -338,8 +348,11 @@ export default async function Home({ params }: { params: LocaleParams }) {
                 {t("coaches.methods")}
               </li>
             </ul>
-            <Link className="button button-secondary" href="/pro/login">
-              {t("coaches.button")}
+            <Link
+              className="button button-secondary"
+              href={dashboardHref ?? "/pro/login"}
+            >
+              {t(dashboardHref ? "dashboard.button" : "coaches.button")}
             </Link>
           </div>
         </section>
@@ -357,13 +370,18 @@ export default async function Home({ params }: { params: LocaleParams }) {
               <p className="cta-lead">{t("cta.body")}</p>
             </div>
             <div className="cta-actions">
-              <Link className="button button-primary" href="/login">
-                {t("cta.button")}
+              <Link
+                className="button button-primary"
+                href={dashboardHref ?? "/login"}
+              >
+                {t(dashboardHref ? "dashboard.button" : "cta.button")}
               </Link>
-              <p className="cta-alt">
-                {t("cta.coach")}{" "}
-                <Link href="/pro/login">{t("coaches.button")}</Link>
-              </p>
+              {!dashboardHref && (
+                <p className="cta-alt">
+                  {t("cta.coach")}{" "}
+                  <Link href="/pro/login">{t("coaches.button")}</Link>
+                </p>
+              )}
             </div>
           </div>
         </section>
