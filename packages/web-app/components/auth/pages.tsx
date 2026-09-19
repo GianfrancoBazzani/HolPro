@@ -40,7 +40,9 @@ export async function LoginPage({
         </p>
       )}
       <LoginForm portal={portal} />
-      <Link href={other.basePath}>{other.label} — use this login</Link>
+      <Link href={other.basePath}>
+        {other.key === "coach" ? "Coaches login" : "User login"}
+      </Link>
     </AuthShell>
   );
 }
