@@ -38,3 +38,42 @@ a deliberate exception to the guide's 14px Cumin and 70%-opacity Pine: those
 pairs fall below WCAG AA's 4.5:1 small-text threshold. The CTA supporting line
 uses 19px bold to meet the large-text threshold. The page includes a skip link,
 visible focus outlines, reduced-motion support and 44px navigation targets.
+
+## Authentication and database
+
+Design: `docs/superpowers/specs/2026-09-19-auth-and-user-schema-design.md`.
+
+Copy `.env.example` to `.env.local` and set `DATABASE_URL`, `BETTER_AUTH_URL`,
+`BETTER_AUTH_SECRET` (at least 32 random bytes, base64) and `EMAIL_FROM`.
+Provision MySQL 8.0.16 or newer with `utf8mb4` and `utf8mb4_0900_ai_ci` as the
+database defaults, for example:
+
+```sql
+CREATE DATABASE holpro CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+```
+
+`deploy/docker-compose.yml` sets these server defaults. From the repository root:
+
+```sh
+pnpm --filter @holpro/db db:migrate
+pnpm --filter web-app dev
+```
+
+`/login` is the coachee portal and `/pro/login` is the coach portal. The
+placeholder homes are `/app` and `/pro`. Without `RESEND_API_KEY` in
+development, email links go to the server console. Production requires the key
+and a verified Resend sender in `EMAIL_FROM`. The rate limiter keys on the client
+address from `x-forwarded-for`. Put the reverse proxy addresses or CIDR ranges
+in `TRUSTED_PROXIES`, so the limiter can skip them in the header chain. Without
+it, only a single-address header counts, and a request with a longer chain
+falls into one shared bucket.
+
+```sh
+pnpm test
+pnpm typecheck
+pnpm --filter web-app lint
+pnpm --filter @holpro/db db:generate
+```
+
+Tests run without MySQL. Live migration and real Resend delivery need
+provisioned services.

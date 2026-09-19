@@ -1,6 +1,5 @@
 # dependencies
 node_modules/
-pnpm-lock.yaml
 .pnp
 .pnp.*
 **/.yarn/*
@@ -31,6 +30,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel/

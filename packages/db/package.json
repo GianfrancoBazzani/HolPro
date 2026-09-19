@@ -1,0 +1,26 @@
+{
+  "name": "@holpro/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "mysql2": "3.24.4"
+  },
+  "devDependencies": {
+    "dotenv": "18.0.0",
+    "drizzle-kit": "0.31.10",
+    "vitest": "5.0.1"
+  }
+}

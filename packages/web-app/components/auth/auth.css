@@ -1,0 +1,158 @@
+/* Layout and auth-only components. Buttons, focus rings, transitions and the
+   heading scale come from app/globals.css. */
+.auth-shell {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: clamp(32px, 5vw, 72px);
+  padding-block: clamp(32px, 6vw, 88px);
+  min-height: 100svh;
+  align-items: center;
+}
+.auth-brand {
+  background: var(--pine);
+  color: var(--parchment);
+  border-radius: var(--radius-card);
+  min-height: 580px;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(32px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  align-self: stretch;
+}
+.auth-pattern {
+  object-fit: cover;
+  opacity: 0.9;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, #000 55%, transparent 98%);
+}
+.auth-wordmark,
+.auth-brand-copy {
+  position: relative;
+}
+.auth-wordmark {
+  align-self: flex-start;
+}
+.auth-wordmark-img {
+  width: auto;
+  height: 48px;
+}
+.auth-brand a:hover {
+  color: var(--pistachio);
+}
+.auth-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.auth-brand-copy p {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 4.5vw, 64px);
+  line-height: 1;
+  text-wrap: balance;
+}
+.auth-leaf {
+  width: 64px;
+  aspect-ratio: 1;
+  border-radius: var(--radius-leaf);
+  background: var(--orchid);
+}
+.auth-brand-coach .auth-leaf {
+  background: var(--pistachio);
+}
+.auth-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 520px;
+  padding-block: 32px;
+}
+.auth-content h1,
+.auth-home h1 {
+  font-size: clamp(40px, 4.5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.auth-form,
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.auth-form {
+  gap: 20px;
+  max-width: 520px;
+}
+.auth-field label {
+  font-weight: 600;
+}
+.auth-field input {
+  width: 100%;
+  min-width: 0;
+  border: 1.5px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  padding: 16px 20px;
+  background: transparent;
+  color: var(--pine);
+  font: inherit;
+}
+.auth-field input:focus {
+  border-color: var(--cumin);
+}
+.auth-tabs {
+  display: flex;
+  padding: 6px;
+  gap: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+}
+/* Segmented control. The pressed segment takes the Pine fill; the submit
+   button below stays the one primary button of the section. */
+.auth-tabs .button {
+  flex: 1;
+  padding: 16px 12px;
+  color: var(--pine);
+}
+.auth-tabs .button:hover,
+.auth-tabs .button:focus-visible {
+  color: var(--cumin);
+}
+.auth-tabs .button[aria-pressed="true"] {
+  background: var(--pine);
+  color: var(--parchment);
+}
+.auth-switch {
+  background: transparent;
+  border: 0;
+  color: var(--pine);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  min-height: 44px;
+}
+.auth-switch:hover {
+  color: var(--cumin);
+}
+.auth-notice {
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-panel);
+  padding: 20px;
+}
+.auth-error {
+  font-size: 14px;
+}
+.auth-home {
+  padding-block: var(--section-y);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+@media (max-width: 899px) {
+  .auth-brand {
+    min-height: 320px;
+  }
+}
