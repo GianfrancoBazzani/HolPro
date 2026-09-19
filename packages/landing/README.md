@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HolPro landing
 
-## Getting Started
+Next.js App Router implementation of `reference-landing.html`, following
+`../../brand-assets/STYLE.md`. The page uses the approved editorial hero,
+Instrument Serif and Manrope through `next/font/google`, and local brand imagery.
+The prototype's custom-element runtime is not needed.
 
-First, run the development server:
+From the repository root (Node 24.21+ and pnpm 12+):
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+pnpm --filter landing dev
+pnpm --filter landing lint
+pnpm --filter landing build
+pnpm --filter landing start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The homepage is at http://localhost:3000. Build before using `start`.
+Google Fonts must be reachable during the build; fonts are self-hosted at runtime.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Assets and content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/page.tsx`: page sections and the reference's audience, step and feature copy.
+- `app/globals.css`: brand tokens, components, responsive grids and focus states.
+- `app/layout.tsx`: fonts and page metadata.
+- `public/brand`: wordmark, logomark and stem patterns copied from `brand-assets`,
+  two photos extracted from the reference, and the existing coach-session photo.
+- `app/icon.png`: HolPro logomark used as the browser icon.
 
-## Learn More
+The reference does not contain a working signup integration or privacy page.
+The signup form is explicitly unavailable and disabled; no emails are collected.
+Connect a real signup destination before enabling it. The placeholder privacy link
+is omitted until there is a policy to link to.
 
-To learn more about Next.js, take a look at the following resources:
+## Accessibility
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Small eyebrow labels and footer copyright use solid Pine on Parchment. This is
+a deliberate exception to the guide's 14px Cumin and 70%-opacity Pine: those
+pairs fall below WCAG AA's 4.5:1 small-text threshold. The CTA supporting line
+uses 19px bold to meet the large-text threshold. The page includes a skip link,
+visible focus outlines, reduced-motion support and 44px navigation targets.

@@ -1,69 +1,356 @@
 import Image from "next/image";
+import wordmark from "../public/brand/wordmark.png";
+import logomark from "../public/brand/logomark.png";
+import session from "../public/brand/coach-session.jpg";
+import mindfulness from "../public/brand/how-photo.webp";
+import coach from "../public/brand/coach-photo.webp";
+import pistachioStem from "../public/brand/pistachio-stem.jpg";
+import cuminStem from "../public/brand/cumin-stem.jpg";
+
+const navigation = [
+  { href: "#how", label: "How it works" },
+  { href: "#features", label: "Features" },
+  { href: "#coaches", label: "For coaches" },
+];
+
+const audiences = [
+  {
+    label: "For you",
+    title: "Find the right coach, then keep going",
+    body: "Matched to vetted coaches by goal. Your assistant agent turns the plan into daily steps and checks in.",
+    surface: "orchid",
+  },
+  {
+    label: "For coaches",
+    title: "Help more people in the same hours",
+    body: "Agentic infrastructure handles follow-ups, progress tracking and scheduling, so your time goes to coaching.",
+    surface: "pistachio",
+  },
+  {
+    label: "For teams",
+    title: "One infrastructure for every coach",
+    body: "Shared client plans, consistent methods and clear outcomes across sports, nutrition, mindset and habits.",
+    surface: "pine",
+  },
+];
+
+const steps = [
+  {
+    title: "Share your goal",
+    body: "Tell us what you want to change: a race, a habit, your food, your focus. Any coach type, any level.",
+  },
+  {
+    title: "Meet your coach",
+    body: "We match you with a vetted coach who sets the plan with you in a first session.",
+  },
+  {
+    title: "Your agent tracks the plan",
+    body: "A personal assistant agent breaks the plan into daily steps, checks in and adjusts when life changes.",
+  },
+  {
+    title: "Coach reviews, you progress",
+    body: "Your coach sees the week in one view and spends the session on what matters, not on catching up.",
+  },
+];
+
+const features = [
+  {
+    title: "Personal assistant agent",
+    body: "Daily check-ins, reminders and logging that follow your coach’s plan.",
+    color: "pistachio",
+  },
+  {
+    title: "Coach matching",
+    body: "Vetted coaches across disciplines, matched by goal, schedule and style.",
+    color: "orchid",
+  },
+  {
+    title: "One shared plan",
+    body: "Coach and client see the same plan, progress and notes in real time.",
+    color: "cumin",
+  },
+  {
+    title: "Session prep",
+    body: "The agent summarises the week so each session starts with context.",
+    color: "parchment",
+  },
+  {
+    title: "Adaptive scheduling",
+    body: "Missed a day? The plan reshuffles without anyone chasing.",
+    color: "pistachio",
+  },
+  {
+    title: "Works for any discipline",
+    body: "Sports, nutrition, mindset, habits and whatever comes next.",
+    color: "orchid",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <a className="skip-link button button-primary" href="#main">
+        Skip to content
+      </a>
+      <nav className="site-nav container" aria-label="Main navigation">
+        <a className="brand-link" href="#" aria-label="HolPro home">
+          <Image
+            className="wordmark"
+            src={wordmark}
+            alt="HolPro"
+            sizes="78px"
+            preload
+          />
+        </a>
+        <div className="nav-links">
+          {navigation.map(({ href, label }) => (
+            <a key={href} href={href}>
+              {label}
+            </a>
+          ))}
+          <a className="button button-primary nav-button" href="#start">
+            Start free
+          </a>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+      </nav>
+
+      <main id="main">
+        <header className="hero container">
+          <div className="hero-copy">
+            <p className="eyebrow">Coaching, with an agent on your side</p>
+            <h1>
+              Unlock <em>yourself.</em>
+            </h1>
+            <p className="lead">
+              Efficient access to the best coaches in sport, nutrition, mindset
+              and habits. A personal assistant agent keeps your plan on track
+              between sessions.
+            </p>
+            <div className="button-group">
+              <a className="button button-primary" href="#start">
+                Start free
+              </a>
+              <a className="button button-secondary" href="#how">
+                See how it works
+              </a>
+            </div>
+          </div>
+          <div className="hero-art" aria-hidden="true">
+            <div className="hero-tile leaf fill-orchid">
+              <Image
+                src={session}
+                alt=""
+                fill
+                sizes="(max-width: 940px) 45vw, 260px"
+                preload
+              />
+            </div>
+            <div className="hero-tile leaf-alt fill-pistachio mark-tile">
+              <Image src={logomark} alt="" sizes="120px" />
+            </div>
+            <div className="hero-tile leaf-alt fill-cumin" />
+            <div className="hero-tile leaf fill-pine">
+              <Image
+                src={mindfulness}
+                alt=""
+                fill
+                sizes="(max-width: 940px) 45vw, 260px"
+              />
+            </div>
+          </div>
+        </header>
+
+        <section
+          className="audiences container section"
+          aria-label="Coaching for you, coaches and teams"
+        >
+          {audiences.map(({ label, title, body, surface }) => (
+            <article className={`audience-card surface-${surface}`} key={label}>
+              <p className="eyebrow">{label}</p>
+              <h2>{title}</h2>
+              <p>{body}</p>
+            </article>
+          ))}
+        </section>
+
+        <section
+          id="how"
+          className="container section how-grid"
+          aria-labelledby="how-heading"
+        >
+          <div className="how-intro">
+            <p className="eyebrow">How it works</p>
+            <h2 id="how-heading">
+              A coach sets the direction. An agent keeps the pace.
+            </h2>
+            <div className="session-photo">
+              <Image
+                src={mindfulness}
+                alt="A man practising mindfulness with his eyes closed and palms together"
+                fill
+                sizes="320px"
+              />
+            </div>
+          </div>
+          <ol className="steps">
+            {steps.map(({ title, body }, index) => (
+              <li key={title}>
+                <span className="step-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section
+          id="features"
+          className="surface-pine"
+          aria-labelledby="features-heading"
+        >
+          <div className="container section-large features-content">
+            <div className="features-heading">
+              <div className="section-heading">
+                <p className="eyebrow">Features</p>
+                <h2 id="features-heading">
+                  Everything between sessions, handled.
+                </h2>
+              </div>
+              <p>
+                Supports every coach type: sports, nutrition, mindset, habits
+                and more.
+              </p>
+            </div>
+            <div className="features-grid">
+              {features.map(({ title, body, color }) => (
+                <article className="feature-card" key={title}>
+                  <span
+                    className={`feature-leaf leaf fill-${color}`}
+                    aria-hidden="true"
+                  />
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="coaches"
+          className="container section-large coaches-grid"
+          aria-labelledby="coaches-heading"
+        >
+          <div className="coach-art">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              className="decoration"
+              src={pistachioStem}
+              alt=""
+              fill
+              sizes="(max-width: 900px) 90vw, 520px"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <div className="coach-portrait leaf">
+              <Image
+                src={coach}
+                alt="A coach working at a laptop"
+                fill
+                sizes="(max-width: 900px) 50vw, 290px"
+              />
+            </div>
+          </div>
+          <div className="coach-copy">
+            <p className="eyebrow">For coaches and teams</p>
+            <h2 id="coaches-heading">
+              Leverage, without losing the personal touch.
+            </h2>
+            <p>
+              Freelancers and teams get an agentic infrastructure that follows
+              up, tracks progress and prepares each session. You stay the coach;
+              the agent does the admin.
+            </p>
+            <ul className="checklist">
+              <li>
+                <span className="dot fill-cumin" aria-hidden="true" />
+                Onboard clients in minutes, not weeks
+              </li>
+              <li>
+                <span className="dot fill-pistachio" aria-hidden="true" />
+                See every client&apos;s week at a glance
+              </li>
+              <li>
+                <span className="dot fill-orchid" aria-hidden="true" />
+                Your methods, applied consistently by the agent
+              </li>
+            </ul>
+            <a className="button button-secondary" href="#start">
+              Set up your practice
+            </a>
+          </div>
+        </section>
+
+        <section id="start" className="cta" aria-labelledby="start-heading">
+          <Image
+            className="cta-pattern decoration"
+            src={cuminStem}
+            alt=""
+            sizes="(max-width: 600px) 100vw, 700px"
+          />
+          <div className="container cta-content">
+            <h2 id="start-heading">Ready to unlock yourself?</h2>
+            <p className="cta-lead">
+              Pick a goal, meet your coach and get started.
+            </p>
+            <div className="signup-preview">
+              <p id="signup-note">Signups are not open yet. Check back soon.</p>
+              <form
+                className="signup-form"
+                aria-label="Signup preview"
+                aria-describedby="signup-note"
+              >
+                <label className="sr-only" htmlFor="signup-email">
+                  Email address
+                </label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  placeholder="you@example.com"
+                  disabled
+                />
+                <button
+                  className="button button-primary"
+                  type="submit"
+                  disabled
+                >
+                  Start free
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
       </main>
-    </div>
+
+      <footer className="site-footer container">
+        <a className="brand-link" href="#" aria-label="HolPro home">
+          <Image
+            className="wordmark"
+            src={wordmark}
+            alt="HolPro"
+            sizes="60px"
+          />
+        </a>
+        <nav aria-label="Footer navigation">
+          {navigation.map(({ href, label }) => (
+            <a key={href} href={href}>
+              {label}
+            </a>
+          ))}
+        </nav>
+        <span className="copyright">© 2026 holpro</span>
+      </footer>
+    </>
   );
 }
