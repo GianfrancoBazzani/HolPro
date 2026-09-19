@@ -26,7 +26,7 @@ async function copy(params: LocaleParams) {
 export async function LoginPage({ portal, params, searchParams }: Props) {
   const query = await searchParams;
   const code = first(query.error);
-  const message = authMessage(callbackError(code) ?? code, portal);
+  const message = authMessage(callbackError(code) ?? code);
   const other = otherPortal(portal);
   const { locale, t, messages } = await copy(params);
   return (
@@ -96,7 +96,7 @@ export async function ResetPage({ portal, params, searchParams }: Props) {
   );
 }
 export async function WelcomePage({ portal, params }: Props) {
-  const user = await requirePortalUser(portal, true);
+  const user = await requirePortalUser(portal, "welcome");
   const { locale, t, messages } = await copy(params);
   return (
     <AuthShell portal={portal} locale={locale} messages={messages}>
@@ -105,6 +105,30 @@ export async function WelcomePage({ portal, params }: Props) {
       </h1>
       <p>{t(`welcome.body.${portal.key}`, { email: user.email })}</p>
       <WelcomeForm portal={portal} name={user.name} />
+    </AuthShell>
+  );
+}
+// A signed-in user who holds only the other role. The session stays alive.
+export async function SwitchPage({ portal, params }: Props) {
+  const user = await requirePortalUser(portal, "switch");
+  const other = otherPortal(portal);
+  const { locale, t, messages } = await copy(params);
+  return (
+    <AuthShell portal={portal} locale={locale} messages={messages}>
+      <h1>
+        <Rich text={t(`switch.title.${portal.key}`)} />
+      </h1>
+      <p>{t(`switch.body.${portal.key}`, { email: user.email })}</p>
+      <div className="button-group">
+        <Link className="button button-primary" href={other.homePath}>
+          {t(`switch.go.${portal.key}`)}
+        </Link>
+        <form action={signOut}>
+          <button className="button button-secondary">
+            {t("switch.signout")}
+          </button>
+        </form>
+      </div>
     </AuthShell>
   );
 }

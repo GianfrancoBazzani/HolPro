@@ -239,8 +239,8 @@ export async function completeRegistration(
         data.timezone,
         locale,
       );
-      if (result === "blocked" || result === "reject")
-        return urls.reject(result === "blocked");
+      if (result === "blocked") return urls.reject;
+      if (result === "reject") return urls.switch;
       return urls.home;
     },
   );

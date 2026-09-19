@@ -18,14 +18,13 @@ export const portals: Record<PortalKey, Portal> = {
   },
 };
 export const authMessages = {
-  wrong_portal: (portal: Portal) => `error.wrong_portal.${portal.key}` as const,
   link_invalid: () => "error.link_invalid" as const,
   account_unavailable: () => "error.account_unavailable" as const,
-} satisfies Record<string, (portal: Portal) => string>;
+} satisfies Record<string, () => string>;
 export type AuthErrorCode = keyof typeof authMessages;
-export function authMessage(code: string | undefined, portal: Portal) {
+export function authMessage(code: string | undefined) {
   return code && Object.hasOwn(authMessages, code)
-    ? authMessages[code as AuthErrorCode](portal)
+    ? authMessages[code as AuthErrorCode]()
     : undefined;
 }
 export function portalByKey(key: string | null | undefined) {
@@ -57,10 +56,12 @@ export function portalUrls(portal: Portal) {
     resetOk: `${portal.basePath}?reset=ok`,
     reset: `${portal.basePath}/reset`,
     welcome: `${portal.basePath}/welcome`,
+    // A signed-in user who holds only the other role lands here.
+    switch: `${portal.basePath}/switch`,
     sent: (kind: "magic" | "verify" | "reset") =>
       `${portal.basePath}/sent?kind=${kind}`,
-    reject: (blocked = false) =>
-      `/api/gate/reject?portal=${portal.key}${blocked ? "&reason=account_unavailable" : ""}`,
+    // Blocked accounts only. The route signs the user out.
+    reject: `/api/gate/reject?portal=${portal.key}`,
   };
 }
 export function callbackError(code: string | null | undefined) {
@@ -73,11 +74,9 @@ export function callbackError(code: string | null | undefined) {
     ? "link_invalid"
     : undefined;
 }
-export function rejectDestination(key: string | null, reason: string | null) {
+export function rejectDestination(key: string | null) {
   const portal = portalByKey(key) ?? portals.coachee;
-  return portalUrls(portal).login(
-    reason === "account_unavailable" ? "account_unavailable" : "wrong_portal",
-  );
+  return portalUrls(portal).login("account_unavailable");
 }
 export function portalFromCallback(url: string): Portal {
   try {

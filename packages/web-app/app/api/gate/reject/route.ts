@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth/server";
 import { rejectDestination } from "@/lib/auth/portals";
-// Only the gate sends a browser here, through a same-origin redirect. A
-// cross-site request, such as an embedded image, must not sign anyone out.
+// Only the gate sends a browser here, for a blocked account, through a
+// same-origin redirect. A cross-site request, such as an embedded image, must
+// not sign anyone out.
 export function isNavigationFromThisSite(headers: Headers) {
   const site = headers.get("sec-fetch-site");
   const dest = headers.get("sec-fetch-dest");
@@ -13,10 +14,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const target = new URL(
     isNavigationFromThisSite(request.headers)
-      ? rejectDestination(
-          url.searchParams.get("portal"),
-          url.searchParams.get("reason"),
-        )
+      ? rejectDestination(url.searchParams.get("portal"))
       : "/",
     request.url,
   );

@@ -22,9 +22,10 @@ describe("portals", () => {
       );
       expect(portalUrls(portal).home).toBe(portal.homePath);
       expect(portalUrls(portal).resetOk).toBe(`${portal.basePath}?reset=ok`);
-      expect(portalUrls(portal).reject(true)).toBe(
-        `/api/gate/reject?portal=${portal.key}&reason=account_unavailable`,
+      expect(portalUrls(portal).reject).toBe(
+        `/api/gate/reject?portal=${portal.key}`,
       );
+      expect(portalUrls(portal).switch).toBe(`${portal.basePath}/switch`);
       expect(portalUrls(portal).reset).toBe(`${portal.basePath}/reset`);
       expect(portalUrls(portal).welcome).toBe(`${portal.basePath}/welcome`);
       expect(portalUrls(portal).login("link_invalid")).toBe(
@@ -33,15 +34,13 @@ describe("portals", () => {
     });
   it("uses path boundaries and rejects open redirects", () => {
     expect(portalFromPath("/professional").key).toBe("coachee");
-    expect(rejectDestination("https://evil.com", "evil")).toBe(
-      "/login?error=wrong_portal",
+    expect(rejectDestination("https://evil.com")).toBe(
+      "/login?error=account_unavailable",
     );
-    expect(rejectDestination("coach", "account_unavailable")).toBe(
+    expect(rejectDestination("coach")).toBe(
       "/pro/login?error=account_unavailable",
     );
-    expect(rejectDestination("coach", "evil")).toBe(
-      "/pro/login?error=wrong_portal",
-    );
+    expect(rejectDestination(null)).toBe("/login?error=account_unavailable");
   });
   it.each(["invalid_token", "token_expired", "INVALID_TOKEN", "TOKEN_EXPIRED"])(
     "maps %s",
