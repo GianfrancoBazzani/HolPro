@@ -22,6 +22,7 @@ it("negotiates quality weights, regions and unsupported preferences", () => {
   expect(matchLocale(["xx-unsupported", "es-MX", "en"])).toBe("es");
   expect(matchLocale(["xx-unsupported", "*"])).toBeUndefined();
   expect(matchLocale(["EN-us"])).toBe("en");
+  expect(matchLocale(["it-CH", "es"])).toBe("it");
   for (const value of [
     "constructor",
     "__proto__",
@@ -39,6 +40,7 @@ it("resolves explicit choice before seen, header and default", () => {
   expect(resolveLocale(signals("hp_locale=en; hp_seen=es", "es"))).toBe("en");
   expect(resolveLocale(signals("hp_locale=bad; hp_seen=es", "en"))).toBe("es");
   expect(resolveLocale(signals("", "es-ES"))).toBe("es");
+  expect(resolveLocale(signals("hp_locale=it; hp_seen=en", "es"))).toBe("it");
   expect(resolveLocale(new Headers())).toBe("en");
 });
 it("builds public paths without prefixing product URLs", () => {
@@ -50,6 +52,8 @@ it("builds public paths without prefixing product URLs", () => {
   expect(localePath("en", "/")).toBe("/");
   expect(localePath("es", "/")).toBe("/es");
   expect(localePath("es", "/pro/login")).toBe("/pro/login");
+  expect(splitLocale("/it/login")).toEqual({ locale: "it", path: "/login" });
+  expect(localePath("it", "/")).toBe("/it");
   expect(isMarketingPath("/")).toBe(true);
   expect(isMarketingPath("/login")).toBe(false);
 });
