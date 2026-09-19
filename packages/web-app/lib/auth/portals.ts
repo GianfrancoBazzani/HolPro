@@ -3,8 +3,6 @@ export type Portal = {
   key: PortalKey;
   basePath: "/login" | "/pro/login";
   homePath: "/app" | "/pro";
-  label: string;
-  heading: string;
 };
 export const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 export const portals: Record<PortalKey, Portal> = {
@@ -12,23 +10,17 @@ export const portals: Record<PortalKey, Portal> = {
     key: "coachee",
     basePath: "/login",
     homePath: "/app",
-    label: "For you",
-    heading: "Your next chapter starts here.",
   },
   coach: {
     key: "coach",
     basePath: "/pro/login",
     homePath: "/pro",
-    label: "For coaches",
-    heading: "Make room for meaningful change.",
   },
 };
 export const authMessages = {
-  wrong_portal: (portal: Portal) =>
-    `This account is not a ${portal.key} account. Use the other login.`,
-  link_invalid: () => "This link is invalid or expired. Request a new one.",
-  account_unavailable: () =>
-    "This account is not available. Contact support.",
+  wrong_portal: (portal: Portal) => `error.wrong_portal.${portal.key}` as const,
+  link_invalid: () => "error.link_invalid" as const,
+  account_unavailable: () => "error.account_unavailable" as const,
 } satisfies Record<string, (portal: Portal) => string>;
 export type AuthErrorCode = keyof typeof authMessages;
 export function authMessage(code: string | undefined, portal: Portal) {
@@ -42,10 +34,20 @@ export function portalByKey(key: string | null | undefined) {
 export function otherPortal(portal: Portal) {
   return portal.key === "coach" ? portals.coachee : portals.coach;
 }
+const under = (path: string, base: string) =>
+  path === base || path.startsWith(`${base}/`);
 export function portalFromPath(path: string): Portal {
-  return path === "/pro" || path.startsWith("/pro/")
-    ? portals.coach
-    : portals.coachee;
+  return (
+    Object.values(portals).find(
+      (portal) => under(path, portal.homePath) || under(path, portal.basePath),
+    ) ?? portals.coachee
+  );
+}
+// Portal homes need a session; their login pages do not.
+export function isProtectedPath(path: string) {
+  return Object.values(portals).some(
+    (portal) => under(path, portal.homePath) && !under(path, portal.basePath),
+  );
 }
 export function portalUrls(portal: Portal) {
   return {

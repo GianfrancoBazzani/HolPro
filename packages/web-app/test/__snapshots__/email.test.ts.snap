@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`magicLink/coach 1`] = `
+exports[`magicLink/coach/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -51,7 +51,7 @@ exports[`magicLink/coach 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -71,7 +71,78 @@ HolPro — Unlock yourself.",
 }
 `;
 
-exports[`magicLink/coachee 1`] = `
+exports[`magicLink/coach/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Tu enlace de acceso</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Tu enlace caduca en 5 minutos.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para coaches</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Tu enlace de acceso</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Tu enlace caduca en 5 minutos.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Iniciar sesión</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Tu enlace de acceso",
+  "text": "Para coaches
+
+Tu enlace de acceso
+Tu enlace caduca en 5 minutos.
+
+Iniciar sesión: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
+}
+`;
+
+exports[`magicLink/coachee/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -122,7 +193,7 @@ exports[`magicLink/coachee 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -142,7 +213,78 @@ HolPro — Unlock yourself.",
 }
 `;
 
-exports[`resetPassword/coach 1`] = `
+exports[`magicLink/coachee/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Tu enlace de acceso</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Tu enlace caduca en 5 minutos.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para ti</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Tu enlace de acceso</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Tu enlace caduca en 5 minutos.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Iniciar sesión</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Tu enlace de acceso",
+  "text": "Para ti
+
+Tu enlace de acceso
+Tu enlace caduca en 5 minutos.
+
+Iniciar sesión: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
+}
+`;
+
+exports[`resetPassword/coach/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -193,7 +335,7 @@ exports[`resetPassword/coach 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -213,7 +355,78 @@ HolPro — Unlock yourself.",
 }
 `;
 
-exports[`resetPassword/coachee 1`] = `
+exports[`resetPassword/coach/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Restablece tu contraseña</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Tu enlace de recuperación caduca en 15 minutos.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para coaches</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Restablece tu contraseña</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Tu enlace de recuperación caduca en 15 minutos.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Restablecer contraseña</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Restablece tu contraseña",
+  "text": "Para coaches
+
+Restablece tu contraseña
+Tu enlace de recuperación caduca en 15 minutos.
+
+Restablecer contraseña: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
+}
+`;
+
+exports[`resetPassword/coachee/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -264,7 +477,7 @@ exports[`resetPassword/coachee 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -284,7 +497,78 @@ HolPro — Unlock yourself.",
 }
 `;
 
-exports[`verifyEmail/coach 1`] = `
+exports[`resetPassword/coachee/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Restablece tu contraseña</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Tu enlace de recuperación caduca en 15 minutos.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para ti</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Restablece tu contraseña</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Tu enlace de recuperación caduca en 15 minutos.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Restablecer contraseña</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Restablece tu contraseña",
+  "text": "Para ti
+
+Restablece tu contraseña
+Tu enlace de recuperación caduca en 15 minutos.
+
+Restablecer contraseña: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
+}
+`;
+
+exports[`verifyEmail/coach/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -335,7 +619,7 @@ exports[`verifyEmail/coach 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -355,7 +639,78 @@ HolPro — Unlock yourself.",
 }
 `;
 
-exports[`verifyEmail/coachee 1`] = `
+exports[`verifyEmail/coach/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Verifica tu correo</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Confirma tu correo para empezar tu próxima etapa.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para coaches</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Verifica tu correo</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Confirma tu correo para empezar tu próxima etapa.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Verificar correo</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Verifica tu correo",
+  "text": "Para coaches
+
+Verifica tu correo
+Confirma tu correo para empezar tu próxima etapa.
+
+Verificar correo: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
+}
+`;
+
+exports[`verifyEmail/coachee/en 1`] = `
 {
   "html": "<!doctype html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -406,7 +761,7 @@ exports[`verifyEmail/coachee 1`] = `
 <tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">If you did not request this, ignore this email.</td></tr>
 <tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
-<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Unlock yourself.</td></tr>
 </table>
 </td></tr>
 </table>
@@ -423,5 +778,76 @@ Verify email: https://holpro.app/link?token=abc&next=home
 If you did not request this, ignore this email.
 
 HolPro — Unlock yourself.",
+}
+`;
+
+exports[`verifyEmail/coachee/es 1`] = `
+{
+  "html": "<!doctype html>
+<html lang="es" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Verifica tu correo</title>
+<!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  body { margin:0; padding:0; width:100% !important; -webkit-font-smoothing:antialiased; }
+  a { text-decoration:none; }
+  @media (max-width:600px) {
+    .gutter { padding-left:24px !important; padding-right:24px !important; }
+    .display { font-size:34px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F5F4EF;color:#1D4533;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">Confirma tu correo para empezar tu próxima etapa.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F4EF">
+<tr><td align="center" class="gutter" style="padding:40px 32px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
+<tr><td><img src="http://localhost:3000/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td style="height:36px;line-height:36px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#CA6728">Para ti</td></tr>
+<tr><td style="height:12px;line-height:12px;font-size:0">&nbsp;</td></tr>
+<tr><td class="display" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:#1D4533">Verifica tu correo</td></tr>
+<tr><td style="height:16px;line-height:16px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:17px;line-height:1.6;color:#1D4533">Confirma tu correo para empezar tu próxima etapa.</td></tr>
+<tr><td style="height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td>
+<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://holpro.app/link?token=abc&amp;next=home" style="height:52px;v-text-anchor:middle;width:220px" arcsize="50%" stroke="f" fillcolor="#1D4533"><w:anchorlock/><center style="color:#F5F4EF;font-family:Arial,sans-serif;font-size:16px;font-weight:600"><![endif]-->
+<a href="https://holpro.app/link?token=abc&amp;next=home" style="display:inline-block;background:#1D4533;color:#F5F4EF;font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:600;line-height:20px;padding:16px 28px;border-radius:999px;mso-padding-alt:0;text-decoration:none">Verificar correo</a>
+<!--[if mso]></center></v:roundrect><![endif]-->
+</td></tr>
+<tr><td style="height:32px;line-height:32px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si el botón no funciona, copia este enlace en tu navegador.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#1D4533;overflow-wrap:anywhere;word-break:break-word"><a href="https://holpro.app/link?token=abc&amp;next=home" style="color:#1D4533;text-decoration:none">https://holpro.app/link?token=abc&amp;next=home</a></td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="height:1px;line-height:1px;font-size:0;background:#CED5CD">&nbsp;</td></tr>
+<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">Si no lo has solicitado, ignora este correo.</td></tr>
+<tr><td style="height:8px;line-height:8px;font-size:0">&nbsp;</td></tr>
+<tr><td style="font-family:Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#5E7A6B">HolPro — Descubre tu potencial.</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "subject": "Verifica tu correo",
+  "text": "Para ti
+
+Verifica tu correo
+Confirma tu correo para empezar tu próxima etapa.
+
+Verificar correo: https://holpro.app/link?token=abc&next=home
+
+Si no lo has solicitado, ignora este correo.
+
+HolPro — Descubre tu potencial.",
 }
 `;

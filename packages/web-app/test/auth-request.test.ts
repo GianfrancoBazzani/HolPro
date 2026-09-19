@@ -5,6 +5,7 @@ vi.mock("next/headers", () => ({
   headers: async () =>
     new Headers({
       cookie: "session=old",
+      "accept-language": "es-MX,en;q=0.8",
       origin: "http://localhost:3000",
       "x-forwarded-for": "192.0.2.1",
     }),
@@ -30,6 +31,7 @@ it("uses HTTP rate-limit boundary and preserves cookie attributes", async () => 
   const request = mocks.handler.mock.calls[0][0] as Request;
   expect(request.url).toBe("http://localhost:3000/api/auth/sign-in/email");
   expect(request.headers.get("x-forwarded-for")).toBe("192.0.2.1");
+  expect(request.headers.get("accept-language")).toBe("es-MX,en;q=0.8");
   expect(request.headers.get("cookie")).toBe("session=old");
   expect(mocks.set).toHaveBeenCalledWith(
     "session",

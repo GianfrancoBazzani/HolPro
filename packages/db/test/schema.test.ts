@@ -23,6 +23,7 @@ describe("migration contract", () => {
     expect(sql).toMatch(/UNIQUE.*email/i);
     expect(sql).toMatch(/UNIQUE.*token/i);
     expect(sql).toContain("rate_limits");
+    expect(sql).toMatch(/locale.*varchar\(12\).*DEFAULT 'en'.*NOT NULL/i);
     expect(sql).toMatch(/updated_at.*ON UPDATE CURRENT_TIMESTAMP\(3\)/i);
   });
   it("has no schema drift", () => {

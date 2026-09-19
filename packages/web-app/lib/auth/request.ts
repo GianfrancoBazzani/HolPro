@@ -8,7 +8,13 @@ import { baseURL } from "./portals";
 export async function authRequest(path: string, body: Record<string, unknown>) {
   const incoming = await headers();
   const outgoing = new Headers({ "content-type": "application/json" });
-  for (const key of ["cookie", "x-forwarded-for", "user-agent", "origin"]) {
+  for (const key of [
+    "cookie",
+    "x-forwarded-for",
+    "user-agent",
+    "origin",
+    "accept-language",
+  ]) {
     const value = incoming.get(key);
     if (value) outgoing.set(key, value);
   }

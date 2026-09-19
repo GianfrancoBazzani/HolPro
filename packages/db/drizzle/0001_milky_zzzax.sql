@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `locale` varchar(12) DEFAULT 'en' NOT NULL;

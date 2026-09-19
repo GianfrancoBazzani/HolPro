@@ -1,5 +1,7 @@
+import type { Locale } from "../../i18n/config";
+import { getTranslator } from "../../i18n/dictionary";
 import { baseURL, type Portal } from "../../auth/portals";
-export type TemplateParams = { url: string; portal: Portal };
+export type TemplateParams = { url: string; portal: Portal; locale: Locale };
 function escape(value: string) {
   return value.replace(
     /[&<>"']/g,
@@ -20,18 +22,22 @@ const sans = "Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif";
 const spacer = (height: number) =>
   `<tr><td style="height:${height}px;line-height:${height}px;font-size:0">&nbsp;</td></tr>`;
 const rule = `<tr><td style="height:1px;line-height:1px;font-size:0;background:${hairline}">&nbsp;</td></tr>`;
-export function emailTemplate(
-  { url, portal }: TemplateParams,
-  subject: string,
-  button: string,
-  message: string,
+export type EmailKind = "magic" | "verify" | "reset";
+export async function emailTemplate(
+  { url, portal, locale }: TemplateParams,
+  kind: EmailKind,
 ) {
+  const t = await getTranslator(locale, "email");
+  const subject = t(`${kind}.subject`);
+  const button = t(`${kind}.button`);
+  const message = t(`${kind}.message`);
+  const label = t(`portal.${portal.key}`);
   const href = escape(url);
   return {
     subject,
-    text: `${portal.label}\n\n${subject}\n${message}\n\n${button}: ${url}\n\nIf you did not request this, ignore this email.\n\nHolPro — Unlock yourself.`,
+    text: `${label}\n\n${subject}\n${message}\n\n${button}: ${url}\n\n${t("footer.ignore")}\n\n${t("footer.tagline")}`,
     html: `<!doctype html>
-<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="${locale}" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -55,9 +61,9 @@ export function emailTemplate(
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${parchment}">
 <tr><td align="center" class="gutter" style="padding:40px 32px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;text-align:left">
-<tr><td><img src="${escape(baseURL)}/brand/wordmark.png" alt="HolPro" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
+<tr><td><img src="${escape(baseURL)}/brand/wordmark.png" alt="${escape(t("brand.name"))}" height="34" style="display:block;height:34px;width:auto;border:0"></td></tr>
 ${spacer(36)}
-<tr><td style="font-family:${sans};font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${cumin}">${escape(portal.label)}</td></tr>
+<tr><td style="font-family:${sans};font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:${cumin}">${escape(label)}</td></tr>
 ${spacer(12)}
 <tr><td class="display" style="font-family:${serif};font-weight:400;font-size:42px;line-height:1.05;letter-spacing:-.01em;color:${pine}">${escape(subject)}</td></tr>
 ${spacer(16)}
@@ -71,15 +77,15 @@ ${spacer(28)}
 ${spacer(32)}
 ${rule}
 ${spacer(20)}
-<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">If the button does not work, copy this link into your browser.</td></tr>
+<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(t("footer.fallback"))}</td></tr>
 ${spacer(8)}
 <tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${pine};overflow-wrap:anywhere;word-break:break-word"><a href="${href}" style="color:${pine};text-decoration:none">${href}</a></td></tr>
 ${spacer(20)}
 ${rule}
 ${spacer(20)}
-<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">If you did not request this, ignore this email.</td></tr>
+<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(t("footer.ignore"))}</td></tr>
 ${spacer(8)}
-<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">HolPro &mdash; Unlock yourself.</td></tr>
+<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(t("footer.tagline"))}</td></tr>
 </table>
 </td></tr>
 </table>

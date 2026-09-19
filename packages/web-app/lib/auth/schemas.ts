@@ -14,16 +14,16 @@ export const limits = {
 const name = z
   .string()
   .trim()
-  .min(limits.name.min, `Enter at least ${limits.name.min} characters.`)
-  .max(limits.name.max, `Use ${limits.name.max} characters or fewer.`);
+  .min(limits.name.min, "validation.name_min")
+  .max(limits.name.max, "validation.name_max");
 const email = z
-  .email("Enter a valid email address.")
+  .email("validation.email")
   .max(limits.email.max)
   .transform((value) => value.toLowerCase());
 const password = z
   .string()
-  .min(limits.password.min, `Use at least ${limits.password.min} characters.`)
-  .max(limits.password.max, `Use ${limits.password.max} characters or fewer.`);
+  .min(limits.password.min, "validation.password_min")
+  .max(limits.password.max, "validation.password_max");
 export const emailSchema = z.object({ email });
 export const signInSchema = z.object({ email, password });
 export const signUpSchema = signInSchema.extend({ name });
@@ -44,5 +44,5 @@ export const resetSchema = z
   })
   .refine((value) => value.password === value.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords must match.",
+    message: "validation.passwords_match",
   });

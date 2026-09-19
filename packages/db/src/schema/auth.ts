@@ -29,6 +29,7 @@ export const users = mysqlTable(
     emailVerified: boolean("email_verified").notNull().default(false),
     image: text("image_url"),
     timezone: varchar("timezone", { length: 64 }).notNull().default("UTC"),
+    locale: varchar("locale", { length: 12 }).notNull().default("en"),
     status: varchar("status", { length: 16 }).notNull().default("pending"),
     emailVerifiedAt: datetime("email_verified_at", { fsp: 3 }),
     createdAt: createdAt(),

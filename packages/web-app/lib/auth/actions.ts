@@ -1,4 +1,12 @@
 "use server";
+import { currentLocale } from "../i18n/request";
+import {
+  getDictionary,
+  translator,
+  type Dictionary,
+  type Translator,
+} from "../i18n/dictionary";
+import type { Locale } from "../i18n/config";
 import { z } from "zod";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,6 +21,7 @@ import {
   type PortalKey,
 } from "./portals";
 import {
+  limits,
   emailSchema,
   signInSchema,
   signUpSchema,
@@ -21,25 +30,26 @@ import {
   type ActionState,
 } from "./schemas";
 import { registerRole } from "./repository";
-const errorCopy: Record<string, string> = {
-  RATE_LIMITED: "Too many requests. Please wait a minute and try again.",
-  INVALID_EMAIL_OR_PASSWORD: "The email or password is incorrect.",
-  INVALID_PASSWORD: "The email or password is incorrect.",
-  INVALID_EMAIL: "The email or password is incorrect.",
+const errorCopy: Record<string, keyof Dictionary["auth"]> = {
+  RATE_LIMITED: "error.rate_limited",
+  INVALID_EMAIL_OR_PASSWORD: "error.credentials",
+  INVALID_PASSWORD: "error.credentials",
+  INVALID_EMAIL: "error.credentials",
   ACCOUNT_UNAVAILABLE: authMessages.account_unavailable(),
   INVALID_TOKEN: authMessages.link_invalid(),
   TOKEN_EXPIRED: authMessages.link_invalid(),
 };
-function failure(error: unknown): ActionState {
+function failure(error: unknown, t: Translator<"auth">): ActionState {
   const code =
     error instanceof APIError
       ? error.status === "TOO_MANY_REQUESTS"
         ? "RATE_LIMITED"
         : error.body?.code
       : undefined;
-  if (code && Object.hasOwn(errorCopy, code)) return { error: errorCopy[code] };
+  if (code && Object.hasOwn(errorCopy, code))
+    return { error: t(errorCopy[code]) };
   console.error("Authentication action failed.", error);
-  return { error: "Something went wrong. Try again." };
+  return { error: t("error.generic") };
 }
 function isCode(error: unknown, ...codes: string[]) {
   return error instanceof APIError && codes.includes(error.body?.code ?? "");
@@ -51,20 +61,52 @@ async function formAction<S extends z.ZodType>(
   key: PortalKey,
   form: FormData,
   schema: S,
-  run: (portal: Portal, data: z.output<S>) => Promise<string>,
+  run: (portal: Portal, data: z.output<S>, locale: Locale) => Promise<string>,
   onError?: (error: unknown, data: z.output<S>) => ActionState | string | void,
 ): Promise<ActionState> {
   const portal = portalByKey(key);
   if (!portal) throw new Error("Invalid portal");
+  const locale = await currentLocale();
+  const dictionary = await getDictionary(locale);
+  const messages = dictionary.auth;
+  const t = translator(dictionary, "auth");
+  const values = {
+    nameMin: limits.name.min,
+    nameMax: limits.name.max,
+    passwordMin: limits.password.min,
+    passwordMax: limits.password.max,
+  };
+  const translate = (message: string) =>
+    t(
+      Object.hasOwn(messages, message)
+        ? (message as keyof typeof messages)
+        : "validation.invalid",
+      values,
+    );
   const value = schema.safeParse(Object.fromEntries(form));
   if (!value.success)
-    return { fields: z.flattenError(value.error).fieldErrors };
+    return {
+      fields: Object.fromEntries(
+        Object.entries(z.flattenError(value.error).fieldErrors).map(
+          ([field, errors]) => [
+            field,
+            (errors as string[] | undefined)?.map(translate),
+          ],
+        ),
+      ),
+    };
   let target: string;
   try {
-    target = await run(portal, value.data);
+    target = await run(portal, value.data, locale);
   } catch (error) {
     const handled = onError?.(error, value.data);
-    if (typeof handled !== "string") return handled ?? failure(error);
+    if (typeof handled !== "string")
+      return handled
+        ? {
+            ...handled,
+            error: handled.error ? translate(handled.error) : undefined,
+          }
+        : failure(error, t);
     target = handled;
   }
   redirect(target);
@@ -103,7 +145,7 @@ export async function signInWithPassword(
     },
     (error, data) =>
       isCode(error, "EMAIL_NOT_VERIFIED")
-        ? { error: "Verify your email first.", verifyEmail: data.email }
+        ? { error: "error.verify", verifyEmail: data.email }
         : undefined,
   );
 }
@@ -125,7 +167,11 @@ export async function signUpWithPassword(
     },
     // An existing account gets the same answer, so sign-up cannot reveal it.
     (error) =>
-      isCode(error, "USER_ALREADY_EXISTS", "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL")
+      isCode(
+        error,
+        "USER_ALREADY_EXISTS",
+        "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL",
+      )
         ? portalUrls(portalByKey(key)!).sent("verify")
         : undefined,
   );
@@ -175,23 +221,29 @@ export async function completeRegistration(
   _state: ActionState,
   form: FormData,
 ) {
-  return formAction(key, form, registrationSchema, async (portal, data) => {
-    const urls = portalUrls(portal);
-    const session = await auth.api.getSession({
-      headers: await headers(),
-      query: { disableCookieCache: true },
-    });
-    if (!session) return urls.login();
-    const result = await registerRole(
-      session.user.id,
-      portal,
-      data.name,
-      data.timezone,
-    );
-    if (result === "blocked" || result === "reject")
-      return urls.reject(result === "blocked");
-    return urls.home;
-  });
+  return formAction(
+    key,
+    form,
+    registrationSchema,
+    async (portal, data, locale) => {
+      const urls = portalUrls(portal);
+      const session = await auth.api.getSession({
+        headers: await headers(),
+        query: { disableCookieCache: true },
+      });
+      if (!session) return urls.login();
+      const result = await registerRole(
+        session.user.id,
+        portal,
+        data.name,
+        data.timezone,
+        locale,
+      );
+      if (result === "blocked" || result === "reject")
+        return urls.reject(result === "blocked");
+      return urls.home;
+    },
+  );
 }
 export async function signOut() {
   await auth.api.signOut({ headers: await headers() });

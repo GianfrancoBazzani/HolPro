@@ -7,7 +7,9 @@ const mocks = vi.hoisted(() => ({
   request: vi.fn(),
   headers: new Headers(),
 }));
-vi.mock("next/headers", () => ({ headers: async () => mocks.headers }));
+vi.mock("next/headers", () => ({
+  headers: async () => mocks.headers,
+}));
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw new Error(`REDIRECT:${url}`);
@@ -135,6 +137,7 @@ it("registration authenticates and invokes transactional policy", async () => {
     portals.coach,
     "Jo",
     "America/Lima",
+    "en",
   );
 });
 it("registration without session cannot write", async () => {
@@ -212,4 +215,21 @@ it("mismatched reset passwords cannot reach auth", async () => {
   );
   expect(state.fields?.confirmPassword).toBeDefined();
   expect(mocks.request).not.toHaveBeenCalled();
+});
+
+it("translates field errors and stores the device locale during registration", async () => {
+  mocks.headers.set("cookie", "hp_locale=es");
+  const state = await completeRegistration("coach", {}, form({ name: "J" }));
+  expect(state.fields?.name).toEqual(["Introduce al menos 2 caracteres."]);
+  mocks.register.mockResolvedValue("enter");
+  await expect(
+    completeRegistration("coach", {}, form({ name: "Jo" })),
+  ).rejects.toThrow("REDIRECT:/pro");
+  expect(mocks.register).toHaveBeenCalledWith(
+    "user",
+    portals.coach,
+    "Jo",
+    "UTC",
+    "es",
+  );
 });

@@ -1,6 +1,7 @@
 "use client";
 import { useActionState, useState, type InputHTMLAttributes } from "react";
 import Link from "next/link";
+import { useT } from "@/components/i18n/provider";
 import type { Portal } from "@/lib/auth/portals";
 import { limits, type ActionState } from "@/lib/auth/schemas";
 import {
@@ -15,10 +16,10 @@ import {
 type FormAction = (state: ActionState, form: FormData) => Promise<ActionState>;
 type Mode = keyof typeof modes;
 const modes = {
-  magic: { action: sendMagicLink, label: "Email me a link" },
-  signin: { action: signInWithPassword, label: "Sign in" },
-  signup: { action: signUpWithPassword, label: "Create account" },
-  forgot: { action: requestPasswordReset, label: "Send reset link" },
+  magic: { action: sendMagicLink, label: "form.magic" as const },
+  signin: { action: signInWithPassword, label: "form.signin" as const },
+  signup: { action: signUpWithPassword, label: "form.signup" as const },
+  forgot: { action: requestPasswordReset, label: "form.forgot" as const },
 };
 function Field({
   name,
@@ -49,11 +50,15 @@ function Field({
     </div>
   );
 }
-function NameField({ state, ...props }: { state: ActionState } & InputHTMLAttributes<HTMLInputElement>) {
+function NameField({
+  state,
+  ...props
+}: { state: ActionState } & InputHTMLAttributes<HTMLInputElement>) {
+  const t = useT("auth");
   return (
     <Field
       name="name"
-      label="Full name"
+      label={t("form.name")}
       state={state}
       autoComplete="name"
       required
@@ -66,16 +71,17 @@ function NameField({ state, ...props }: { state: ActionState } & InputHTMLAttrib
 function PasswordField({
   state,
   fresh,
-  label = "Password",
+  label,
 }: {
   state: ActionState;
   fresh: boolean;
   label?: string;
 }) {
+  const t = useT("auth");
   return (
     <Field
       name="password"
-      label={label}
+      label={label ?? t("form.password")}
       type="password"
       state={state}
       autoComplete={fresh ? "new-password" : "current-password"}
@@ -114,13 +120,15 @@ function Submit({
   pending: boolean;
   children: React.ReactNode;
 }) {
+  const t = useT("auth");
   return (
     <button className="button button-primary" disabled={pending} type="submit">
-      {pending ? "Please wait…" : children}
+      {pending ? t("form.wait") : children}
     </button>
   );
 }
 function ResendForm({ portal, email }: { portal: Portal; email: string }) {
+  const t = useT("auth");
   const [state, action, pending] = useActionState(
     resendVerification.bind(null, portal.key),
     {},
@@ -129,11 +137,12 @@ function ResendForm({ portal, email }: { portal: Portal; email: string }) {
     <form className="auth-form" action={action}>
       <input type="hidden" name="email" value={email} />
       <ErrorMessage state={state} />
-      <Submit pending={pending}>Resend verification email</Submit>
+      <Submit pending={pending}>{t("form.resend")}</Submit>
     </form>
   );
 }
 function CredentialForm({ portal, mode }: { portal: Portal; mode: Mode }) {
+  const t = useT("auth");
   const [state, action, pending] = useActionState(
     modes[mode].action.bind(null, portal.key) as FormAction,
     {},
@@ -145,7 +154,7 @@ function CredentialForm({ portal, mode }: { portal: Portal; mode: Mode }) {
         {mode === "signup" && <NameField state={state} />}
         <Field
           name="email"
-          label="Email"
+          label={t("form.email")}
           type="email"
           state={state}
           autoComplete="email"
@@ -157,12 +166,14 @@ function CredentialForm({ portal, mode }: { portal: Portal; mode: Mode }) {
         )}
         {mode === "signup" && (
           <p>
-            Use {limits.password.min} to {limits.password.max} characters for
-            your password.
+            {t("form.password_hint", {
+              passwordMin: limits.password.min,
+              passwordMax: limits.password.max,
+            })}
           </p>
         )}
         <ErrorMessage state={state} />
-        <Submit pending={pending}>{modes[mode].label}</Submit>
+        <Submit pending={pending}>{t(modes[mode].label)}</Submit>
       </form>
       {state.verifyEmail && (
         <ResendForm portal={portal} email={state.verifyEmail} />
@@ -171,17 +182,18 @@ function CredentialForm({ portal, mode }: { portal: Portal; mode: Mode }) {
   );
 }
 export function LoginForm({ portal }: { portal: Portal }) {
+  const t = useT("auth");
   const [mode, setMode] = useState<Mode>("magic");
   return (
     <>
-      <div className="auth-tabs" aria-label="Sign-in method">
+      <div className="auth-tabs" aria-label={t("form.method")}>
         <button
           className="button"
           type="button"
           aria-pressed={mode === "magic"}
           onClick={() => setMode("magic")}
         >
-          Email me a link
+          {t("form.magic")}
         </button>
         <button
           className="button"
@@ -189,26 +201,24 @@ export function LoginForm({ portal }: { portal: Portal }) {
           aria-pressed={mode !== "magic"}
           onClick={() => setMode("signin")}
         >
-          Password
+          {t("form.password")}
         </button>
       </div>
-      {mode === "forgot" && (
-        <p>Enter your email to request a password reset.</p>
-      )}
+      {mode === "forgot" && <p>{t("form.reset_body")}</p>}
       <CredentialForm key={mode} portal={portal} mode={mode} />
       {mode === "signin" && (
         <>
           <Switch to="signup" onSelect={setMode}>
-            New here? Create an account
+            {t("form.new")}
           </Switch>
           <Switch to="forgot" onSelect={setMode}>
-            Forgot password?
+            {t("form.forgot_link")}
           </Switch>
         </>
       )}
       {(mode === "signup" || mode === "forgot") && (
         <Switch to="signin" onSelect={setMode}>
-          Back to sign in
+          {t("login.back")}
         </Switch>
       )}
     </>
@@ -221,6 +231,7 @@ export function ResetForm({
   portal: Portal;
   token: string;
 }) {
+  const t = useT("auth");
   const [state, action, pending] = useActionState(
     resetPassword.bind(null, portal.key),
     {},
@@ -228,18 +239,18 @@ export function ResetForm({
   return (
     <form action={action} className="auth-form">
       <input type="hidden" name="token" value={token} />
-      <PasswordField state={state} fresh label="New password" />
+      <PasswordField state={state} fresh label={t("form.new_password")} />
       <Field
         name="confirmPassword"
-        label="Confirm password"
+        label={t("form.confirm")}
         type="password"
         autoComplete="new-password"
         state={state}
         required
       />
       <ErrorMessage state={state} />
-      <Submit pending={pending}>Update password</Submit>
-      <Link href={portal.basePath}>Request a new link</Link>
+      <Submit pending={pending}>{t("form.update")}</Submit>
+      <Link href={portal.basePath}>{t("form.request")}</Link>
     </form>
   );
 }
@@ -250,6 +261,7 @@ export function WelcomeForm({
   portal: Portal;
   name: string;
 }) {
+  const t = useT("auth");
   const [state, action, pending] = useActionState(
     completeRegistration.bind(null, portal.key),
     {},
@@ -265,7 +277,7 @@ export function WelcomeForm({
     >
       <NameField state={state} defaultValue={name} />
       <ErrorMessage state={state} />
-      <Submit pending={pending}>Continue</Submit>
+      <Submit pending={pending}>{t("form.continue")}</Submit>
     </form>
   );
 }

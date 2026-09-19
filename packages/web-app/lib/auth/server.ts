@@ -1,10 +1,16 @@
+import { defaultLocale, hasLocale } from "../i18n/config";
+import { preferredLocale } from "../i18n/negotiate";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { db, schema } from "@holpro/db";
-import { activateVerifiedUser, loadUserStatus } from "./repository";
+import {
+  activateVerifiedUser,
+  loadUserStatus,
+  loadUserLocaleByEmail,
+} from "./repository";
 import { isBlocked } from "./policy";
 import { baseURL as appURL, portalFromCallback, portalUrls } from "./portals";
 import { limits } from "./schemas";
@@ -19,8 +25,23 @@ const trustedProxies = (process.env.TRUSTED_PROXIES ?? "")
   .map((value) => value.trim())
   .filter(Boolean);
 type Template = (typeof templates)[keyof typeof templates];
-const sendTemplate = (template: Template, to: string, url: string) =>
-  deliverAuthEmail({ to, ...template({ url, portal: portalFromCallback(url) }) });
+async function sendTemplate(
+  template: Template,
+  to: string,
+  url: string,
+  request?: Request,
+  user?: { email: string; locale?: string },
+) {
+  const requested = request && preferredLocale(request.headers);
+  const stored = requested
+    ? undefined
+    : (user?.locale ?? (await loadUserLocaleByEmail(to)));
+  const locale = requested ?? (hasLocale(stored) ? stored : defaultLocale);
+  await deliverAuthEmail({
+    to,
+    ...(await template({ url, portal: portalFromCallback(url), locale })),
+  });
+}
 export const auth = betterAuth({
   baseURL,
   secret: process.env.BETTER_AUTH_SECRET,
@@ -33,6 +54,7 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
+      locale: { type: "string", defaultValue: "en", input: false },
       timezone: { type: "string", defaultValue: "UTC", input: false },
       status: { type: "string", defaultValue: "pending", input: false },
       emailVerifiedAt: { type: "date", required: false, input: false },
@@ -47,14 +69,14 @@ export const auth = betterAuth({
     autoSignIn: false,
     resetPasswordTokenExpiresIn: 900,
     revokeSessionsOnPasswordReset: true,
-    sendResetPassword: async ({ user, url }) =>
-      sendTemplate(templates.resetPassword, user.email, url),
+    sendResetPassword: async ({ user, url }, request) =>
+      sendTemplate(templates.resetPassword, user.email, url, request, user),
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) =>
-      sendTemplate(templates.verifyEmail, user.email, url),
+    sendVerificationEmail: async ({ user, url }, request) =>
+      sendTemplate(templates.verifyEmail, user.email, url, request, user),
   },
   session: {
     expiresIn: 7 * 24 * 60 * 60,
@@ -126,8 +148,8 @@ export const auth = betterAuth({
       disableSignUp: false,
       rateLimit: { window: 60, max: 3 },
       storeToken: "hashed",
-      sendMagicLink: async ({ email, url }) =>
-        sendTemplate(templates.magicLink, email, url),
+      sendMagicLink: async ({ email, url }, ctx) =>
+        sendTemplate(templates.magicLink, email, url, ctx?.request),
     }),
     nextCookies(),
   ],
