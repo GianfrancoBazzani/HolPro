@@ -60,7 +60,14 @@ pnpm --filter web-app dev
 ```
 
 `/login` is the coachee portal and `/pro/login` is the coach portal. The
-placeholder homes are `/app` and `/pro`. Without `RESEND_API_KEY` in
+placeholder homes are `/app` and `/pro`.
+
+A signed-in user who opens the other portal keeps the session and lands on
+`/login/switch` or `/pro/login/switch`. That page names the account type and
+offers a link to the correct area and a sign-out button. Only a blocked
+account is signed out, through `/api/gate/reject`.
+
+Without `RESEND_API_KEY` in
 development, email links go to the server console. Production requires the key
 and a verified Resend sender in `EMAIL_FROM`. The rate limiter keys on the client
 address from `x-forwarded-for`. Put the reverse proxy addresses or CIDR ranges

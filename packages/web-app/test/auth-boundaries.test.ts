@@ -76,22 +76,56 @@ it("blocks cached session when database user is suspended", async () => {
     coachee: null,
   });
   await expect(requirePortalUser(portals.coach)).rejects.toThrow(
-    "reason=account_unavailable",
+    "REDIRECT:/api/gate/reject?portal=coach",
   );
 });
-it("rejects other role and redirects existing welcome users", async () => {
+it("sends the other role to the switch page and keeps the session", async () => {
   mocks.load.mockResolvedValue({
+    id: "user",
+    email: "jo@example.com",
     status: "active",
     deletedAt: null,
     coach: {},
     coachee: null,
   });
   await expect(requirePortalUser(portals.coachee)).rejects.toThrow(
-    "/api/gate/reject?portal=coachee",
+    "REDIRECT:/login/switch",
   );
-  await expect(requirePortalUser(portals.coach, true)).rejects.toThrow(
+  await expect(requirePortalUser(portals.coach, "welcome")).rejects.toThrow(
     "REDIRECT:/pro",
   );
+  expect(mocks.signOut).not.toHaveBeenCalled();
+});
+it("switch page serves only a user who holds the other role", async () => {
+  mocks.load.mockResolvedValue({
+    id: "user",
+    email: "jo@example.com",
+    status: "active",
+    deletedAt: null,
+    coach: {},
+    coachee: null,
+  });
+  await expect(
+    requirePortalUser(portals.coachee, "switch"),
+  ).resolves.toMatchObject({ email: "jo@example.com" });
+  await expect(requirePortalUser(portals.coach, "switch")).rejects.toThrow(
+    "REDIRECT:/pro",
+  );
+  mocks.load.mockResolvedValue({
+    id: "user",
+    status: "active",
+    deletedAt: null,
+    coach: null,
+    coachee: null,
+  });
+  await expect(requirePortalUser(portals.coach, "switch")).rejects.toThrow(
+    "REDIRECT:/pro/login/welcome",
+  );
+  mocks.session.mockResolvedValue(null);
+  await expect(requirePortalUser(portals.coach, "switch")).rejects.toThrow(
+    "REDIRECT:/pro/login",
+  );
+  expect(mocks.signOut).not.toHaveBeenCalled();
 });
 it("signs out and forwards every cookie using validated destination", async () => {
   const headers = new Headers();
@@ -104,7 +138,7 @@ it("signs out and forwards every cookie using validated destination", async () =
     ),
   );
   expect(response.headers.get("location")).toBe(
-    "https://holpro.app/login?error=wrong_portal",
+    "https://holpro.app/login?error=account_unavailable",
   );
   expect(response.headers.getSetCookie()).toHaveLength(2);
 });
@@ -131,7 +165,7 @@ it("registration authenticates and invokes transactional policy", async () => {
       {},
       form({ name: "Jo", timezone: "America/Lima" }),
     ),
-  ).rejects.toThrow("REDIRECT:/api/gate/reject?portal=coach");
+  ).rejects.toThrow("REDIRECT:/pro/login/switch");
   expect(mocks.register).toHaveBeenCalledWith(
     "user",
     portals.coach,
