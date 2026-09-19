@@ -162,6 +162,16 @@
     "hint.switch": "Ver en español",
     "hint.stay": "Seguir en {language}"
   },
+  "settings": {
+    "open": "Ajustes",
+    "title": "Ajustes de la cuenta",
+    "close": "Cerrar ajustes",
+    "language": "Idioma",
+    "languageHelp": "Elige el idioma de tu cuenta.",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "signout": "Cerrar sesión"
+  },
   "dashboard": {
     "topbar.eyebrow": "Para ti",
     "topbar.signout": "Cerrar sesión",

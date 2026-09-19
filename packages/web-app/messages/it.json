@@ -162,6 +162,16 @@
     "hint.switch": "Leggi in italiano",
     "hint.stay": "Resta in {language}"
   },
+  "settings": {
+    "open": "Impostazioni",
+    "title": "Impostazioni account",
+    "close": "Chiudi impostazioni",
+    "language": "Lingua",
+    "languageHelp": "Scegli la lingua del tuo account.",
+    "save": "Salva modifiche",
+    "saving": "Salvataggio…",
+    "signout": "Esci"
+  },
   "dashboard": {
     "topbar.eyebrow": "Per te",
     "topbar.signout": "Esci",

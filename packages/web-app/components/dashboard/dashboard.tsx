@@ -2,14 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { requirePortalUser } from "@/lib/auth/gate";
 import { portals } from "@/lib/auth/portals";
-import { signOut } from "@/lib/auth/actions";
 import { loadCalendar } from "@/lib/calendar/repository";
 import { todayIn } from "@/lib/calendar/dates";
 import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/config";
 import { localePath } from "@/lib/i18n/routes";
 import { I18nProvider } from "@/components/i18n/provider";
-import { LanguageControl } from "@/components/i18n/language-control";
+import { AccountControls } from "@/components/account/account-controls";
 import { Timeline } from "./timeline";
 import { PlanArtifact } from "./plan-artifact";
 import { ChatPanel } from "./chat-panel";
@@ -24,7 +23,10 @@ export async function Dashboard({ locale }: { locale: Locale }) {
   const t = translator(messages, "dashboard");
   const engagementId = data.engagements[0]?.id;
   return (
-    <I18nProvider locale={locale} messages={{ dashboard: messages.dashboard }}>
+    <I18nProvider
+      locale={locale}
+      messages={{ dashboard: messages.dashboard, settings: messages.settings }}
+    >
       <main className="container dashboard">
         <header className="dashboard-topbar">
           <Link href={localePath(locale, "/")}>
@@ -39,14 +41,7 @@ export async function Dashboard({ locale }: { locale: Locale }) {
             <span className="eyebrow">{t("topbar.eyebrow")}</span>
             <span>{user.name}</span>
           </div>
-          <div className="dashboard-account">
-            <form action={signOut}>
-              <button className="button button-secondary">
-                {t("topbar.signout")}
-              </button>
-            </form>
-            <LanguageControl locale={locale} messages={messages.language} />
-          </div>
+          <AccountControls />
         </header>
         <div className="dashboard-layout">
           <div className="dashboard-main">

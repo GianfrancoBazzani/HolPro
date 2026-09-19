@@ -162,6 +162,16 @@
     "hint.switch": "View in English",
     "hint.stay": "Stay in {language}"
   },
+  "settings": {
+    "open": "Settings",
+    "title": "Account settings",
+    "close": "Close settings",
+    "language": "Language",
+    "languageHelp": "Choose the language for your account.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "signout": "Sign out"
+  },
   "dashboard": {
     "topbar.eyebrow": "For you",
     "topbar.signout": "Sign out",

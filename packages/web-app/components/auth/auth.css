@@ -145,11 +145,19 @@
   font-size: 14px;
 }
 .auth-home {
-  padding-block: var(--section-y);
+  padding-block: var(--space-7) var(--section-y);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
+}
+.auth-home-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  padding-block-end: var(--space-2);
 }
 @media (max-width: 899px) {
   .auth-brand {

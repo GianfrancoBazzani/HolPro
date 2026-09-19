@@ -1,0 +1,118 @@
+.account-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+.account-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 11px 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--pine);
+  font: 500 15px/1.4 var(--font-sans);
+  cursor: pointer;
+}
+.account-control svg {
+  flex: none;
+}
+.account-control:hover,
+.account-control:focus-visible {
+  background: var(--pine-04);
+  color: var(--cumin);
+}
+.account-settings {
+  width: calc(100% - 40px);
+  max-width: 520px;
+  max-height: calc(100svh - 40px);
+  margin: auto;
+  padding: var(--space-10);
+  overflow: auto;
+  border: 1px solid var(--pine-18);
+  border-radius: var(--radius-panel);
+  background: var(--parchment);
+  color: var(--pine);
+}
+.account-settings::backdrop {
+  background: var(--pine-30);
+}
+body:has(.account-settings[open]) {
+  overflow: hidden;
+}
+.account-settings-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-block-end: var(--space-8);
+}
+.account-settings-heading h2 {
+  font-size: clamp(28px, 2.6vw, 38px);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.account-settings-close {
+  flex: none;
+  width: 44px;
+  padding: 0;
+}
+.account-settings-form,
+.account-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.account-settings-field {
+  gap: var(--space-2);
+}
+.account-settings-field label {
+  font-weight: 600;
+}
+.account-settings-field p {
+  color: var(--pine-70);
+  font-size: 14px;
+}
+.account-settings-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1.5px solid var(--pine);
+  border-radius: var(--radius-pill);
+  padding: 12px 20px;
+  background: var(--parchment);
+  color: var(--pine);
+  font: inherit;
+  cursor: pointer;
+}
+.account-settings-field select:focus-visible {
+  border-color: var(--cumin);
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+}
+.account-settings-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  padding-block-start: var(--space-8);
+  border-top: 1px solid var(--pine-18);
+}
+.account-settings button:disabled,
+.account-settings select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.account-settings .button-primary:disabled {
+  background: var(--pine);
+}
+@media (max-width: 599px) {
+  .account-settings {
+    padding: var(--space-8);
+  }
+}
