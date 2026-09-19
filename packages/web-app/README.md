@@ -96,3 +96,19 @@ To add a language, add its native name and direction to `lib/i18n/config.ts` and
 Keep text containers flexible for translations up to 30 percent longer. Test every language at 360px and 1360px, including keyboard focus and the language hint. The emergency global-error page deliberately uses English without a dictionary so that a broken provider cannot prevent error recovery.
 
 Unmatched routes use Next.js's documented `experimental.globalNotFound` support for dynamic root layouts. The global fallback resolves the request locale and supplies the same common namespace and fonts, so the initial response is a localized HTTP 404 even without JavaScript. Verify the running production server with `node scripts/check-i18n-http.mjs http://localhost:3000`.
+
+## Coachee calendar dashboard
+
+`/app` aggregates the plan items of every active engagement. Coaches see the existing `/pro` home. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. Plan-document and assistant panels are placeholders.
+
+Apply `packages/db/drizzle/0002_aromatic_bulldozer.sql` through the normal migration workflow before using the dashboard. The migration adds `plan_items`, `plan_checkpoints`, `plan_periods`, and `calendar_preferences` without changing existing rows.
+
+For development, after migrating and registering a coachee:
+
+```sh
+pnpm --filter @holpro/db db:seed:plan -- coachee@example.com
+```
+
+This command reads `packages/web-app/.env.local`, rejects production mode, and replaces the first active engagement's plan in a transaction. It creates a sample coach/engagement if necessary. It seeds eight weeks beginning two weeks before the current UTC week. Re-running replaces that plan, including its checkpoints and periods; use only development data.
+
+Whole-day plan dates are ISO strings and always formatted with `Intl` in UTC to preserve the day. Today is computed in the user's stored timezone, falling back to UTC for an invalid timezone. The range is capped at 52 whole weeks with a notice for clipped entries. Dashboard copy is in the `dashboard` namespace; Spanish and Italian dashboard additions are drafts requiring native-speaker review.

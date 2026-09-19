@@ -46,6 +46,9 @@ Translucent values used in the reference:
 
 | Token | Value | Use |
 |---|---|---|
+| `--pine-04` | `rgba(29,69,51,.04)` | Calendar weekend columns. |
+| `--pine-10` | `rgba(29,69,51,.10)` | Calendar period bars. |
+| `--pine-30` | `rgba(29,69,51,.30)` | Skipped checkpoint rings. |
 | `--pine-18` | `rgba(29,69,51,.18)` | Hairline dividers on Parchment. |
 | `--pine-70` | `rgba(29,69,51,.70)` | Muted text on Parchment (footer copyright). |
 | `--parchment-12` | `rgba(245,244,239,.12)` | Input background on dark surfaces. |
@@ -531,6 +534,9 @@ Rules:
   --orchid-tint: #E8C6DC;
 
   /* translucent */
+  --pine-04: rgba(29, 69, 51, .04);
+  --pine-10: rgba(29, 69, 51, .10);
+  --pine-30: rgba(29, 69, 51, .30);
   --pine-18: rgba(29, 69, 51, .18);
   --pine-70: rgba(29, 69, 51, .70);
   --parchment-12: rgba(245, 244, 239, .12);

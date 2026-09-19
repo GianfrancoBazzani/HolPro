@@ -1,5 +1,5 @@
-import { HomePage, type PageProps } from "@/components/auth/pages";
-import { portals } from "@/lib/auth/portals";
-export default function Page(props: PageProps) {
-  return <HomePage portal={portals.coachee} {...props} />;
+import { Dashboard } from "@/components/dashboard/dashboard";
+import { pageLocale, type LocaleParams } from "@/lib/i18n/page";
+export default async function Page({ params }: { params: LocaleParams }) {
+  return <Dashboard locale={await pageLocale(params)} />;
 }

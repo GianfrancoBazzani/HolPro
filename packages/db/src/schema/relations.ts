@@ -1,7 +1,14 @@
+import {
+  planItems,
+  planCheckpoints,
+  planPeriods,
+  calendarPreferences,
+} from "./plans";
 import { relations } from "drizzle-orm";
 import { users, sessions, accounts } from "./auth";
 import { coaches, coachees, coachSpecialties, engagements } from "./coaching";
 export const usersRelations = relations(users, ({ one, many }) => ({
+  calendarPreference: one(calendarPreferences),
   coach: one(coaches),
   coachee: one(coachees),
   sessions: many(sessions),
@@ -28,7 +35,8 @@ export const specialtiesRelations = relations(coachSpecialties, ({ one }) => ({
     references: [coaches.userId],
   }),
 }));
-export const engagementsRelations = relations(engagements, ({ one }) => ({
+export const engagementsRelations = relations(engagements, ({ one, many }) => ({
+  planItems: many(planItems),
   coach: one(coaches, {
     fields: [engagements.coachId],
     references: [coaches.userId],
@@ -38,3 +46,36 @@ export const engagementsRelations = relations(engagements, ({ one }) => ({
     references: [coachees.userId],
   }),
 }));
+
+export const planItemsRelations = relations(planItems, ({ one, many }) => ({
+  engagement: one(engagements, {
+    fields: [planItems.engagementId],
+    references: [engagements.id],
+  }),
+  checkpoints: many(planCheckpoints),
+  periods: many(planPeriods),
+}));
+export const planCheckpointsRelations = relations(
+  planCheckpoints,
+  ({ one }) => ({
+    item: one(planItems, {
+      fields: [planCheckpoints.itemId],
+      references: [planItems.id],
+    }),
+  }),
+);
+export const planPeriodsRelations = relations(planPeriods, ({ one }) => ({
+  item: one(planItems, {
+    fields: [planPeriods.itemId],
+    references: [planItems.id],
+  }),
+}));
+export const calendarPreferencesRelations = relations(
+  calendarPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [calendarPreferences.userId],
+      references: [users.id],
+    }),
+  }),
+);
