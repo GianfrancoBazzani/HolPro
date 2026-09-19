@@ -138,7 +138,7 @@ export default function Home() {
                 Start free
               </a>
               <a className="button button-secondary" href="#how">
-                See how it works
+                Explore the method
               </a>
             </div>
           </div>
