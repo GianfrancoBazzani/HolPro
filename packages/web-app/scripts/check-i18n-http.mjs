@@ -4,6 +4,7 @@ const base = process.argv[2] ?? "http://localhost:3000";
 for (const [path, language] of [
   ["/", "en"],
   ["/es", "es"],
+  ["/it", "it"],
   ["/login", "es"],
 ]) {
   const response = await fetch(new URL(path, base), {
@@ -19,6 +20,7 @@ for (const [path, language] of [
 for (const [path, destination] of [
   ["/en?x=1", "/?x=1"],
   ["/es/login?token=x", "/login?token=x"],
+  ["/it/login?token=x", "/login?token=x"],
 ]) {
   const response = await fetch(new URL(path, base), { redirect: "manual" });
   assert.equal(response.status, 308, path);
@@ -30,6 +32,7 @@ for (const [path, destination] of [
 for (const [locale, title] of [
   ["en", "Page not found."],
   ["es", "Página no encontrada."],
+  ["it", "Pagina non trovata."],
 ]) {
   const response = await fetch(new URL("/unknown-page", base), {
     headers: { cookie: `hp_locale=${locale}` },

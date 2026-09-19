@@ -81,9 +81,9 @@ provisioned services.
 
 ## Languages
 
-English (`en`) is the source language; Spanish (`es`) is also available. All user-facing copy lives in `messages/<locale>.json`, with flat keys grouped into namespaces. Spanish is an agent draft and needs native-speaker review before release.
+English (`en`) is the source language; Spanish (`es`) and Italian (`it`) are also available. All user-facing copy lives in `messages/<locale>.json`, with flat keys grouped into namespaces. Spanish and Italian are agent drafts and need native-speaker review before release.
 
-Public marketing pages use `/` for English and `/es` for Spanish. `/en` permanently redirects to `/`. Product paths (`/login`, `/pro/login`, `/app`, `/pro`) never receive a public language prefix: the proxy rewrites internally to `[lang]`, retaining query strings and existing authentication gates. Explicitly prefixed product URLs redirect back to their unprefixed equivalents. Never redirect based on browser language.
+Public marketing pages use `/` for English, `/es` for Spanish and `/it` for Italian. `/en` permanently redirects to `/`. Product paths (`/login`, `/pro/login`, `/app`, `/pro`) never receive a public language prefix: the proxy rewrites internally to `[lang]`, retaining query strings and existing authentication gates. Explicitly prefixed product URLs redirect back to their unprefixed equivalents. Never redirect based on browser language.
 
 Product language resolves from explicit `hp_locale`, then session-only `hp_seen`, then weighted `Accept-Language`, then English. Reading a marketing page records only `hp_seen` when no explicit cookie exists. The footer/auth/home controls and optional landing hint post to `chooseLocale`, which saves `hp_locale` for one year, clears `hp_seen`, and updates `users.locale` for signed-in users. The device cookie controls rendering; stored profile locale is only an email fallback. The marketing landing remains static and uses only route params.
 
@@ -93,6 +93,6 @@ Use `getTranslator(locale, namespace)` on the server and `useT(namespace)` in cl
 
 To add a language, add its native name and direction to `lib/i18n/config.ts` and create `messages/<locale>.json` with the same namespace/key order, placeholders and emphasis as English. Loaders automatically discover the matching JSON file. All controls and metadata derive their locale lists from config. Run `pnpm --filter web-app exec vitest run test/i18n.test.tsx`, `pnpm --filter web-app test`, and `pnpm --filter web-app lint`. The parity test checks missing/extra keys, placeholders, emphasis and empty strings. The JSX lint rule catches literal copy; review literal `alt`, `aria-label`, `placeholder` and `title` attributes as well.
 
-Keep text containers flexible for translations up to 30 percent longer. Test both languages at 360px and 1360px, including keyboard focus and the language hint. The emergency global-error page deliberately uses English without a dictionary so that a broken provider cannot prevent error recovery.
+Keep text containers flexible for translations up to 30 percent longer. Test every language at 360px and 1360px, including keyboard focus and the language hint. The emergency global-error page deliberately uses English without a dictionary so that a broken provider cannot prevent error recovery.
 
 Unmatched routes use Next.js's documented `experimental.globalNotFound` support for dynamic root layouts. The global fallback resolves the request locale and supplies the same common namespace and fonts, so the initial response is a localized HTTP 404 even without JavaScript. Verify the running production server with `node scripts/check-i18n-http.mjs http://localhost:3000`.

@@ -1,6 +1,7 @@
 export const locales = {
   en: { name: "English", dir: "ltr" },
   es: { name: "Español", dir: "ltr" },
+  it: { name: "Italiano", dir: "ltr" },
 } as const;
 export type Locale = keyof typeof locales;
 export const localeKeys = Object.keys(locales) as Locale[];
