@@ -23,3 +23,20 @@
   border-radius: var(--radius-panel);
   background: var(--parchment);
 }
+
+.plan-review {
+  display: grid;
+  gap: 16px;
+}
+.plan-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.plan-preview-banner {
+  background: var(--orchid);
+  color: var(--pine);
+  border-radius: var(--radius-panel);
+  padding: 16px 20px;
+}

@@ -154,3 +154,21 @@ export const planDocumentVersions = mysqlTable(
     check("plan_document_versions_number_check", sql`${t.number} > 0`),
   ],
 );
+
+export const planDocumentDrafts = mysqlTable(
+  "plan_document_drafts",
+  {
+    id: id(),
+    documentId: char("document_id", { length: 36 })
+      .notNull()
+      .references(() => planDocuments.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 160 }),
+    html: mediumtext("html").notNull(),
+    submittedBy: char("submitted_by", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    submittedAt: datetime("submitted_at", { fsp: 3 }).notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("plan_document_drafts_document_uidx").on(t.documentId)],
+);

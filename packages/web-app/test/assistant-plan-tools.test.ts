@@ -43,3 +43,39 @@ it("takes list identity from trusted request context", async () => {
     expect.any(Object),
   );
 });
+
+it("returns pending review rather than claiming publication", async () => {
+  const result = {
+    planId: "p",
+    status: "pending_review",
+    submittedAt: "2026-09-20",
+  };
+  vi.mocked(callMcp).mockResolvedValueOnce(result);
+  expect(
+    await publishPlanDocument.execute!(
+      {
+        engagementId: "11111111-1111-4111-8111-111111111111",
+        title: "Plan",
+        html: "x",
+      },
+      ctx("coach"),
+    ),
+  ).toEqual(result);
+});
+it("parses draft content through the assistant read tool", async () => {
+  const { readPlanDocument } = await import("../mastra/tools/plan-documents");
+  const result = {
+    planId: "p",
+    draftId: "d",
+    title: "Draft",
+    html: "x",
+    submittedAt: "2026-09-20",
+  };
+  vi.mocked(callMcp).mockResolvedValueOnce(result);
+  expect(
+    await readPlanDocument.execute!(
+      { planId: "11111111-1111-4111-8111-111111111111", draft: true },
+      ctx("coach"),
+    ),
+  ).toEqual(result);
+});

@@ -10,28 +10,34 @@ const globalEvents = globalThis as typeof globalThis & {
 };
 const events = (globalEvents.holproPlanEvents ??= new EventEmitter());
 events.setMaxListeners(0);
-export function publishEvent(event: PlanPublished) {
-  events.emit("plan.published", event);
+export type PlanEventName = "plan.published" | "plan.draft";
+export function publishEvent(name: PlanEventName, event: PlanPublished) {
+  events.emit(name, event);
 }
 export function subscribe(
   userId: string,
-  listener: (event: PlanPublished) => void | Promise<void>,
+  listener: (name: PlanEventName, event: PlanPublished) => void | Promise<void>,
 ) {
-  const filtered = (event: PlanPublished) => {
-    if (event.coachId === userId || event.coacheeId === userId) {
-      const reportFailure = (error: unknown) => {
-        console.error("Plan event listener failed.", error);
-      };
-      try {
-        void Promise.resolve(listener(event)).catch(reportFailure);
-      } catch (error) {
-        /* A disconnected subscriber cannot roll back a publication. */
-        reportFailure(error);
-      }
+  const handle = (name: PlanEventName) => (event: PlanPublished) => {
+    if (
+      event.coachId !== userId &&
+      (name === "plan.draft" || event.coacheeId !== userId)
+    )
+      return;
+    const reportFailure = (error: unknown) =>
+      console.error("Plan event listener failed.", error);
+    try {
+      void Promise.resolve(listener(name, event)).catch(reportFailure);
+    } catch (error) {
+      reportFailure(error);
     }
   };
-  events.on("plan.published", filtered);
+  const published = handle("plan.published"),
+    draft = handle("plan.draft");
+  events.on("plan.published", published);
+  events.on("plan.draft", draft);
   return () => {
-    events.off("plan.published", filtered);
+    events.off("plan.published", published);
+    events.off("plan.draft", draft);
   };
 }

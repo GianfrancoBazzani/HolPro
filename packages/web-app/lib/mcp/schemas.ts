@@ -12,16 +12,20 @@ export const publishPlanSchema = z
     message: "A title is required for a new plan.",
   });
 export const listPlansSchema = z.object({ engagementId: z.uuid().optional() });
-export const readPlanSchema = z.object({
-  planId: z.uuid(),
-  version: z.number().int().positive().optional(),
-});
+export const readPlanSchema = z
+  .object({
+    planId: z.uuid(),
+    version: z.number().int().positive().optional(),
+    draft: z.boolean().optional(),
+  })
+  .refine((v) => !v.draft || v.version === undefined);
 export const planSummarySchema = z.object({
   planId: z.string(),
   engagementId: z.string(),
   title: z.string(),
   versionNumber: z.number(),
   updatedAt: z.string(),
+  draftSubmittedAt: z.string().nullable().optional(),
 });
 export const planContentSchema = z.object({
   planId: z.string(),
@@ -30,11 +34,27 @@ export const planContentSchema = z.object({
   html: z.string(),
   publishedAt: z.string(),
 });
-export const publishResultSchema = z.object({
+export const approveResultSchema = z.object({
   planId: z.string(),
   versionNumber: z.number(),
   publishedAt: z.string(),
 });
+export const publishResultSchema = z.object({
+  planId: z.string(),
+  status: z.literal("pending_review"),
+  submittedAt: z.string(),
+});
+export const planDraftSchema = z.object({
+  planId: z.string(),
+  draftId: z.string(),
+  title: z.string(),
+  html: z.string(),
+  submittedAt: z.string(),
+});
+export const readPlanResultSchema = z.union([
+  planContentSchema,
+  planDraftSchema,
+]);
 export type PublishPlanInput = z.infer<typeof publishPlanSchema>;
 export const searchCoachesSchema = z.object({
   query: z.string().trim().max(200).optional(),

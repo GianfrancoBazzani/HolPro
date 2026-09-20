@@ -3,6 +3,8 @@ import type { Locale } from "@/lib/i18n/config";
 import type { PlanView } from "@/lib/plans/view";
 import { portals, type PortalKey } from "@/lib/auth/portals";
 import { SelectField } from "@/components/forms/field";
+import Link from "next/link";
+import { PlanDraftControls } from "./plan-draft-controls";
 import { PlanViewer } from "./plan-viewer";
 import "./plans.css";
 export function PlanArtifact({
@@ -23,6 +25,19 @@ export function PlanArtifact({
   const t = translator({ dashboard: messages }, "dashboard"),
     multipleEngagements =
       new Set(view.plans.map((p) => p.engagementId)).size > 1;
+  const date = (value: string) =>
+    new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: timezone,
+    }).format(new Date(value));
+  const previewHref = (preview: string) => {
+    const params = new URLSearchParams({ preview });
+    if (view.engagementId) params.set("engagement", view.engagementId);
+    if (view.selected) params.set("plan", view.selected.planId);
+    if (month) params.set("month", month);
+    return `${portals[role].homePath}?${params}`;
+  };
   return (
     <section
       className="dashboard-panel plan-artifact"
@@ -72,32 +87,82 @@ export function PlanArtifact({
                           view.engagements.find((e) => e.id === p.engagementId)
                             ?.coachName ?? "",
                       })
-                    : p.title,
+                    : role === "coach" && p.draftSubmittedAt
+                      ? t("plan.optionPending", { title: p.title })
+                      : p.title,
               }))}
             />
           )}
-          <button className="button button-primary" type="submit">
+          <button className="button button-secondary" type="submit">
             {t("plan.view")}
           </button>
         </form>
+      )}
+      {role === "coach" && view.draft && (
+        <div className="plan-review">
+          <p>
+            {view.selected && view.selected.versionNumber > 0
+              ? t("plan.draftStatus", {
+                  date: date(view.draft.submittedAt),
+                  versionNumber: new Intl.NumberFormat(locale).format(
+                    view.selected.versionNumber,
+                  ),
+                })
+              : t("plan.draftStatusNew")}
+          </p>
+          <PlanDraftControls
+            key={view.draft.draftId}
+            planId={view.draft.planId}
+            draftId={view.draft.draftId}
+            published={(view.selected?.versionNumber ?? 0) > 0}
+          />
+          {(view.selected?.versionNumber ?? 0) > 0 && (
+            <nav
+              className="plan-review-actions"
+              aria-label={t("plan.previewLabel")}
+            >
+              <Link
+                className="calendar-chip"
+                href={previewHref("draft")}
+                aria-current={
+                  view.content?.kind === "draft" ? "page" : undefined
+                }
+              >
+                {t("plan.previewDraft")}
+              </Link>
+              <Link
+                className="calendar-chip"
+                href={previewHref("published")}
+                aria-current={
+                  view.content?.kind === "published" ? "page" : undefined
+                }
+              >
+                {t("plan.previewPublished")}
+              </Link>
+            </nav>
+          )}
+        </div>
       )}
       {view.content && view.framed ? (
         <>
           <h3>{view.content.title}</h3>
           <p>
-            {t("plan.version", {
-              versionNumber: new Intl.NumberFormat(locale).format(
-                view.content.versionNumber,
-              ),
-              publishedAt: new Intl.DateTimeFormat(locale, {
-                dateStyle: "medium",
-                timeStyle: "short",
-                timeZone: timezone,
-              }).format(new Date(view.content.publishedAt)),
-            })}
+            {view.content.kind === "draft"
+              ? t("plan.draftVersion", {
+                  submittedAt: date(view.content.submittedAt),
+                })
+              : t("plan.version", {
+                  versionNumber: new Intl.NumberFormat(locale).format(
+                    view.content.versionNumber,
+                  ),
+                  publishedAt: date(view.content.publishedAt),
+                })}
           </p>
+          {view.content.kind === "draft" && (
+            <p className="plan-preview-banner">{t("plan.previewBanner")}</p>
+          )}
           <PlanViewer
-            key={`${view.content.planId}:${view.content.versionNumber}`}
+            key={`${view.content.planId}:${view.content.kind === "draft" ? view.content.draftId : view.content.versionNumber}`}
             framed={view.framed}
           />
         </>

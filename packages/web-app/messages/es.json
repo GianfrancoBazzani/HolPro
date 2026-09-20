@@ -246,7 +246,21 @@
     "plan.engagementOption": "{name} — {status}",
     "plan.statusActive": "Activo",
     "plan.statusEnded": "Finalizado",
-    "plan.version": "Versión {versionNumber}, publicada el {publishedAt}"
+    "plan.version": "Versión {versionNumber}, publicada el {publishedAt}",
+    "plan.optionPending": "{title} — pendiente de revisión",
+    "plan.draftStatus": "Modificado el {date}, sin publicar. Tu cliente ve la versión {versionNumber}.",
+    "plan.draftStatusNew": "Plan nuevo, aún sin publicar. Tu cliente no puede verlo.",
+    "plan.previewDraft": "Vista previa del borrador",
+    "plan.previewPublished": "Versión publicada",
+    "plan.approve": "Aprobar y publicar",
+    "plan.discard": "Descartar borrador",
+    "plan.discardNote": "La última versión publicada seguirá visible para tu cliente.",
+    "plan.discardNoteNew": "Esto elimina el plan.",
+    "plan.previewBanner": "Vista previa. Tu cliente no ve esta versión.",
+    "plan.draftVersion": "Borrador, enviado el {submittedAt}",
+    "plan.confirmDiscard": "Confirmar descarte",
+    "plan.keepDraft": "Conservar borrador",
+    "plan.previewLabel": "Vista previa del plan"
   },
   "pro": {
     "topbar.eyebrow": "Para coaches",
@@ -354,7 +368,8 @@
     "validation.skills_max": "Puedes tener como máximo {skillsMax} habilidades.",
     "validation.invalid": "Revisa este campo.",
     "error.notFound": "Este registro ya no está disponible.",
-    "error.generic": "Algo salió mal. Inténtalo de nuevo."
+    "error.generic": "Algo salió mal. Inténtalo de nuevo.",
+    "error.draftChanged": "Este borrador ha cambiado. Revisa la última vista previa e inténtalo de nuevo."
   },
   "assistant": {
     "eyebrow": "Tu asistente",
@@ -382,7 +397,7 @@
     "error.retry": "Reintentar",
     "error.microphone": "No se pudo grabar el audio. Comprueba el acceso al micrófono e inténtalo de nuevo.",
     "tool.publishPlanDocument": "Publicando tu plan",
-    "tool.planPublished": "Plan publicado",
+    "tool.planPublished": "Borrador enviado para tu revisión",
     "tool.listPlanDocuments": "Leyendo los planes publicados",
     "tool.readPlanDocument": "Leyendo el documento del plan",
     "tool.searchCoaches": "Buscando coaches"

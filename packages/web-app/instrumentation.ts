@@ -1,25 +1,8 @@
 export async function register() {
-  if (
-    process.env.NEXT_RUNTIME === "nodejs" &&
-    process.env.NODE_ENV === "production"
-  ) {
-    const { mcpSecret } = await import("./lib/mcp/secret");
-    mcpSecret();
+  // Next.js also compiles this entry for Edge. Keep Node APIs in a separate
+  // module so the Edge bundle never includes process signal handlers.
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    const { registerNode } = await import("./instrumentation-node");
+    await registerNode();
   }
-  if (
-    process.env.NEXT_RUNTIME !== "nodejs" ||
-    process.env.NEXT_PHASE === "phase-production-build" ||
-    !process.env.TELEGRAM_BOT_TOKEN ||
-    process.env.TELEGRAM_MODE !== "polling"
-  )
-    return;
-  const { getTelegramRuntime, stopTelegramRuntime } = await import(
-    "./lib/telegram/runtime"
-  );
-  await getTelegramRuntime();
-  const stop = () => {
-    void stopTelegramRuntime().catch(() => {});
-  };
-  process.once("SIGTERM", stop);
-  process.once("SIGINT", stop);
 }

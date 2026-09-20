@@ -21,11 +21,13 @@ export async function CoachHome({
   month,
   engagement,
   plan,
+  preview,
 }: {
   locale: Locale;
   month?: unknown;
   engagement?: unknown;
   plan?: unknown;
+  preview?: unknown;
 }) {
   const user = await requirePortalUser(portals.coach),
     timezone = safeTimezone(user.timezone);
@@ -33,7 +35,10 @@ export async function CoachHome({
     loadClients(user.id),
     loadAgenda(user.id, parseMonth(month, todayIn(timezone)), timezone),
     getDictionary(locale),
-    loadPlanView({ userId: user.id, role: "coach" }, { engagement, plan }),
+    loadPlanView(
+      { userId: user.id, role: "coach" },
+      { engagement, plan, preview },
+    ),
   ]);
   const t = translator(messages, "pro");
   return (

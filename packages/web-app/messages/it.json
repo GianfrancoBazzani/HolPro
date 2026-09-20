@@ -246,7 +246,21 @@
     "plan.engagementOption": "{name} — {status}",
     "plan.statusActive": "Attivo",
     "plan.statusEnded": "Concluso",
-    "plan.version": "Versione {versionNumber}, pubblicata il {publishedAt}"
+    "plan.version": "Versione {versionNumber}, pubblicata il {publishedAt}",
+    "plan.optionPending": "{title} — in attesa di revisione",
+    "plan.draftStatus": "Modificato il {date}, non pubblicato. Il tuo cliente vede la versione {versionNumber}.",
+    "plan.draftStatusNew": "Nuovo piano, non ancora pubblicato. Il tuo cliente non può vederlo.",
+    "plan.previewDraft": "Anteprima bozza",
+    "plan.previewPublished": "Versione pubblicata",
+    "plan.approve": "Approva e pubblica",
+    "plan.discard": "Scarta bozza",
+    "plan.discardNote": "L’ultima versione pubblicata resta visibile al tuo cliente.",
+    "plan.discardNoteNew": "Questa azione rimuove il piano.",
+    "plan.previewBanner": "Anteprima. Il tuo cliente non vede questa versione.",
+    "plan.draftVersion": "Bozza, inviata il {submittedAt}",
+    "plan.confirmDiscard": "Conferma eliminazione",
+    "plan.keepDraft": "Mantieni bozza",
+    "plan.previewLabel": "Anteprima del piano"
   },
   "pro": {
     "topbar.eyebrow": "Per i coach",
@@ -354,7 +368,8 @@
     "validation.skills_max": "Puoi avere al massimo {skillsMax} competenze.",
     "validation.invalid": "Controlla questo campo.",
     "error.notFound": "Questo record non è più disponibile.",
-    "error.generic": "Qualcosa è andato storto. Riprova."
+    "error.generic": "Qualcosa è andato storto. Riprova.",
+    "error.draftChanged": "Questa bozza è cambiata. Controlla l’ultima anteprima e riprova."
   },
   "assistant": {
     "eyebrow": "Il tuo assistente",
@@ -382,7 +397,7 @@
     "error.retry": "Riprova",
     "error.microphone": "Impossibile registrare l’audio. Controlla l’accesso al microfono e riprova.",
     "tool.publishPlanDocument": "Pubblicazione del tuo piano",
-    "tool.planPublished": "Piano pubblicato",
+    "tool.planPublished": "Bozza inviata per la tua revisione",
     "tool.listPlanDocuments": "Lettura dei piani pubblicati",
     "tool.readPlanDocument": "Lettura del documento del piano",
     "tool.searchCoaches": "Ricerca dei coach in corso"

@@ -121,7 +121,64 @@ for (const locale of ["en", "es", "it"])
 
 test("plan notifications retain the coach portal", async ({ page }) => {
   await page.goto("/?plans=1");
-  await expect.poll(() => page.evaluate(() =>
-    (window as typeof window & { fixtureSourceUrl?: string }).fixtureSourceUrl,
-  )).toBe("/api/plans/events?portal=coach");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as typeof window & { fixtureSourceUrl?: string })
+            .fixtureSourceUrl,
+      ),
+    )
+    .toBe("/api/plans/events?portal=coach");
 });
+
+test("resets discard confirmation when a replacement draft arrives", async ({
+  page,
+}) => {
+  await page.goto("/?plans=1&draft=1");
+  await page
+    .getByRole("button", { name: "Discard draft", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Confirm discard" }),
+  ).toBeVisible();
+  await page.evaluate(() =>
+    (
+      window as typeof window & { replacePlanDraft: () => void }
+    ).replacePlanDraft(),
+  );
+  await expect(
+    page.getByRole("button", { name: "Confirm discard" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Approve and publish" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as typeof window & { planReview?: unknown }).planReview,
+      ),
+    )
+    .toEqual({ id: "p1", draftId: "d2", intent: "approve" });
+});
+test("preview links retain plan, engagement and month", async ({ page }) => {
+  await page.goto("/?plans=1&draft=1");
+  await expect(
+    page.getByRole("link", { name: "Published version" }),
+  ).toHaveAttribute(
+    "href",
+    "/pro?preview=published&engagement=e1&plan=p1&month=2026-09",
+  );
+  await expect(
+    page.getByText("Preview. Your client does not see this version."),
+  ).toBeVisible();
+});
+for (const locale of ["en", "es", "it"])
+  test(`draft review fits mobile in ${locale}`, async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(`/?plans=1&draft=1&locale=${locale}`);
+    await expect(page.locator(".plan-preview-banner")).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });

@@ -57,6 +57,13 @@
       "when": 1789877594503,
       "tag": "0007_cynical_venus",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1789885858239,
+      "tag": "0008_wild_cyclops",
+      "breakpoints": true
     }
   ]
 }

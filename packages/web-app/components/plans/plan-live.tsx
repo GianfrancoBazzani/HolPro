@@ -16,10 +16,12 @@ export function PlanLive({ role }: { role: "coach" | "coachee" }) {
     };
     source.addEventListener("open", refresh);
     source.addEventListener("plan.published", refresh);
+    if (role === "coach") source.addEventListener("plan.draft", refresh);
     return () => {
       clearTimeout(timer);
       source.removeEventListener("open", refresh);
       source.removeEventListener("plan.published", refresh);
+      source.removeEventListener("plan.draft", refresh);
       source.close();
     };
   }, [router, role]);

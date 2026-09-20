@@ -20,18 +20,25 @@ vi.mock("../lib/coaches/repository", () => ({
   ]),
 }));
 vi.mock("../lib/plans/repository", () => ({
+  readPlanDraft: vi.fn(async () => ({
+    planId: "p",
+    draftId: "d",
+    title: "Draft",
+    html: "x",
+    submittedAt: "2026-09-20",
+  })),
   listPlans: vi.fn(async () => []),
   readPlan: vi.fn(async () => {
     throw new Error("database secret");
   }),
-  publishPlan: vi.fn(async () => ({
+  submitPlanDraft: vi.fn(async () => ({
     planId: "p",
-    versionNumber: 1,
-    publishedAt: "2026-09-20T00:00:00.000Z",
+    status: "pending_review",
+    submittedAt: "2026-09-20T00:00:00.000Z",
   })),
 }));
 import { POST } from "../app/api/mcp/route";
-import { publishPlan } from "../lib/plans/repository";
+import { submitPlanDraft } from "../lib/plans/repository";
 import { searchCoaches } from "../lib/coaches/repository";
 const engagementId = "11111111-1111-4111-8111-111111111111";
 function request(method: string, params: unknown, token = "coach") {
@@ -80,7 +87,7 @@ it("publishes valid HTML through the real protocol", async () => {
   );
   expect(data.result.isError).not.toBe(true);
   expect(JSON.parse(data.result.content[0].text)).toMatchObject({
-    versionNumber: 1,
+    status: "pending_review",
   });
 });
 it.each([
@@ -93,7 +100,7 @@ it.each([
     ),
   );
   expect(data.result?.isError || data.error).toBeTruthy();
-  expect(publishPlan).not.toHaveBeenCalled();
+  expect(submitPlanDraft).not.toHaveBeenCalled();
 });
 it("rejects coachee writes and hides raw backend errors", async () => {
   const denied = await json(
@@ -109,7 +116,7 @@ it("rejects coachee writes and hides raw backend errors", async () => {
     ),
   );
   expect(denied.result.isError).toBe(true);
-  expect(publishPlan).not.toHaveBeenCalled();
+  expect(submitPlanDraft).not.toHaveBeenCalled();
   const failed = await json(
     await POST(
       request("tools/call", {
@@ -156,4 +163,38 @@ it("searches coaches for coachees and denies coaches", async () => {
   );
   expect(tooLong.result?.isError || tooLong.error).toBeTruthy();
   expect(searchCoaches).toHaveBeenCalledTimes(1);
+});
+
+it.each(["coach", "coachee"])(
+  "restricts draft reads to coach tokens (%s)",
+  async (role) => {
+    const data = await json(
+      await POST(
+        request(
+          "tools/call",
+          {
+            name: "read_plan",
+            arguments: { planId: engagementId, draft: true },
+          },
+          role,
+        ),
+      ),
+    );
+    expect(!!data.result.isError).toBe(role === "coachee");
+    if (role === "coach")
+      expect(JSON.parse(data.result.content[0].text)).toMatchObject({
+        draftId: "d",
+      });
+  },
+);
+it("rejects numbered draft reads", async () => {
+  const data = await json(
+    await POST(
+      request("tools/call", {
+        name: "read_plan",
+        arguments: { planId: engagementId, draft: true, version: 1 },
+      }),
+    ),
+  );
+  expect(data.result?.isError || data.error).toBeTruthy();
 });

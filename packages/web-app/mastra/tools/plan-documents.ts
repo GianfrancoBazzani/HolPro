@@ -7,7 +7,7 @@ import {
   listPlansSchema,
   readPlanSchema,
   planSummarySchema,
-  planContentSchema,
+  readPlanResultSchema,
   publishResultSchema,
 } from "@/lib/mcp/schemas";
 import { callMcp } from "@/lib/mcp/client";
@@ -15,7 +15,7 @@ const summaries = z.array(planSummarySchema);
 export const publishPlanDocument = createTool({
   id: "publishPlanDocument",
   description:
-    "Publish an HTML coaching plan or update a known document when the coach instructs you to publish. List plans before updating; new documents require a title.",
+    "Send an HTML coaching plan or update as a draft for the coach to review in the dashboard. List plans before updating; new documents require a title.",
   inputSchema: publishPlanSchema,
   outputSchema: publishResultSchema,
   execute: async (input, { requestContext, abortSignal }) =>
@@ -31,32 +31,26 @@ export const publishPlanDocument = createTool({
 export const listPlanDocuments = createTool({
   id: "listPlanDocuments",
   description:
-    "List published HTML plan documents accessible to the current user, optionally for one engagement.",
+    "List approved and, for coaches, pending HTML plan documents accessible to the current user, optionally for one engagement.",
   inputSchema: listPlansSchema,
   outputSchema: summaries,
   execute: async (input, { requestContext, abortSignal }) =>
     summaries.parse(
-      await callMcp(
-        assistantContext(requestContext),
-        "list_plans",
-        input,
-        { signal: abortSignal },
-      ),
+      await callMcp(assistantContext(requestContext), "list_plans", input, {
+        signal: abortSignal,
+      }),
     ),
 });
 export const readPlanDocument = createTool({
   id: "readPlanDocument",
   description:
-    "Read the current HTML or a numbered version of a published plan document.",
+    "Read the current or numbered approved HTML version, or the pending draft with draft:true as its coach.",
   inputSchema: readPlanSchema,
-  outputSchema: planContentSchema,
+  outputSchema: readPlanResultSchema,
   execute: async (input, { requestContext, abortSignal }) =>
-    planContentSchema.parse(
-      await callMcp(
-        assistantContext(requestContext),
-        "read_plan",
-        input,
-        { signal: abortSignal },
-      ),
+    readPlanResultSchema.parse(
+      await callMcp(assistantContext(requestContext), "read_plan", input, {
+        signal: abortSignal,
+      }),
     ),
 });

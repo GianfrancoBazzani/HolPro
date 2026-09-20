@@ -10,6 +10,7 @@ const fake = vi.hoisted(() => {
     const chain = {
       from: () => chain,
       innerJoin: () => chain,
+      leftJoin: () => chain,
       where: (p: unknown) => {
         predicates.push(p);
         return chain;
@@ -27,8 +28,13 @@ const fake = vi.hoisted(() => {
   const db = {
     select,
     insert: vi.fn(() => ({
-      values: async (v: unknown) => {
+      values: (v: unknown) => {
         writes.push(v);
+        return {
+          onDuplicateKeyUpdate: async (u: unknown) => {
+            writes.push(u);
+          },
+        };
       },
     })),
     update: vi.fn(() => ({
@@ -37,6 +43,7 @@ const fake = vi.hoisted(() => {
         return { where: async () => {} };
       },
     })),
+    delete: vi.fn(() => ({ where: async () => {} })),
     transaction: vi.fn(),
   };
   return { db, rows, predicates, locks, writes, emit: vi.fn() };
@@ -46,7 +53,15 @@ vi.mock("@holpro/db", async () => ({
   db: fake.db,
 }));
 vi.mock("../lib/plans/events", () => ({ publishEvent: fake.emit }));
-import { findPlanEngagementId, listPlans, readPlan, publishPlan } from "../lib/plans/repository";
+import {
+  findPlanEngagementId,
+  listPlans,
+  readPlan,
+  submitPlanDraft,
+  approvePlanDraft,
+  discardPlanDraft,
+  readPlanDraft,
+} from "../lib/plans/repository";
 const coach = { userId: "coach", role: "coach" } as const;
 const engagementId = "11111111-1111-4111-8111-111111111111",
   planId = "22222222-2222-4222-8222-222222222222";
@@ -69,80 +84,117 @@ it("scopes list queries and does not expose foreign versions", async () => {
   await expect(readPlan(coach, planId, 1)).rejects.toThrow("not accessible");
   expect(fake.db.select).toHaveBeenCalledTimes(2);
 });
-it("locks ownership before the document and increments its version", async () => {
-  const date = new Date("2026-09-20T12:00:00Z");
+it("submits replacement drafts without creating approved versions", async () => {
   fake.rows.push(
     [{ id: engagementId, coachId: "coach", coacheeId: "u" }],
-    [{ id: planId, title: "Keep title" }],
-    [{ value: 2 }],
-    [{ createdAt: date }],
+    [{ id: planId }],
   );
-  const result = await publishPlan(coach, {
+  const result = await submitPlanDraft(coach, {
     engagementId,
     planId,
-    html: "<h1>New version</h1>",
+    html: "draft",
   });
-  expect(result).toEqual({
-    planId,
-    versionNumber: 3,
-    publishedAt: date.toISOString(),
-  });
+  expect(result).toMatchObject({ planId, status: "pending_review" });
   expect(fake.locks).toEqual(["update", "update"]);
   expect(fake.writes[0]).toMatchObject({
     documentId: planId,
-    number: 3,
-    publishedBy: "coach",
+    html: "draft",
+    title: null,
   });
-  expect(fake.writes[1]).not.toHaveProperty("title");
-  expect(fake.emit).toHaveBeenCalledOnce();
-  const query = new MySqlDialect().sqlToQuery(
-    fake.predicates[0] as import("drizzle-orm").SQL,
+  expect(fake.writes[1]).toMatchObject({ set: { html: "draft", title: null } });
+  expect(fake.emit).toHaveBeenCalledWith(
+    "plan.draft",
+    expect.objectContaining({ planId }),
   );
-  expect(query.params).toEqual([engagementId, "coach", "active"]);
 });
 it("rejects coachees and missing new titles before writing", async () => {
   await expect(
-    publishPlan(
+    submitPlanDraft(
       { userId: "u", role: "coachee" },
       { engagementId, title: "T", html: "x" },
     ),
   ).rejects.toThrow();
   await expect(
-    publishPlan(coach, { engagementId, html: "x" }),
+    submitPlanDraft(coach, { engagementId, html: "x" }),
   ).rejects.toThrow();
   expect(fake.db.transaction).not.toHaveBeenCalled();
 });
 it("emits nothing when a transaction fails", async () => {
   fake.db.transaction.mockRejectedValue(new Error("rollback"));
   await expect(
-    publishPlan(coach, { engagementId, title: "T", html: "x" }),
+    submitPlanDraft(coach, { engagementId, title: "T", html: "x" }),
   ).rejects.toThrow("rollback");
   expect(fake.emit).not.toHaveBeenCalled();
 });
-it("creates a first version and preserves immutable history", async () => {
-  const date = new Date("2026-09-20T12:00:00Z");
-  fake.rows.push(
-    [{ id: engagementId, coachId: "coach", coacheeId: "u" }],
-    [{ value: null }],
-    [{ createdAt: date }],
-  );
-  const result = await publishPlan(coach, {
+it("creates an unapproved document with one draft", async () => {
+  fake.rows.push([{ id: engagementId, coachId: "coach", coacheeId: "u" }]);
+  const result = await submitPlanDraft(coach, {
     engagementId,
     title: "Plan",
-    html: "<p>First</p>",
+    html: "draft",
   });
-  expect(result.versionNumber).toBe(1);
+  expect(result.status).toBe("pending_review");
   expect(fake.writes[0]).toMatchObject({
     id: result.planId,
-    title: "Plan",
-    createdBy: "coach",
+    currentVersionId: null,
   });
   expect(fake.writes[1]).toMatchObject({
     documentId: result.planId,
-    number: 1,
-    html: "<p>First</p>",
+    html: "draft",
   });
-  expect(fake.emit).toHaveBeenCalledOnce();
+});
+function reviewRows(currentVersionId: string | null = "v1", draftId = "d1") {
+  fake.rows.push(
+    [{ engagementId }],
+    [{ id: engagementId, coachId: "coach", coacheeId: "u" }],
+    [{ id: planId, currentVersionId }],
+    [{ id: draftId, html: "approved html", title: "New title" }],
+  );
+}
+it("approves the previewed draft as the next immutable version", async () => {
+  reviewRows();
+  fake.rows.push([{ value: 2 }]);
+  expect(await approvePlanDraft("coach", planId, "d1")).toMatchObject({
+    planId,
+    versionNumber: 3,
+  });
+  expect(fake.writes[0]).toMatchObject({
+    number: 3,
+    html: "approved html",
+    publishedBy: "coach",
+  });
+  expect(fake.writes[1]).toMatchObject({ title: "New title" });
+  expect(fake.db.delete).toHaveBeenCalledOnce();
+  expect(fake.emit).toHaveBeenCalledWith(
+    "plan.published",
+    expect.objectContaining({ planId }),
+  );
+});
+it.each([approvePlanDraft, discardPlanDraft])(
+  "rejects an unseen replacement without writes",
+  async (action) => {
+    reviewRows();
+    await expect(action("coach", planId, "old")).rejects.toThrow();
+    expect(fake.writes).toEqual([]);
+    expect(fake.emit).not.toHaveBeenCalled();
+  },
+);
+it.each([null, "v1"])(
+  "discards draft, soft deleting only unapproved documents (%s)",
+  async (current) => {
+    reviewRows(current);
+    await discardPlanDraft("coach", planId, "d1");
+    expect(fake.db.delete).toHaveBeenCalledOnce();
+    if (current === null) expect(fake.writes[0]).toHaveProperty("deletedAt");
+    else expect(fake.writes[0]).not.toHaveProperty("deletedAt");
+  },
+);
+it("denies draft reads to coachees and foreign coaches", async () => {
+  await expect(
+    readPlanDraft({ userId: "u", role: "coachee" }, planId),
+  ).rejects.toThrow();
+  expect(fake.db.select).not.toHaveBeenCalled();
+  await expect(readPlanDraft(coach, planId)).rejects.toThrow();
 });
 it("scopes historical reads in one query", async () => {
   fake.rows.push([
@@ -166,10 +218,100 @@ it("scopes historical reads in one query", async () => {
 
 it("resolves plan engagements using the same visibility and ownership scope", async () => {
   fake.rows.push([{ engagementId }]);
-  expect(await findPlanEngagementId({ userId: "u", role: "coachee" }, planId)).toBe(engagementId);
-  const query = new MySqlDialect().sqlToQuery(fake.predicates[0] as import("drizzle-orm").SQL);
+  expect(
+    await findPlanEngagementId({ userId: "u", role: "coachee" }, planId),
+  ).toBe(engagementId);
+  const query = new MySqlDialect().sqlToQuery(
+    fake.predicates[0] as import("drizzle-orm").SQL,
+  );
   expect(query.params).toEqual([planId, "u", "active"]);
   expect(query.sql).toContain("`plan_documents`.`deleted_at` is null");
-  expect(query.sql).toContain("`plan_documents`.`current_version_id` is not null");
+  expect(query.sql).toContain(
+    "`plan_documents`.`current_version_id` is not null",
+  );
   expect(await findPlanEngagementId(coach, "missing")).toBeUndefined();
+});
+
+it("treats an owned plan discarded in another tab as a stale review", async () => {
+  fake.rows.push(
+    [{ engagementId }],
+    [{ id: engagementId, coachId: "coach", coacheeId: "u" }],
+    [],
+  );
+  const { PlanDraftChangedError } = await import("../lib/plans/types");
+  await expect(approvePlanDraft("coach", planId, "d1")).rejects.toBeInstanceOf(
+    PlanDraftChangedError,
+  );
+  expect(fake.writes).toEqual([]);
+});
+it("omits draft metadata from coachee summaries", async () => {
+  const date = new Date("2026-09-20T00:00:00Z");
+  fake.rows.push([
+    {
+      planId,
+      engagementId,
+      title: "Published",
+      versionNumber: 1,
+      updatedAt: date,
+      draftSubmittedAt: new Date(),
+    },
+  ]);
+  const [summary] = await listPlans({ userId: "u", role: "coachee" });
+  expect(summary).not.toHaveProperty("draftSubmittedAt");
+  expect(summary.updatedAt).toBe(date.toISOString());
+  const query = new MySqlDialect().sqlToQuery(
+    fake.predicates[0] as import("drizzle-orm").SQL,
+  );
+  expect(query.sql).toContain(
+    "`plan_documents`.`current_version_id` is not null",
+  );
+});
+it("lists first drafts for coaches with version zero", async () => {
+  const date = new Date("2026-09-20T00:00:00Z");
+  fake.rows.push([
+    {
+      planId,
+      engagementId,
+      title: "Draft",
+      versionNumber: null,
+      updatedAt: date,
+      draftSubmittedAt: date,
+    },
+  ]);
+  expect(await listPlans(coach)).toEqual([
+    {
+      planId,
+      engagementId,
+      title: "Draft",
+      versionNumber: 0,
+      updatedAt: date.toISOString(),
+      draftSubmittedAt: date.toISOString(),
+    },
+  ]);
+});
+it.each([approvePlanDraft, discardPlanDraft])(
+  "denies review by another coach and missing drafts",
+  async (action) => {
+    fake.rows.push([{ engagementId }], []);
+    await expect(action("stranger", planId, "d1")).rejects.toThrow();
+    fake.rows.push(
+      [{ engagementId }],
+      [{ id: engagementId, coachId: "coach", coacheeId: "u" }],
+      [{ id: planId, currentVersionId: "v1" }],
+      [],
+    );
+    await expect(action("coach", planId, "d1")).rejects.toThrow();
+    expect(fake.writes).toEqual([]);
+  },
+);
+
+it("reads the next version with a locking read after waiting for another approval", async () => {
+  reviewRows();
+  fake.rows.push([{ value: 4 }]);
+  expect(await approvePlanDraft("coach", planId, "d1")).toMatchObject({
+    versionNumber: 5,
+  });
+  // A plain MAX query would use the snapshot established by scope discovery,
+  // potentially missing a version committed while waiting on the engagement.
+  expect(fake.locks).toEqual(["update", "update", "update", "update"]);
 });

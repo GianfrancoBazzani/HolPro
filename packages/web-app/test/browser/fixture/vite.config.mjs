@@ -10,6 +10,10 @@ const config = {
   resolve: {
     alias: [
       {
+        find: "@/lib/pro/plan-document-actions",
+        replacement: path.join(root, "plan-document-actions.ts"),
+      },
+      {
         find: "@/lib/pro/profile-actions",
         replacement: path.join(root, "telegram-actions.ts"),
       },

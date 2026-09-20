@@ -246,7 +246,21 @@
     "plan.engagementOption": "{name} — {status}",
     "plan.statusActive": "Active",
     "plan.statusEnded": "Ended",
-    "plan.version": "Version {versionNumber}, published {publishedAt}"
+    "plan.version": "Version {versionNumber}, published {publishedAt}",
+    "plan.optionPending": "{title} — pending review",
+    "plan.draftStatus": "Changed on {date}, not published. Your client sees version {versionNumber}.",
+    "plan.draftStatusNew": "New plan, not published yet. Your client cannot see it.",
+    "plan.previewDraft": "Preview draft",
+    "plan.previewPublished": "Published version",
+    "plan.approve": "Approve and publish",
+    "plan.discard": "Discard draft",
+    "plan.discardNote": "The last published version stays visible to your client.",
+    "plan.discardNoteNew": "This removes the plan.",
+    "plan.previewBanner": "Preview. Your client does not see this version.",
+    "plan.draftVersion": "Draft, submitted {submittedAt}",
+    "plan.confirmDiscard": "Confirm discard",
+    "plan.keepDraft": "Keep draft",
+    "plan.previewLabel": "Plan preview"
   },
   "pro": {
     "topbar.eyebrow": "For coaches",
@@ -354,7 +368,8 @@
     "validation.skills_max": "You can have at most {skillsMax} skills.",
     "validation.invalid": "Check this field.",
     "error.notFound": "This record is no longer available.",
-    "error.generic": "Something went wrong. Try again."
+    "error.generic": "Something went wrong. Try again.",
+    "error.draftChanged": "This draft has changed. Review the latest preview and try again."
   },
   "assistant": {
     "eyebrow": "Your assistant",
@@ -382,7 +397,7 @@
     "error.retry": "Try again",
     "error.microphone": "Could not record audio. Check microphone access and try again.",
     "tool.publishPlanDocument": "Publishing your plan",
-    "tool.planPublished": "Plan published",
+    "tool.planPublished": "Draft sent for your review",
     "tool.listPlanDocuments": "Reading published plans",
     "tool.readPlanDocument": "Reading the plan document",
     "tool.searchCoaches": "Searching coaches"

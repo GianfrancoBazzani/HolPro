@@ -20,11 +20,11 @@ export async function POST(request: Request) {
   const mime = audio.type.split(";")[0].trim();
   if (mime !== "audio/webm" && mime !== "audio/mp4" && mime !== "audio/mpeg")
     return invalidInput();
-  const filetype = {
+  const filetype = ({
     "audio/webm": "webm",
     "audio/mp4": "mp4",
     "audio/mpeg": "mpeg",
-  }[mime];
+  } as const)[mime];
   try {
     const { voice } = await import("@/mastra/voice");
     const text = await voice.listen(

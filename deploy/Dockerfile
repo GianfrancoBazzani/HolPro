@@ -24,6 +24,7 @@ ENV OPENAI_API_KEY=build-placeholder
 ENV RESEND_API_KEY=build-placeholder
 ENV DATABASE_URL=mysql://build:build@127.0.0.1:3306/build
 ENV BETTER_AUTH_URL=http://build-placeholder.invalid
+ENV BETTER_AUTH_SECRET=build-only-placeholder-not-a-runtime-secret-00000000
 RUN pnpm run build
 
 # Stage 2: Runtime

@@ -5,6 +5,7 @@ vi.mock("../lib/plans/view", () => ({
   loadPlanView: vi.fn(async () => ({
     engagements: [],
     plans: [],
+    draft: null,
     content: null,
     framed: null,
   })),
@@ -165,6 +166,7 @@ it("ends onboarding when a published document exists without plan items", async 
         updatedAt: "2026-09-20T12:00:00Z",
       },
     ],
+    draft: null,
     content: null,
     framed: null,
   });

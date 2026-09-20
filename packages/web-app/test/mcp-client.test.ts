@@ -18,7 +18,7 @@ vi.mock("../lib/plans/repository", () => ({
   readPlan: vi.fn(async () => {
     throw new Error("private failure");
   }),
-  publishPlan: vi.fn(),
+  submitPlanDraft: vi.fn(),
 }));
 import { POST, GET } from "../app/api/mcp/route";
 import { mintMcpToken } from "../lib/mcp/token";

@@ -35,7 +35,7 @@ it("streams only currently readable events and cleans up on abort", async () => 
     reader = response.body!.getReader();
   await reader.read();
   const pending = reader.read();
-  publishEvent({
+  publishEvent("plan.published", {
     planId: "p",
     engagementId: "e",
     coachId: "c",
@@ -72,7 +72,7 @@ it("suppresses events for an engagement that is no longer readable", async () =>
     reader = response.body!.getReader();
   await reader.read();
   const pending = reader.read();
-  publishEvent({
+  publishEvent("plan.published", {
     planId: "p",
     engagementId: "ended",
     coachId: "c",
@@ -82,3 +82,37 @@ it("suppresses events for an engagement that is no longer readable", async () =>
   abort.abort();
   expect((await pending).done).toBe(true);
 });
+
+it.each(["coach", "coachee"] as const)(
+  "sends draft events only to a coach session (%s)",
+  async (role) => {
+    vi.mocked(requireAssistantUser).mockResolvedValue({
+      user: { id: "u" },
+      role,
+      locale: "en",
+    } as NonNullable<Awaited<ReturnType<typeof requireAssistantUser>>>);
+    const abort = new AbortController();
+    const response = await GET(
+      new Request("http://localhost/api/plans/events", {
+        signal: abort.signal,
+      }),
+    );
+    const reader = response.body!.getReader();
+    await reader.read();
+    const next = reader.read();
+    // Same account can have both roles: event-bus filtering alone is insufficient.
+    publishEvent("plan.draft", {
+      planId: "p",
+      engagementId: "e",
+      coachId: "u",
+      coacheeId: "client",
+    });
+    await vi.advanceTimersByTimeAsync(1);
+    if (role === "coach")
+      expect(new TextDecoder().decode((await next).value)).toContain(
+        "event: plan.draft",
+      );
+    abort.abort();
+    if (role === "coachee") expect((await next).done).toBe(true);
+  },
+);

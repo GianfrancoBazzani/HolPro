@@ -38,14 +38,15 @@ export async function GET(request: Request) {
         }
       };
       controller.enqueue(sseComment("connected"));
-      unsubscribe = subscribe(initial.user.id, async (event) => {
+      unsubscribe = subscribe(initial.user.id, async (name, event) => {
         try {
           const current = await currentSession();
           if (!current) return close();
+          if (name === "plan.draft" && current.role !== "coach") return;
           const actor = { userId: current.user.id, role: current.role };
           if ((await canReadPlans(actor, event.engagementId)) && !closed)
             controller.enqueue(
-              sseEvent("plan.published", {
+              sseEvent(name, {
                 planId: event.planId,
                 engagementId: event.engagementId,
               }),
