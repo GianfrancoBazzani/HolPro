@@ -182,12 +182,7 @@ export function AssistantPanel({
   return (
     <aside ref={panel} className="dashboard-panel assistant-panel">
       <div className="assistant-header">
-        <div>
-          <span className="eyebrow">
-            {t(isOnboarding ? "eyebrowOnboarding" : "eyebrow")}
-          </span>
-          <h2>{t("title")}</h2>
-        </div>
+        <h2 className="eyebrow">{t("eyebrow")}</h2>
         <button
           className="assistant-icon"
           type="button"

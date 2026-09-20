@@ -28,7 +28,6 @@ export function PlanArtifact({
       className="dashboard-panel plan-artifact"
       aria-labelledby="plan-document-heading"
     >
-      <span className="eyebrow">{t("plan.eyebrow")}</span>
       <h2 id="plan-document-heading">{t("plan.title")}</h2>
       {(view.plans.length > 1 ||
         (role === "coach" && view.engagements.length > 0)) && (

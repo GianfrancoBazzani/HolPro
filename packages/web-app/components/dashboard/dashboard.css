@@ -25,7 +25,7 @@
   align-items: start;
 }
 .dashboard-layout {
-  gap: var(--space-fluid-lg);
+  gap: var(--space-fluid-sm);
 }
 .dashboard-main {
   gap: var(--space-6);

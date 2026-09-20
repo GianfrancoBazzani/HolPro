@@ -24,8 +24,7 @@ export function Clients({
     });
   return (
     <aside className="dashboard-panel clients-panel">
-      <span className="eyebrow">{t("clients.eyebrow")}</span>
-      <h2>{t("clients.title")}</h2>
+      <h2 className="eyebrow">{t("clients.eyebrow")}</h2>
       {!clients.length ? (
         <p>{t("clients.empty")}</p>
       ) : (

@@ -69,10 +69,9 @@ export function Agenda({
       aria-labelledby="agenda-heading"
     >
       <div className="agenda-heading">
-        <div>
-          <span className="eyebrow">{t("agenda.eyebrow")}</span>
-          <h1 id="agenda-heading">{t("agenda.title")}</h1>
-        </div>
+        <h1 className="eyebrow" id="agenda-heading">
+          {t("agenda.eyebrow")}
+        </h1>
         <button
           className="button button-primary"
           onClick={() => setEditing("new")}

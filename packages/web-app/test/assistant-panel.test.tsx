@@ -20,7 +20,7 @@ for (const locale of localeKeys)
         ].replace("{name}", "Alex"),
       );
       expect(html).toContain(
-        messages.assistant[onboarding ? "eyebrowOnboarding" : "eyebrow"],
+        messages.assistant.eyebrow,
       );
       expect(html).toContain(
         messages.assistant[onboarding ? "panel.collapse" : "panel.expand"],
