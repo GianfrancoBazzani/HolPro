@@ -1,4 +1,5 @@
 import { Memory } from "@mastra/memory";
+import { titleInstructions } from "./context";
 export const memory = new Memory({
   options: {
     lastMessages: 30,
@@ -8,6 +9,9 @@ export const memory = new Memory({
       template:
         "# Coaching profile\n- Goals:\n- Preferences:\n- Current focus:\n- Notes for the next conversation:",
     },
-    generateTitle: false,
+    generateTitle: {
+      model: process.env.ASSISTANT_TITLE_MODEL ?? "openai/gpt-5.4-mini",
+      instructions: ({ requestContext }) => titleInstructions(requestContext),
+    },
   },
 });

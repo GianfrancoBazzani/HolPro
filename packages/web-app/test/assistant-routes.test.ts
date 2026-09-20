@@ -9,8 +9,8 @@ vi.mock("../lib/assistant/onboarding", () => ({
     goalsSaved: false,
   })),
 }));
-const { recall, handle, listen, speak } = vi.hoisted(() => ({
-  recall: vi.fn(async () => ({ messages: [] })),
+const { memory, handle, listen, speak } = await vi.hoisted(async () => ({
+  memory: (await import("./helpers/thread-memory")).threadMemory(),
   handle: vi.fn(
     async () =>
       new ReadableStream({
@@ -24,12 +24,16 @@ const { recall, handle, listen, speak } = vi.hoisted(() => ({
 }));
 vi.mock("../mastra", () => {
   const agent = {
-    getMemory: async () => ({ getThreadById: async () => null, recall }),
+    getMemory: async () => memory,
     get voice(): never {
       throw new Error("AGENT_VOICE_INCOMPATIBLE_WITH_FUNCTION_INSTRUCTIONS");
     },
   };
-  return { mastra: { getAgentById: () => agent }, getAssistant: () => agent };
+  return {
+    mastra: { getAgentById: () => agent },
+    getAssistant: () => agent,
+    getAssistantMemory: async () => memory,
+  };
 });
 vi.mock("../mastra/voice", () => ({ voice: { listen, speak } }));
 vi.mock("@mastra/ai-sdk", () => ({ handleChatStream: handle }));
@@ -50,6 +54,7 @@ const user = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  memory.threads.clear();
   vi.mocked(auth.api.getSession).mockResolvedValue(null);
   vi.mocked(loadUserWithRoles).mockResolvedValue(
     user as Awaited<ReturnType<typeof loadUserWithRoles>>,
@@ -225,4 +230,75 @@ it("scopes submitted message ids to the authenticated thread", async () => {
     { params: { messages: { id: string }[] } },
   ];
   expect(call[0].params.messages[0].id).not.toBe("another-users-message");
+});
+const chat = (query: string, body?: unknown) =>
+  new Request(
+    `http://localhost/api/assistant/chat?${query}`,
+    body
+      ? {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      : undefined,
+  );
+const hello = {
+  messages: [
+    { id: "x", role: "user", parts: [{ type: "text", text: "Hello" }] },
+  ],
+};
+const stored = (id: string, resourceId: string, date: string) => {
+  memory.threads.set(id, {
+    id,
+    resourceId,
+    createdAt: new Date(date),
+    updatedAt: new Date(date),
+  });
+};
+it("uses the newest conversation without a thread parameter and reports it in a header", async () => {
+  login();
+  stored("coachee:u", "u", "2026-01-01");
+  stored("coachee:u:new", "u", "2026-02-01");
+  const history = await GET(chat("portal=coachee"));
+  expect(history.headers.get("x-assistant-thread")).toBe("coachee:u:new");
+  const response = await POST(chat("portal=coachee", hello));
+  expect(response.status).toBe(200);
+  await response.body?.cancel();
+  const [options] = handle.mock.calls[0] as unknown as [
+    { params: { memory: unknown } },
+  ];
+  expect(options.params.memory).toEqual({
+    thread: "coachee:u:new",
+    resource: "u",
+  });
+});
+it("uses a valid thread parameter and refuses a foreign or missing one", async () => {
+  login();
+  stored("coachee:u:a", "u", "2026-01-01");
+  stored("coachee:u:b", "u", "2026-02-01");
+  stored("coachee:u:stolen", "v", "2026-02-01");
+  const history = await GET(chat("portal=coachee&thread=coachee%3Au%3Aa"));
+  expect(history.status).toBe(200);
+  expect(history.headers.get("x-assistant-thread")).toBe("coachee:u:a");
+  expect(memory.recall).toHaveBeenCalledWith(
+    expect.objectContaining({ threadId: "coachee:u:a" }),
+  );
+  const response = await POST(
+    chat("portal=coachee&thread=coachee%3Au%3Aa", hello),
+  );
+  await response.body?.cancel();
+  const [options] = handle.mock.calls[0] as unknown as [
+    { params: { memory: unknown } },
+  ];
+  expect(options.params.memory).toEqual({
+    thread: "coachee:u:a",
+    resource: "u",
+  });
+  for (const thread of ["coachee%3Au%3Astolen", "coachee%3Au%3Agone", "coach%3Au"]) {
+    expect((await GET(chat(`portal=coachee&thread=${thread}`))).status).toBe(401);
+    expect(
+      (await POST(chat(`portal=coachee&thread=${thread}`, hello))).status,
+    ).toBe(401);
+  }
+  expect(handle).toHaveBeenCalledTimes(1);
 });

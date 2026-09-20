@@ -11,7 +11,12 @@ for (const locale of localeKeys)
         onboarding = role === "coachee";
       const html = renderToStaticMarkup(
         <I18nProvider locale={locale} messages={messages}>
-          <AssistantPanel name="Alex" role={role} onboarding={onboarding} />
+          <AssistantPanel
+            name="Alex"
+            role={role}
+            onboarding={onboarding}
+            timezone="UTC"
+          />
         </I18nProvider>,
       );
       expect(html).toContain(
@@ -82,7 +87,12 @@ it("renders a textarea composer, an icon send button and a plain serif title", a
   const messages = await getDictionary("en");
   const html = renderToStaticMarkup(
     <I18nProvider locale="en" messages={messages}>
-      <AssistantPanel name="Alex" role="coachee" onboarding={false} />
+      <AssistantPanel
+        name="Alex"
+        role="coachee"
+        onboarding={false}
+        timezone="UTC"
+      />
     </I18nProvider>,
   );
   expect(html).toContain("<textarea");
@@ -116,4 +126,96 @@ it("hides the thinking chip when no reply is pending", async () => {
     </I18nProvider>,
   );
   expect(html).not.toContain(messages.assistant["status.thinking"]);
+});
+
+const listProps = {
+  timezone: "UTC",
+  confirming: null,
+  busy: false,
+  onSelect: () => {},
+  onAskDelete: () => {},
+  onConfirmDelete: () => {},
+  onCancelDelete: () => {},
+};
+it("renders the conversation rows with a current marker, dates, fallbacks and the confirmation", async () => {
+  const { ConversationList } = await import(
+    "../components/assistant/conversation-menu"
+  );
+  const messages = await getDictionary("en");
+  const conversations = [
+    { id: "coachee:u:a", title: "Sleep routine", updatedAt: "2026-09-20T10:00:00.000Z" },
+    { id: "coachee:u", title: null, updatedAt: "2026-09-19T10:00:00.000Z" },
+  ];
+  const html = renderToStaticMarkup(
+    <I18nProvider locale="en" messages={messages}>
+      <ConversationList
+        {...listProps}
+        conversations={conversations}
+        activeId="coachee:u:a"
+        timezone="Europe/Rome"
+        confirming="coachee:u"
+      />
+    </I18nProvider>,
+  );
+  expect(html).toContain('aria-current="true"');
+  expect(html).toContain("assistant-conversation-check");
+  expect(html).toContain(messages.assistant["conversation.current"]);
+  expect(html).toContain("Sleep routine");
+  expect(html).toContain(
+    new Intl.DateTimeFormat("en", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Europe/Rome",
+    }).format(new Date("2026-09-20T10:00:00.000Z")),
+  );
+  expect(html).toContain(messages.assistant["conversation.deleteQuestion"]);
+  expect(html).toContain(messages.assistant["conversation.deleteConfirm"]);
+  expect(html).toContain(messages.assistant["conversation.deleteCancel"]);
+  expect(html).not.toContain(messages.assistant["conversation.untitled"]);
+  const empty = renderToStaticMarkup(
+    <I18nProvider locale="en" messages={messages}>
+      <ConversationList {...listProps} conversations={[]} activeId={null} />
+    </I18nProvider>,
+  );
+  expect(empty).toContain(messages.assistant["conversation.empty"]);
+  const untitled = renderToStaticMarkup(
+    <I18nProvider locale="en" messages={messages}>
+      <ConversationList
+        {...listProps}
+        conversations={[conversations[1]]}
+        activeId={null}
+      />
+    </I18nProvider>,
+  );
+  expect(untitled).toContain(messages.assistant["conversation.untitled"]);
+  expect(untitled).toContain(
+    `aria-label="${messages.assistant["conversation.delete"]}"`,
+  );
+  expect(untitled).not.toContain("aria-current");
+});
+it("renders the plus and history buttons in the header before the collapse button", async () => {
+  const messages = await getDictionary("en");
+  const html = renderToStaticMarkup(
+    <I18nProvider locale="en" messages={messages}>
+      <AssistantPanel
+        name="Alex"
+        role="coachee"
+        onboarding={false}
+        timezone="UTC"
+      />
+    </I18nProvider>,
+  );
+  const plus = html.indexOf(
+      `aria-label="${messages.assistant["conversation.new"]}"`,
+    ),
+    history = html.indexOf(
+      `aria-label="${messages.assistant["conversation.history"]}"`,
+    ),
+    collapse = html.indexOf(`aria-label="${messages.assistant["panel.expand"]}"`);
+  expect(plus).toBeGreaterThan(-1);
+  expect(history).toBeGreaterThan(plus);
+  expect(collapse).toBeGreaterThan(history);
+  expect(html).toContain('aria-haspopup="true"');
+  expect(html).toContain('aria-expanded="false"');
+  expect(html).not.toContain("assistant-conversation-list");
 });

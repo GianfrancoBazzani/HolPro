@@ -89,7 +89,12 @@ export async function CoachHome({
               timezone={timezone}
               messages={messages.pro}
             />
-            <AssistantPanel name={user.name} role="coach" onboarding={false} />
+            <AssistantPanel
+              name={user.name}
+              role="coach"
+              onboarding={false}
+              timezone={timezone}
+            />
           </div>
         </div>
       </main>

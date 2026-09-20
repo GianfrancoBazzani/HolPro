@@ -14,6 +14,7 @@ import { Topbar } from "./topbar";
 import { saveCalendarPreferences } from "@/lib/calendar/actions";
 import { AssistantPanel } from "@/components/assistant/assistant-panel";
 import { isOnboarding } from "@/lib/assistant/onboarding";
+import { safeTimezone } from "@/lib/pro/dates";
 import "./dashboard.css";
 export async function Dashboard({
   locale,
@@ -78,6 +79,7 @@ export async function Dashboard({
             name={user.name}
             role="coachee"
             onboarding={isOnboarding(data, documents.plans.length > 0)}
+            timezone={safeTimezone(user.timezone)}
           />
         </div>
       </main>

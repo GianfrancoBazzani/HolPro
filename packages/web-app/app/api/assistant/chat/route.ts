@@ -8,14 +8,11 @@ import {
   unauthorized,
   invalidInput,
   assistantError,
+  resolveThread,
 } from "@/lib/assistant/session";
 import { limits } from "@/lib/assistant/limits";
 import { loadOnboardingState } from "@/lib/assistant/onboarding";
-import {
-  buildAssistantContext,
-  toRequestContext,
-  threadIdFor,
-} from "@/mastra/context";
+import { buildAssistantContext, toRequestContext } from "@/mastra/context";
 import { withSseHeartbeat } from "@/lib/assistant/sse";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,14 +42,21 @@ export async function POST(request: Request) {
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return invalidInput();
   try {
-    const { user, role, locale } = session;
-    const state =
+    const { user, role, locale, actor } = session;
+    const { mastra, getAssistantMemory } = await import("@/mastra");
+    const [state, thread] = await Promise.all([
       role === "coach"
         ? { onboarding: false, goalsSaved: false }
-        : await loadOnboardingState(user.id);
+        : loadOnboardingState(user.id),
+      resolveThread(
+        await getAssistantMemory(),
+        actor,
+        new URL(request.url).searchParams.get("thread"),
+      ),
+    ]);
+    if (!thread) return unauthorized();
+    const threadId = thread.id;
     const context = buildAssistantContext(user, role, locale, state);
-    const threadId = threadIdFor(context);
-    const { mastra } = await import("@/mastra");
     const stream = await handleChatStream({
       mastra,
       agentId: "holpro-assistant",
@@ -84,23 +88,27 @@ export async function GET(request: Request) {
   const session = await requireAssistantUser(request);
   if (!session) return unauthorized();
   try {
-    const { getAssistant } = await import("@/mastra");
-    const threadId = threadIdFor({
-        role: session.role,
-        userId: session.user.id,
-      }),
-      memory = await getAssistant().getMemory();
-    const thread = await memory!.getThreadById({ threadId });
-    if (thread && thread.resourceId !== session.user.id) return unauthorized();
-    if (!thread)
-      return Response.json([], { headers: { "cache-control": "no-store" } });
-    const history = await memory!.recall({
-      threadId,
+    const { getAssistantMemory } = await import("@/mastra");
+    const memory = await getAssistantMemory();
+    const thread = await resolveThread(
+      memory,
+      session.actor,
+      new URL(request.url).searchParams.get("thread"),
+    );
+    if (!thread) return unauthorized();
+    // The panel asks for the default conversation without an id; name it.
+    const headers = {
+      "cache-control": "no-store",
+      "x-assistant-thread": thread.id,
+    };
+    if (!thread.exists) return Response.json([], { headers });
+    const history = await memory.recall({
+      threadId: thread.id,
       resourceId: session.user.id,
       perPage: false,
     });
     return Response.json(toAISdkMessages(history.messages, { version: "v7" }), {
-      headers: { "cache-control": "no-store" },
+      headers,
     });
   } catch {
     return assistantError();

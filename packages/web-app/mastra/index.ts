@@ -25,3 +25,8 @@ const globalMastra = globalThis as typeof globalThis & {
 export const mastra = globalMastra.holproMastra ?? createMastra();
 if (process.env.NODE_ENV !== "production") globalMastra.holproMastra = mastra;
 export const getAssistant = () => mastra.getAgentById("holpro-assistant");
+export async function getAssistantMemory() {
+  const memory = await getAssistant().getMemory();
+  if (!memory) throw new Error("memory_unavailable");
+  return memory;
+}

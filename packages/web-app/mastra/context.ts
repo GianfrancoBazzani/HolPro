@@ -2,7 +2,7 @@ import {
   RequestContext,
   MASTRA_RESOURCE_ID_KEY,
 } from "@mastra/core/request-context";
-import { locales, type Locale } from "@/lib/i18n/config";
+import { defaultLocale, locales, type Locale } from "@/lib/i18n/config";
 import { getTranslator } from "@/lib/i18n/dictionary";
 import type { PortalKey } from "@/lib/auth/portals";
 import { safeTimezone } from "@/lib/pro/dates";
@@ -51,8 +51,22 @@ export function assistantContext(request?: RequestContext): AssistantContext {
   if (!context?.userId) throw new Error("unauthorized");
   return context;
 }
-export const threadIdFor = (actor: Pick<AssistantContext, "role" | "userId">) =>
-  `${actor.role}:${actor.userId}`;
+export type Actor = Pick<AssistantContext, "role" | "userId">;
+export const threadIdFor = (actor: Actor) => `${actor.role}:${actor.userId}`;
+export const newThreadId = (actor: Actor) =>
+  `${threadIdFor(actor)}:${crypto.randomUUID()}`;
+// The prefix rule covers the legacy thread and excludes every Telegram thread.
+export const isThreadOf = (actor: Actor, threadId: string) => {
+  const base = threadIdFor(actor);
+  return threadId === base || threadId.startsWith(`${base}:`);
+};
+export function titleInstructions(request?: RequestContext) {
+  // A request without assistant context gets an English title.
+  const locale =
+    (request?.get("assistant") as AssistantContext | undefined)?.locale ??
+    defaultLocale;
+  return `Write a title for this conversation in ${locales[locale].name}. Use a maximum of five words. Write no quotation marks and no final period.`;
+}
 export async function buildInstructions(
   context: AssistantContext,
   now = new Date(),

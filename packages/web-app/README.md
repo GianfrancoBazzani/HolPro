@@ -174,6 +174,14 @@ Assistant and plan-event requests carry the active portal, which is checked
 against current role membership. Dual-role accounts retain separate coach and
 coachee chat histories; MCP tokens preserve the selected role.
 
+The header of the panel has a plus button and a history button. The user can
+start a new conversation, reopen one of the 20 newest conversations and delete
+one. Each conversation is a Mastra thread with the ID `<role>:<userId>:<uuid>`;
+the first conversation keeps the legacy ID `<role>:<userId>`. The chat and
+`threads` routes accept only IDs inside that namespace and owned by the
+session user. The coaching profile is resource-scoped and survives every
+conversation. Titles come from `ASSISTANT_TITLE_MODEL` after the first turn.
+
 Apply `packages/db/drizzle/0004_mature_blur.sql` with the normal migration
 workflow before release. Generation does not apply it. Mastra's MySQLStore
 also creates its own `mastra_*` tables for threads, messages, resource working
@@ -187,6 +195,7 @@ Set these server environment variables (also in the example files):
 | --- | --- | --- |
 | `OPENAI_API_KEY` | required for requests | Model, Whisper transcription and speech |
 | `ASSISTANT_MODEL` | `openai/gpt-5.4-mini` | Mastra model id |
+| `ASSISTANT_TITLE_MODEL` | `openai/gpt-5.4-mini` | Model for conversation titles |
 | `ASSISTANT_VOICE_SPEAKER` | `alloy` | OpenAI TTS speaker |
 | `MOCK_TASK_DURATION_MS` | `120000` | Mock task duration |
 | `ASSISTANT_SKILLS_DIR` | auto-detected | Absolute workspace path containing `skills/` |

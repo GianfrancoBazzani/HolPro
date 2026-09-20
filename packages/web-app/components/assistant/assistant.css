@@ -2,10 +2,122 @@
   min-width: 0;
 }
 .assistant-header {
+  position: relative;
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: var(--space-4);
+}
+.assistant-header-actions,
+.assistant-conversations {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+.assistant-conversation-list {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  z-index: 2;
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: var(--space-3);
+  border: 1px solid var(--pine-18);
+  border-radius: var(--radius-panel);
+  background: var(--parchment);
+  color: var(--pine);
+}
+.assistant-conversation-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.assistant-conversation {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.assistant-conversation-open {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-panel);
+  background: transparent;
+  color: var(--pine);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.assistant-conversation-open:hover,
+.assistant-conversation-open:focus-visible {
+  background: var(--pine-04);
+  color: var(--cumin);
+}
+.assistant-conversation-open[aria-current="true"] {
+  background: var(--pine-10);
+}
+.assistant-conversation-check {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.assistant-conversation-title {
+  flex: 1 1 160px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.assistant-conversation time {
+  font-size: 14px;
+  color: var(--muted);
+}
+.assistant-conversation-delete {
+  border-color: var(--pine-18);
+}
+.assistant-conversation-confirm {
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+}
+.assistant-conversation-confirm p,
+.assistant-conversation-empty {
+  margin: 0;
+}
+.assistant-conversation-confirm p {
+  flex: 1 1 160px;
+}
+.assistant-conversation-empty {
+  padding: var(--space-3) var(--space-4);
+  font-size: 14px;
+  color: var(--muted);
+}
+.assistant-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .assistant-messages {
   display: flex;

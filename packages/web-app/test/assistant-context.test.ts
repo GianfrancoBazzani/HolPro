@@ -76,3 +76,33 @@ it("stamps existing context and supplies Telegram instructions", async () => {
   expect(instructions).toContain("plain text");
   expect(instructions).not.toContain("The panel already greeted");
 });
+it("builds suffixed thread ids inside the portal namespace", async () => {
+  const { isThreadOf, newThreadId, threadIdFor } = await import(
+    "../mastra/context"
+  );
+  const actor = { role: "coachee", userId: "u" } as const;
+  const id = newThreadId(actor);
+  expect(id.startsWith("coachee:u:")).toBe(true);
+  expect(id).not.toBe(newThreadId(actor));
+  expect(isThreadOf(actor, id)).toBe(true);
+  expect(isThreadOf(actor, threadIdFor(actor))).toBe(true);
+  expect(isThreadOf(actor, "coach:u")).toBe(false);
+  expect(isThreadOf(actor, "coachee:u2")).toBe(false);
+  expect(isThreadOf(actor, "telegram:u")).toBe(false);
+});
+it("writes title instructions in the user's language and falls back to English", async () => {
+  const { RequestContext } = await import("@mastra/core/request-context");
+  const { titleInstructions, toRequestContext } = await import(
+    "../mastra/context"
+  );
+  const context = toRequestContext(
+    buildAssistantContext(user, "coachee", "es", {
+      onboarding: false,
+      goalsSaved: false,
+    }),
+  );
+  expect(titleInstructions(context)).toContain("Español");
+  expect(titleInstructions(context)).toContain("five words");
+  expect(titleInstructions(new RequestContext())).toContain("English");
+  expect(titleInstructions()).toContain("English");
+});

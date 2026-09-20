@@ -36,7 +36,12 @@ createRoot(document.getElementById("root")).render(
             <div className="dashboard-main">
               <h1>{messages.dashboard["calendar.title"]}</h1>
             </div>
-            <AssistantPanel name="Alex" role="coachee" onboarding={true} />
+            <AssistantPanel
+              name="Alex"
+              role="coachee"
+              onboarding={true}
+              timezone="Europe/Rome"
+            />
           </div>
         ) : (
           <>

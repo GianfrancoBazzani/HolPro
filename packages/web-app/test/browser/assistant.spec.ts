@@ -17,6 +17,9 @@ function reply(text: string) {
   );
 }
 async function history(page: Page, messages: unknown[] = []) {
+  await page.route("**/api/assistant/threads?*", (route) =>
+    route.fulfill({ json: [] }),
+  );
   await page.route("**/api/assistant/chat?*", async (route) => {
     expect(new URL(route.request().url()).searchParams.get("portal")).toBe("coachee");
     if (route.request().method() === "GET")
@@ -148,6 +151,9 @@ test("records on click, sends the transcript and releases microphone tracks", as
 });
 test("failed chat can be retried", async ({ page }) => {
   let posts = 0;
+  await page.route("**/api/assistant/threads?*", (route) =>
+    route.fulfill({ json: [] }),
+  );
   await page.route("**/api/assistant/chat?*", (route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: [] });
     posts++;
@@ -313,6 +319,9 @@ test("speaks completed replies and stops playback when a new user turn starts", 
 
 test("retrying failed speech preserves the completed chat and retries only audio", async ({ page }) => {
   let posts = 0;
+  await page.route("**/api/assistant/threads?*", (route) =>
+    route.fulfill({ json: [] }),
+  );
   await page.route("**/api/assistant/chat?*", (route) => {
     if (route.request().method() === "GET") return route.fulfill({ json: [] });
     posts++;
@@ -485,4 +494,114 @@ test("composer controls keep one row in a narrow panel", async ({ page }) => {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
+});
+type Row = { id: string; title: string | null; updatedAt: string };
+async function threads(page: Page, list: Row[]) {
+  const state = { list, created: 0, deleted: [] as string[] };
+  await page.route("**/api/assistant/threads?*", async (route) => {
+    const url = new URL(route.request().url());
+    expect(url.searchParams.get("portal")).toBe("coachee");
+    const method = route.request().method();
+    if (method === "GET") return route.fulfill({ json: state.list });
+    if (method === "POST") {
+      state.created++;
+      const id = `coachee:u:new-${state.created}`;
+      state.list = [
+        { id, title: null, updatedAt: "2026-09-20T12:00:00.000Z" },
+        ...state.list,
+      ];
+      return route.fulfill({ status: 201, json: { id } });
+    }
+    const thread = url.searchParams.get("thread")!;
+    state.deleted.push(thread);
+    state.list = state.list.filter((c) => c.id !== thread);
+    return route.fulfill({ status: 204 });
+  });
+  return state;
+}
+test("lists conversations, switches, creates and deletes with a confirmation", async ({
+  page,
+}) => {
+  const histories: Record<string, unknown[]> = {
+    "coachee:u:a": [
+      { id: "a1", role: "assistant", parts: [{ type: "text", text: "Sleep plan" }] },
+    ],
+    "coachee:u": [
+      { id: "b1", role: "assistant", parts: [{ type: "text", text: "First chat" }] },
+    ],
+  };
+  await page.route("**/api/assistant/chat?*", async (route) => {
+    const url = new URL(route.request().url());
+    const thread = url.searchParams.get("thread") ?? "coachee:u:a";
+    if (route.request().method() === "GET")
+      return route.fulfill({
+        json: histories[thread] ?? [],
+        headers: { "x-assistant-thread": thread },
+      });
+    return route.fulfill({ headers: streamHeaders, body: reply("Reply") });
+  });
+  const state = await threads(page, [
+    { id: "coachee:u:a", title: "Sleep routine", updatedAt: "2026-09-20T10:00:00.000Z" },
+    { id: "coachee:u", title: null, updatedAt: "2026-09-19T10:00:00.000Z" },
+  ]);
+  await page.goto("/?assistant=1");
+  await expect(page.getByText("Sleep plan")).toBeVisible();
+  const history = page.getByRole("button", { name: "Open past conversations" });
+  await history.click();
+  await expect(history).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("button", { name: /Sleep routine/ }),
+  ).toHaveAttribute("aria-current", "true");
+  await page.keyboard.press("Escape");
+  await expect(history).toHaveAttribute("aria-expanded", "false");
+  await expect(history).toBeFocused();
+  await history.click();
+  await page.getByRole("button", { name: /New conversation/ }).click();
+  await expect(page.getByText("First chat")).toBeVisible();
+  await expect(page.getByText("Sleep plan")).toBeHidden();
+  await page.getByRole("button", { name: "Start a new conversation" }).click();
+  await expect(page.getByText("First chat")).toBeHidden();
+  await expect(
+    page.getByText("Hello Alex. Tell me more about your goals."),
+  ).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Write a message" })).toBeFocused();
+  expect(state.created).toBe(1);
+  await history.click();
+  await page.getByRole("button", { name: "Delete this conversation" }).first().click();
+  await expect(page.getByText("Delete this conversation?")).toBeVisible();
+  expect(state.deleted).toEqual([]);
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect.poll(() => state.deleted).toEqual(["coachee:u:new-1"]);
+  await expect(page.getByText("Sleep plan")).toBeVisible();
+});
+test("a refused stored conversation falls back to the default one", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("hp_assistant_thread_coachee", "coachee:u:gone"),
+  );
+  const requested: string[] = [];
+  await page.route("**/api/assistant/chat?*", async (route) => {
+    const thread = new URL(route.request().url()).searchParams.get("thread");
+    requested.push(thread ?? "");
+    if (thread === "coachee:u:gone")
+      return route.fulfill({ status: 401, json: { error: "unauthorized" } });
+    return route.fulfill({
+      json: [
+        { id: "d", role: "assistant", parts: [{ type: "text", text: "Default chat" }] },
+      ],
+      headers: { "x-assistant-thread": "coachee:u" },
+    });
+  });
+  await threads(page, []);
+  await page.goto("/?assistant=1");
+  await expect(page.getByText("Default chat")).toBeVisible();
+  // StrictMode mounts twice, so the refused request can appear twice.
+  expect(requested.at(-1)).toBe("");
+  expect(requested.slice(0, -1).every((id) => id === "coachee:u:gone")).toBe(true);
+  expect(
+    await page.evaluate(() => localStorage.getItem("hp_assistant_thread_coachee")),
+  ).toBe("coachee:u");
+  await page.getByRole("button", { name: "Open past conversations" }).click();
+  await expect(page.getByText("No past conversations yet")).toBeVisible();
 });
