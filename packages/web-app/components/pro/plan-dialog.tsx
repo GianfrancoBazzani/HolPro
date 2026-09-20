@@ -20,6 +20,11 @@ export type PlanTarget =
   | { kind: "item"; parentId: string; value?: CalendarItem }
   | { kind: "checkpoint"; parentId: string; value?: CalendarCheckpoint }
   | { kind: "period"; parentId: string; value?: CalendarPeriod };
+const planActions = {
+  item: savePlanItem,
+  checkpoint: savePlanCheckpoint,
+  period: savePlanPeriod,
+} satisfies Record<PlanTarget["kind"], typeof savePlanItem>;
 export function PlanDialog({
   target,
   onClose,
@@ -30,11 +35,7 @@ export function PlanDialog({
   const t = useT("pro"),
     d = useT("dashboard");
   const [state, submit, pending, formRef] = useFormAction(
-    target.kind === "item"
-      ? savePlanItem
-      : target.kind === "checkpoint"
-        ? savePlanCheckpoint
-        : savePlanPeriod,
+    planActions[target.kind],
   );
   useEffect(() => {
     if (state.ok) onClose();

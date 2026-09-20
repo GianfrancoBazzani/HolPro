@@ -97,25 +97,29 @@ export function MessageList({
             const kind = input?.kind ?? output?.kind ?? "";
             const complete =
               name === "startLongTask" ? output?.status === "done" : done;
-            const key =
-              name === "publishPlanDocument"
-                ? done
-                  ? "tool.planPublished"
-                  : "tool.publishPlanDocument"
-                : toolLabels[name as keyof typeof toolLabels] ?? null;
+            let key: Parameters<typeof t>[0] | null;
+            if (name === "publishPlanDocument") {
+              key = done ? "tool.planPublished" : "tool.publishPlanDocument";
+            } else {
+              key = toolLabels[name as keyof typeof toolLabels] ?? null;
+            }
             if (!key && name !== "startLongTask") return null;
+            let label: string;
+            if (failed) {
+              label = t("tool.taskFailed");
+            } else if (key) {
+              label = t(key);
+            } else {
+              label = t(complete ? "tool.taskDone" : "tool.taskRunning", {
+                kind,
+              });
+            }
             return (
               <span
                 key={index}
                 className={`assistant-status${complete ? " assistant-status-done" : ""}`}
               >
-                {failed
-                  ? t("tool.taskFailed")
-                  : key
-                    ? t(key)
-                    : t(complete ? "tool.taskDone" : "tool.taskRunning", {
-                        kind,
-                      })}
+                {label}
               </span>
             );
           })}

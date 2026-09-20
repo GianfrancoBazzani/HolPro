@@ -19,10 +19,14 @@ export function subscribe(
 ) {
   const filtered = (event: PlanPublished) => {
     if (event.coachId === userId || event.coacheeId === userId) {
+      const reportFailure = (error: unknown) => {
+        console.error("Plan event listener failed.", error);
+      };
       try {
-        void Promise.resolve(listener(event)).catch(() => {});
-      } catch {
+        void Promise.resolve(listener(event)).catch(reportFailure);
+      } catch (error) {
         /* A disconnected subscriber cannot roll back a publication. */
+        reportFailure(error);
       }
     }
   };
