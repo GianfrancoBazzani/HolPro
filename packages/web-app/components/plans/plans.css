@@ -1,14 +1,25 @@
 .plan-artifact {
   min-width: 0;
 }
+.plan-artifact-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+.plan-artifact-header h2 {
+  flex: 1 1 240px;
+}
 .plan-selectors {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  flex: 1 1 320px;
 }
 .plan-selectors .form-field {
-  flex: 1 1 240px;
+  flex: 1 1 220px;
 }
 .plan-artifact h3 {
   font-family: var(--font-serif);

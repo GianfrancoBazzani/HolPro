@@ -3,7 +3,7 @@ import type { PortalKey } from "@/lib/auth/portals";
 // stored in the token. Add a scope here and check it in the tool handler.
 export const scopesByRole = {
   coachee: ["plans:read", "coaches:search", "onboarding:apply"],
-  coach: ["plans:read", "plans:publish", "onboarding:review"],
+  coach: ["plans:read", "plans:write", "plans:publish", "onboarding:review"],
 } as const satisfies Record<PortalKey, readonly string[]>;
 export type McpScope = (typeof scopesByRole)[PortalKey][number];
 export const scopesFor = (role: PortalKey): string[] => [

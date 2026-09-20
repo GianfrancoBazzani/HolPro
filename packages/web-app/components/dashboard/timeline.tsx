@@ -90,7 +90,8 @@ function TimelineView({
     locale = useLocale();
   const [selection, setSelection] = useState<{
     itemId: string;
-    date: string;
+    date?: string;
+    periodId?: string;
   } | null>(null);
   const todayCell = useRef<HTMLDivElement>(null);
   const entries = data.items.flatMap((item) => [
@@ -106,7 +107,8 @@ function TimelineView({
   }));
   const ordered = orderRows(enriched, preferences.rowOrder);
   const rows = visibleRows(ordered, {
-    engagements: data.engagements.length >= 2 ? preferences.hiddenEngagements : [],
+    engagements:
+      data.engagements.length >= 2 ? preferences.hiddenEngagements : [],
     kinds: preferences.hiddenKinds,
   });
   const dayFormat = new Intl.DateTimeFormat(locale, {
@@ -131,6 +133,10 @@ function TimelineView({
     rows
       .find((item) => item.id === selection?.itemId)
       ?.checkpoints.filter((cp) => cp.date === selection?.date) ?? [];
+  const selectedItem = rows.find((item) => item.id === selection?.itemId);
+  const selectedPeriod = selectedItem?.periods.find(
+    (period) => period.id === selection?.periodId,
+  );
   const columnClass = (col: (typeof columns)[number]) =>
     `calendar-day${col.isWeekend ? " is-weekend" : ""}${col.isMonday ? " is-monday" : ""}${col.date === today ? " is-today" : ""}`;
   if (!data.engagements.length) return <p>{t("empty.noEngagement")}</p>;
@@ -224,7 +230,33 @@ function TimelineView({
                     key={item.id}
                   >
                     <div role="rowheader" className="calendar-row-label">
-                      <strong>{item.title}</strong>
+                      {item.description ? (
+                        <button
+                          type="button"
+                          className="calendar-chip"
+                          aria-label={t("calendar.detailsLabel", {
+                            title: item.title,
+                          })}
+                          aria-pressed={
+                            selection?.itemId === item.id &&
+                            !selection.date &&
+                            !selection.periodId
+                          }
+                          onClick={() =>
+                            setSelection(
+                              selection?.itemId === item.id &&
+                                !selection.date &&
+                                !selection.periodId
+                                ? null
+                                : { itemId: item.id },
+                            )
+                          }
+                        >
+                          <strong>{item.title}</strong>
+                        </button>
+                      ) : (
+                        <strong>{item.title}</strong>
+                      )}
                       <span className="calendar-kind">
                         {t(`kind.${item.kind}`)}
                       </span>
@@ -273,7 +305,7 @@ function TimelineView({
                       role="presentation"
                       className="calendar-track"
                       style={{
-                        gridTemplateRows: `${laneCount ? `repeat(${laneCount}, 32px) ` : ""}minmax(48px, 1fr)`,
+                        gridTemplateRows: `${laneCount ? `repeat(${laneCount}, 48px) ` : ""}minmax(48px, 1fr)`,
                       }}
                     >
                       {columns.map((col, i) => (
@@ -295,7 +327,22 @@ function TimelineView({
                           }}
                           title={period.title}
                         >
-                          {period.title}
+                          <button
+                            type="button"
+                            aria-label={t("calendar.detailsLabel", {
+                              title: period.title,
+                            })}
+                            aria-pressed={selection?.periodId === period.id}
+                            onClick={() =>
+                              setSelection(
+                                selection?.periodId === period.id
+                                  ? null
+                                  : { itemId: item.id, periodId: period.id },
+                              )
+                            }
+                          >
+                            {period.title}
+                          </button>
                         </div>
                       ))}
                       {columns.map((col, i) => {
@@ -366,6 +413,24 @@ function TimelineView({
             </div>
           </div>
           <div className="calendar-details" aria-live="polite">
+            {selectedItem && !selection?.date && !selection?.periodId && (
+              <div>
+                <strong>{selectedItem.title}</strong>
+                {selectedItem.description && <p>{selectedItem.description}</p>}
+              </div>
+            )}
+            {selectedPeriod && (
+              <div>
+                <strong>{selectedPeriod.title}</strong>
+                <p>
+                  {fullFormat.formatRange(
+                    dayDate(selectedPeriod.startDate),
+                    dayDate(selectedPeriod.endDate),
+                  )}
+                </p>
+                {selectedPeriod.note && <p>{selectedPeriod.note}</p>}
+              </div>
+            )}
             {selected.map((cp) => (
               <div key={cp.id}>
                 <strong>

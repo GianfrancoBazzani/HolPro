@@ -66,3 +66,16 @@ it.each([false, true])(
     }
   },
 );
+
+it("keeps calendar drafts private and delivers approval to both participants", () => {
+  const coach=vi.fn(), client=vi.fn();
+  const stopCoach=subscribe("coach",coach), stopClient=subscribe("client",client);
+  const event={planId:null,engagementId:"e",coachId:"coach",coacheeId:"client"};
+  try {
+    publishEvent("plan.draft",event);
+    expect(coach).toHaveBeenCalledWith("plan.draft",event);
+    expect(client).not.toHaveBeenCalled();
+    publishEvent("plan.published",event);
+    expect(client).toHaveBeenCalledWith("plan.published",event);
+  } finally {stopCoach();stopClient();}
+});

@@ -25,7 +25,7 @@ it("requires authentication", async () => {
     (await GET(new Request("http://localhost/api/plans/events"))).status,
   ).toBe(401);
 });
-it("streams only currently readable events and cleans up on abort", async () => {
+it.each(["p", null])("streams only currently readable events and cleans up on abort (%s)", async (planId) => {
   const abort = new AbortController(),
     response = await GET(
       new Request("http://localhost/api/plans/events", {
@@ -36,13 +36,13 @@ it("streams only currently readable events and cleans up on abort", async () => 
   await reader.read();
   const pending = reader.read();
   publishEvent("plan.published", {
-    planId: "p",
+    planId,
     engagementId: "e",
     coachId: "c",
     coacheeId: "u",
   });
   expect(new TextDecoder().decode((await pending).value)).toContain(
-    'data: {"planId":"p","engagementId":"e"}',
+    `data: ${JSON.stringify({planId, engagementId: "e"})}`,
   );
   expect(canReadPlans).toHaveBeenCalledWith(
     { userId: "u", role: "coachee" },

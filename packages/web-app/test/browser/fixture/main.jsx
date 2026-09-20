@@ -1,3 +1,5 @@
+import { CalendarDetailsFixture } from "./calendar-details";
+import { CalendarDraftFixture } from "./calendar-draft";
 import { OnboardingPanel } from "@/components/onboarding/onboarding-panel";
 import React from "react";
 import { TelegramFixture } from "./telegram";
@@ -28,7 +30,11 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <I18nProvider locale={locale} messages={messages}>
       <main className="container dashboard coach-dashboard">
-        {query.has("onboarding") ? (
+        {query.has("calendar-details") ? (
+          <CalendarDetailsFixture />
+        ) : query.has("calendar-draft") ? (
+          <CalendarDraftFixture locale={locale} messages={messages} />
+        ) : query.has("onboarding") ? (
           <OnboardingPanel role={query.get("role") || "coachee"} />
         ) : query.has("telegram") ? (
           <TelegramFixture />

@@ -1,3 +1,4 @@
+import { proposeCalendarChanges, readCalendarDraft } from "../tools/calendar-changes";
 import { requestCoachOnboarding, getOnboardingStatus } from "../tools/coach-onboarding";
 import { createTelegramChannels } from "../channels";
 import {
@@ -28,6 +29,8 @@ function toolsFor(context: AssistantContext): ToolsInput {
       getOnboardingStatus,
       listMyClients,
       getClientPlan,
+      proposeCalendarChanges,
+      readCalendarDraft,
       startLongTask,
       publishPlanDocument,
       listPlanDocuments,

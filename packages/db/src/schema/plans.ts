@@ -172,3 +172,20 @@ export const planDocumentDrafts = mysqlTable(
   },
   (t) => [uniqueIndex("plan_document_drafts_document_uidx").on(t.documentId)],
 );
+
+export const planChangeDrafts = mysqlTable(
+  "plan_change_drafts",
+  {
+    id: id(),
+    engagementId: char("engagement_id", { length: 36 })
+      .notNull()
+      .references(() => engagements.id, { onDelete: "cascade" }),
+    operations: json("operations").$type<unknown>().notNull(),
+    submittedBy: char("submitted_by", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    submittedAt: datetime("submitted_at", { fsp: 3 }).notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("plan_change_drafts_engagement_uidx").on(t.engagementId)],
+);

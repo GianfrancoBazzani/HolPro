@@ -31,7 +31,7 @@ const text = z
   .max(limits.textMax, "validation.text_max")
   .optional()
   .transform((v) => v || null);
-const date = z
+export const calendarDateSchema = z
   .string()
   .refine(
     (v) =>
@@ -41,6 +41,7 @@ const date = z
       new Date(v).toISOString().slice(0, 10) === v,
     "validation.date",
   );
+const date = calendarDateSchema;
 export const idSchema = z.object({ id: uuid });
 export const eventSchema = z.object({
   id: optionalId,

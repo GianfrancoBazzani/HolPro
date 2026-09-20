@@ -67,13 +67,15 @@ beforeEach(() => vi.clearAllMocks());
 it("requires a bearer token", async () => {
   expect((await POST(request("tools/list", {}, ""))).status).toBe(401);
 });
-it("registers the four real MCP tools", async () => {
+it("registers the six real MCP tools", async () => {
   const data = await json(await POST(request("tools/list", {})));
   expect(data.result.tools.map((tool: { name: string }) => tool.name)).toEqual([
     "publish_plan",
     "list_plans",
     "read_plan",
     "search_coaches",
+    "propose_calendar_changes",
+    "read_calendar_draft",
   ]);
 });
 it("publishes valid HTML through the real protocol", async () => {
@@ -197,4 +199,24 @@ it("rejects numbered draft reads", async () => {
     ),
   );
   expect(data.result?.isError || data.error).toBeTruthy();
+});
+
+vi.mock("../lib/calendar/draft-repository", () => ({
+  submitCalendarDraft: vi.fn(async () => ({engagementId:"e",draftId:"d",status:"pending_review",submittedAt:"2026-09-20",operationCount:1})),
+  readCalendarDraft: vi.fn(async () => null),
+}));
+for (const name of ["propose_calendar_changes","read_calendar_draft"]) {
+  it.each(["coach","coachee"])(`${name} enforces coach-only scopes (%s)`, async role => {
+    const args = name === "read_calendar_draft" ? {engagementId} : {engagementId,operations:[{op:"createItem",tempId:"one",kind:"training",title:"Strength"}]};
+    const data=await json(await POST(request("tools/call",{name,arguments:args},role)));
+    expect(data.error).toBeUndefined();
+    expect(!!data.result.isError).toBe(role === "coachee");
+    if(role === "coach") expect(JSON.parse(data.result.content[0].text)).toEqual(name === "read_calendar_draft" ? null : expect.objectContaining({status:"pending_review"}));
+  });
+}
+it("rejects an invalid calendar changeset before repository access",async()=>{
+  const {submitCalendarDraft}=await import("../lib/calendar/draft-repository");
+  const data=await json(await POST(request("tools/call",{name:"propose_calendar_changes",arguments:{engagementId,operations:[{op:"updateItem",id:engagementId}]}})));
+  expect(data.result?.isError || data.error).toBeTruthy();
+  expect(submitCalendarDraft).not.toHaveBeenCalled();
 });

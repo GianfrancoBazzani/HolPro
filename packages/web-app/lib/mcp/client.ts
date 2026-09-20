@@ -6,6 +6,8 @@ import { baseURL } from "@/lib/auth/portals";
 import type { McpActor } from "./actor";
 import { mintMcpToken } from "./token";
 export type McpToolName =
+  | "propose_calendar_changes"
+  | "read_calendar_draft"
   | "publish_plan"
   | "list_plans"
   | "read_plan"

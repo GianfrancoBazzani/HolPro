@@ -15,6 +15,7 @@ it("lists the spec scopes per role", () => {
   ]);
   expect(scopesFor("coach")).toEqual([
     "plans:read",
+    "plans:write",
     "plans:publish",
     "onboarding:review",
   ]);

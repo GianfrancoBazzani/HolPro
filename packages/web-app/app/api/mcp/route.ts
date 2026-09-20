@@ -1,3 +1,4 @@
+import { registerCalendarTools } from "@/lib/mcp/calendar-tools";
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import { registerPlanTools } from "@/lib/mcp/tools";
 import { registerCoachTools } from "@/lib/mcp/coach-tools";
@@ -9,6 +10,7 @@ const handler = createMcpHandler(
   (server) => {
     registerPlanTools(server);
     registerCoachTools(server);
+    registerCalendarTools(server);
   },
   {
     serverInfo: { name: "holpro", version: "1.1.0" },

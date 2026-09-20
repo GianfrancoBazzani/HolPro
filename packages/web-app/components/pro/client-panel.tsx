@@ -1,3 +1,5 @@
+import { readCalendarDraft } from "@/lib/calendar/draft-repository";
+import { CalendarDraftPanel } from "./calendar-draft-panel";
 import { notFound } from "next/navigation";
 import { requirePortalUser } from "@/lib/auth/gate";
 import { portals } from "@/lib/auth/portals";
@@ -38,6 +40,13 @@ export async function ClientPanel({
     { userId: user.id, role: "coach" },
     { engagement: engagementId, plan, preview },
   );
+  const calendarDraft =
+    data.status === "active"
+      ? await readCalendarDraft(
+          { userId: user.id, role: "coach" },
+          engagementId,
+        )
+      : null;
   const t = translator(messages, "pro"),
     d = translator(messages, "dashboard"),
     timezone = safeTimezone(user.timezone);
@@ -93,6 +102,12 @@ export async function ClientPanel({
                 today={todayIn(timezone)}
               />
             </section>
+            <CalendarDraftPanel
+              draft={calendarDraft}
+              locale={locale}
+              timezone={timezone}
+              messages={messages}
+            />
             {data.status === "active" && (
               <section className="dashboard-panel">
                 <span className="eyebrow">{d("outline.eyebrow")}</span>

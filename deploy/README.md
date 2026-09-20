@@ -34,19 +34,21 @@ CAUTION: MySQL reads `MYSQL_USER`, `MYSQL_PASSWORD` and `MYSQL_DATABASE` only on
 the first start of an empty volume. To change them later, you must delete the
 volume.
 
-## 2. Start the containers
+## 2. Build the application and start the database
 
 ```sh
-docker compose -f deploy/docker-compose.yml --project-directory deploy up -d --build
+docker compose -f deploy/docker-compose.yml --project-directory deploy build web-app
+docker compose -f deploy/docker-compose.yml --project-directory deploy up -d database
 ```
 
-Compose starts the web application only after the database reports a good
-health check.
+Wait for the database health check to pass before running migrations. Keep the
+updated web application stopped until its schema is ready.
 
 ## 3. Initialize the database
 
-The new database has no tables. Run the migration one time from the host, after
-step 2. Use the same user and password that you set in `deploy/.env`.
+Run pending migrations from the host after step 2 and before starting the updated
+web application. A new database needs every migration; an existing database applies
+only the pending ones. Use the same user and password that you set in `deploy/.env`.
 
 ```sh
 DATABASE_URL="mysql://holpro:<MYSQL_PASSWORD>@127.0.0.1:<MYSQL_PORT>/holpro" \
@@ -62,7 +64,11 @@ docker compose -f deploy/docker-compose.yml --project-directory deploy \
 
 Repeat this step each time that you add a migration.
 
-## 4. Open the application
+## 4. Start and open the application
+
+```sh
+docker compose -f deploy/docker-compose.yml --project-directory deploy up -d web-app
+```
 
 Go to `http://localhost:<PORT>`.
 
@@ -110,3 +116,13 @@ the migration workflow above. Keep one web-app process for publication SSE.
 The dedicated `/api/mcp` nginx location permits 16 MB request bodies; voice
 upload limits remain enforced by their own routes. See the web-app README for
 plan isolation details and the live release checklist.
+
+
+## Calendar change drafts
+
+Apply `0010_calendar_change_drafts.sql` after `0009` before starting the updated
+web application. The coach client page reads the new table immediately; starting
+new code first will break that page. The migration adds a table and does not change
+existing calendar rows. No new runtime variables are required. Retain one web-app
+process for in-memory plan SSE delivery, and perform the calendar proposal/approval
+smoke checks in `packages/web-app/README.md` after deployment.

@@ -9,6 +9,7 @@ const config = {
   },
   resolve: {
     alias: [
+      { find: "@/lib/pro/calendar-draft-actions", replacement: path.join(root, "calendar-draft-actions.ts") },
       {
         find: "@/lib/pro/plan-document-actions",
         replacement: path.join(root, "plan-document-actions.ts"),

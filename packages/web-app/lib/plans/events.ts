@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
 export type PlanPublished = {
-  planId: string;
+  planId: string | null;
   engagementId: string;
   coachId: string;
   coacheeId: string;

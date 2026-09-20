@@ -8,6 +8,7 @@ import {
   engagements,
 } from "./coaching";
 import {
+  planChangeDrafts,
   planDocuments,
   planDocumentVersions,
   planItems,
@@ -53,6 +54,7 @@ export const specialtiesRelations = relations(coachSpecialties, ({ one }) => ({
   }),
 }));
 export const engagementsRelations = relations(engagements, ({ one, many }) => ({
+  changeDraft: one(planChangeDrafts),
   planDocuments: many(planDocuments),
   planItems: many(planItems),
   agendaEvents: many(agendaEvents),
@@ -130,6 +132,16 @@ export const planDocumentVersionsRelations = relations(
       fields: [planDocumentVersions.documentId],
       references: [planDocuments.id],
       relationName: "documentVersions",
+    }),
+  }),
+);
+
+export const planChangeDraftsRelations = relations(
+  planChangeDrafts,
+  ({ one }) => ({
+    engagement: one(engagements, {
+      fields: [planChangeDrafts.engagementId],
+      references: [engagements.id],
     }),
   }),
 );

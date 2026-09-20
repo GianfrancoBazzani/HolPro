@@ -34,9 +34,10 @@ export function PlanArtifact({
       timeStyle: "short",
       timeZone: timezone,
     }).format(new Date(value));
-  const homePath = role === "coach" && view.engagementId
-    ? coachEngagementHref(view.engagementId)
-    : portals[role].homePath;
+  const homePath =
+    role === "coach" && view.engagementId
+      ? coachEngagementHref(view.engagementId)
+      : portals[role].homePath;
   const previewHref = (preview: string) => {
     const params = new URLSearchParams({ preview });
     if (view.selected) params.set("plan", view.selected.planId);
@@ -48,15 +49,13 @@ export function PlanArtifact({
       className="dashboard-panel plan-artifact"
       aria-labelledby="plan-document-heading"
     >
-      <h2 id="plan-document-heading">{t("plan.title")}</h2>
-      {view.plans.length > 1 && (
-        <form
-          className="plan-selectors"
-          action={homePath}
-          method="get"
-        >
-          {month && <input type="hidden" name="month" value={month} />}
-          {view.plans.length > 0 && (
+      <div className="plan-artifact-header">
+        <h2 id="plan-document-heading">
+          {t(role === "coachee" ? "plan.titleCoachee" : "plan.titleCoach")}
+        </h2>
+        {view.plans.length > 1 && (
+          <form className="plan-selectors" action={homePath} method="get">
+            {month && <input type="hidden" name="month" value={month} />}
             <SelectField
               key={view.selected?.planId}
               name="plan"
@@ -77,12 +76,12 @@ export function PlanArtifact({
                       : p.title,
               }))}
             />
-          )}
-          <button className="button button-secondary" type="submit">
-            {t("plan.view")}
-          </button>
-        </form>
-      )}
+            <button className="button button-secondary" type="submit">
+              {t("plan.view")}
+            </button>
+          </form>
+        )}
+      </div>
       {role === "coach" && view.draft && (
         <div className="plan-review">
           <p>

@@ -108,7 +108,7 @@ Unmatched routes use Next.js's documented `experimental.globalNotFound` support 
 
 ## Coachee calendar dashboard
 
-`/app` aggregates the plan items of every active engagement. Coaches see their agenda and clients at `/pro`. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. The plan outline is read-only; the assistant supports chat, voice and published HTML plan documents.
+`/app` aggregates the plan items of every active engagement. Coaches see their agenda and clients at `/pro`. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. Calendar details are read-only; select an item title or period bar to read its description or note. The assistant supports chat, voice and published HTML plan documents.
 
 Apply `packages/db/drizzle/0002_aromatic_bulldozer.sql` through the normal migration workflow before using the dashboard. The migration adds `plan_items`, `plan_checkpoints`, `plan_periods`, and `calendar_preferences` without changing existing rows.
 
@@ -378,3 +378,48 @@ For real transaction/recovery tests, set `ONBOARDING_TEST_DATABASE_URL` to a
 `pnpm --filter web-app exec vitest run test/onboarding-mysql.test.ts`.
 That test applies migrations and clears its test records between scenarios.
 Italian and Spanish additions are draft translations requiring native review.
+
+### Calendar change drafts
+
+The coach assistant can propose a calendar changeset with
+`proposeCalendarChanges` and read it with `readCalendarDraft`. It reads
+`getClientPlan` first and uses the actual calendar row ids. One pending proposal
+per engagement replaces any earlier proposal. Items, checkpoints and periods
+support create, update and delete operations; new items may be referenced by a
+temporary id from later operations in the same changeset.
+
+The client panel shows the proposal between the timeline and the plan editor.
+The coach approves all changes together or confirms discard. A proposal never
+changes the coachee calendar before approval. Approval is transactional; missing
+or foreign targets, obsolete drafts and invalid merged period dates fail the
+entire changeset with the existing draft-changed message. Ended engagements
+cannot receive or approve proposals. Direct dashboard editing is unchanged.
+
+Apply `packages/db/drizzle/0010_calendar_change_drafts.sql` after `0009` with
+the normal migration workflow against the intended database. Generation, tests
+and the build do not apply this migration. No new environment variable is needed;
+`plans:write` is derived from the current coach role on every MCP request.
+Spanish and Italian review-panel translations are drafts for native review.
+
+Verify against a migrated database before release:
+
+1. Propose a change in the coach assistant and verify the client panel refreshes
+   through SSE in a second coach browser session.
+2. Verify the coachee calendar remains unchanged while the proposal is pending.
+3. Approve the changeset and verify all operations apply and both dashboards refresh.
+4. Delete a target manually after submission; approval must show the draft-changed
+   message without applying any part of the changeset.
+
+Calendar descriptions remain available by selecting an item title in the timeline;
+select a period bar to read its full dates and note. This keeps calendar instructions
+accessible without a second plan outline below the timeline.
+
+For real calendar transaction tests, set `CALENDAR_TEST_DATABASE_URL` to a
+**disposable** MySQL 8 database named exactly `holpro_calendar_test`, then run:
+
+```sh
+pnpm --filter web-app test test/calendar-draft-mysql.test.ts
+```
+
+The test applies repository migrations to that disposable database and removes
+only records it creates. Never point it at an application database.

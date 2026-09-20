@@ -1,3 +1,6 @@
+vi.mock("../lib/calendar/draft-repository", () => ({ readCalendarDraft: vi.fn(async () => null) }));
+vi.mock("../lib/pro/calendar-draft-actions", () => ({ approveCalendarDraft: vi.fn(), discardCalendarDraft: vi.fn() }));
+import { readCalendarDraft } from "../lib/calendar/draft-repository";
 import { beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 vi.mock("../lib/auth/gate", () => ({ requirePortalUser: vi.fn() }));
@@ -25,6 +28,7 @@ import { ClientPanel } from "../components/pro/client-panel";
 import { localeKeys } from "../lib/i18n/config";
 import { getDictionary } from "../lib/i18n/dictionary";
 beforeEach(() => {
+  vi.mocked(readCalendarDraft).mockReset().mockResolvedValue(null);
   vi.mocked(requirePortalUser).mockResolvedValue({
     id: "coach",
     name: "Coach",
@@ -45,6 +49,7 @@ it("keeps ended clients' plans readable without editing controls", async () => {
   });
   const html = renderToStaticMarkup(await ClientPanel({ locale: "en", engagementId: "e" }));
   expect(html).toContain("Former client");
+  expect(readCalendarDraft).not.toHaveBeenCalled();
   expect(html).toContain("plan-document-heading");
   expect(html).not.toContain((await getDictionary("en")).pro["plan.addItem"]);
 });
@@ -109,3 +114,25 @@ for (const locale of localeKeys)
     expect(html).not.toContain("calendar-coach");
     expect(html).toContain('href="/pro"');
   });
+
+it("shows a pending calendar proposal above the editor only when present", async () => {
+  vi.mocked(loadClientPlan).mockResolvedValue({status:"active",client:{engagementId:"e",name:"Client",email:"c@example.com",image:null,startedAt:"2026-01-01Z"},calendar:{engagements:[],items:[],preferences:{rowOrder:[],hiddenKinds:[],hiddenEngagements:[]}}});
+  vi.mocked(readCalendarDraft).mockResolvedValue({engagementId:"e",draftId:"d",submittedAt:"2026-09-20Z",operations:[{operation:{op:"createItem",tempId:"one",kind:"training",title:"New strength"},title:"New strength",itemTitle:null}]});
+  const dictionary=await getDictionary("en");
+  const html=renderToStaticMarkup(await ClientPanel({locale:"en",engagementId:"e"}));
+  expect(html).toContain(dictionary.pro["calendarDraft.title"]);
+  expect(html).toContain("New strength");
+  expect(html.indexOf(dictionary.pro["calendarDraft.title"])).toBeLessThan(html.indexOf(dictionary.pro["client.planTitle"]));
+  vi.mocked(readCalendarDraft).mockResolvedValue(null);
+  expect(renderToStaticMarkup(await ClientPanel({locale:"en",engagementId:"e"}))).not.toContain(dictionary.pro["calendarDraft.title"]);
+});
+
+it("keeps the client page usable when a stored draft is obsolete", async () => {
+  vi.mocked(loadClientPlan).mockResolvedValue({status:"active",client:{engagementId:"e",name:"Client",email:"c@example.com",image:null,startedAt:"2026-01-01Z"},calendar:{engagements:[],items:[],preferences:{rowOrder:[],hiddenKinds:[],hiddenEngagements:[]}}});
+  vi.mocked(readCalendarDraft).mockResolvedValue({engagementId:"e",draftId:"obsolete",submittedAt:"2026-09-20Z",operations:[],invalid:true});
+  const dictionary=await getDictionary("en");
+  const html=renderToStaticMarkup(await ClientPanel({locale:"en",engagementId:"e"}));
+  expect(html).toContain(dictionary.pro["error.draftChanged"]);
+  expect(html).toContain(dictionary.pro["calendarDraft.discard"]);
+  expect(html).toContain(dictionary.pro["client.planTitle"]);
+});

@@ -79,8 +79,7 @@ for (const locale of localeKeys) {
     vi.mocked(loadCalendar).mockResolvedValue(empty);
     const html = renderToStaticMarkup(await Dashboard({ locale }));
     const d = (await getDictionary(locale)).dashboard;
-    for (const key of ["empty.noEngagement", "empty.noItems"] as const)
-      expect(html).toContain(d[key].replaceAll("'", "&#x27;"));
+    expect(html).toContain(d["empty.noEngagement"].replaceAll("'", "&#x27;"));
     const a = (await getDictionary(locale)).assistant;
     expect(html).toContain(a["greeting.onboarding"].replace("{name}", "Alex"));
     expect(html).toContain(a["panel.collapse"]);
@@ -93,7 +92,11 @@ for (const locale of localeKeys) {
     const d = (await getDictionary(locale)).dashboard;
     expect(html).toContain("Strength programme");
     expect(html).toContain("Base phase");
-    expect(html).toContain("Stay steady");
+    expect(html.indexOf('id="calendar-heading"')).toBeLessThan(
+      html.indexOf('id="plan-document-heading"'),
+    );
+    expect(html).toContain(d["plan.titleCoachee"]);
+    expect(html).not.toContain(d["plan.titleCoach"]);
     expect(html).not.toContain("calendar-coach");
     expect(html).not.toContain("Plan artifact");
     expect(html).toContain(d["kind.training"]);

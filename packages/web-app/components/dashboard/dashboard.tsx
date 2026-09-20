@@ -10,7 +10,6 @@ import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/config";
 import { I18nProvider } from "@/components/i18n/provider";
 import { Timeline } from "./timeline";
-import { PlanOutline } from "./plan-outline";
 import { Topbar } from "./topbar";
 import { saveCalendarPreferences } from "@/lib/calendar/actions";
 import { AssistantPanel } from "@/components/assistant/assistant-panel";
@@ -52,13 +51,6 @@ export async function Dashboard({
         <div className="dashboard-layout">
           <div className="dashboard-main">
             <OnboardingPanel role="coachee" />
-            <PlanArtifact
-              view={documents}
-              role="coachee"
-              locale={locale}
-              timezone={user.timezone}
-              messages={messages.dashboard}
-            />
             <section
               className="dashboard-panel"
               aria-labelledby="calendar-heading"
@@ -71,11 +63,13 @@ export async function Dashboard({
                 onSave={saveCalendarPreferences}
               />
             </section>
-            <section className="dashboard-panel">
-              <span className="eyebrow">{t("outline.eyebrow")}</span>
-              <h2>{t("outline.title")}</h2>
-              <PlanOutline items={data.items} engagements={data.engagements} />
-            </section>
+            <PlanArtifact
+              view={documents}
+              role="coachee"
+              locale={locale}
+              timezone={user.timezone}
+              messages={messages.dashboard}
+            />
           </div>
           <AssistantPanel
             name={user.name}
