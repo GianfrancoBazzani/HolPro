@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     "audio/mpeg": "mpeg",
   }[mime];
   try {
-    const { getAssistant } = await import("@/mastra");
-    const text = await getAssistant().voice.listen(
+    const { voice } = await import("@/mastra/voice");
+    const text = await voice.listen(
       Readable.from(Buffer.from(await audio.arrayBuffer())),
       { filetype, language: session.locale },
     );

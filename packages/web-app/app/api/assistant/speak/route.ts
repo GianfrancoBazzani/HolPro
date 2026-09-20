@@ -17,8 +17,8 @@ export async function POST(request: Request) {
     .safeParse(await request.json().catch(() => null));
   if (!parsed.success) return invalidInput();
   try {
-    const { getAssistant } = await import("@/mastra");
-    const audio = await getAssistant().voice.speak(parsed.data.text);
+    const { voice } = await import("@/mastra/voice");
+    const audio = await voice.speak(parsed.data.text);
     if (!audio) return assistantError();
     const readable = new Readable().wrap(audio);
     return new Response(

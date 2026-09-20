@@ -25,10 +25,13 @@ const { recall, handle, listen, speak } = vi.hoisted(() => ({
 vi.mock("../mastra", () => {
   const agent = {
     getMemory: async () => ({ getThreadById: async () => null, recall }),
-    voice: { listen, speak },
+    get voice(): never {
+      throw new Error("AGENT_VOICE_INCOMPATIBLE_WITH_FUNCTION_INSTRUCTIONS");
+    },
   };
   return { mastra: { getAgentById: () => agent }, getAssistant: () => agent };
 });
+vi.mock("../mastra/voice", () => ({ voice: { listen, speak } }));
 vi.mock("@mastra/ai-sdk", () => ({ handleChatStream: handle }));
 import { auth } from "../lib/auth/server";
 import { loadUserWithRoles } from "../lib/auth/repository";

@@ -447,3 +447,42 @@ test("log initially follows history, preserves reading position, and follows a n
   await expect.poll(remaining).toBeLessThan(2);
   finish!();
 });
+
+test("composer controls keep one row in a narrow panel", async ({ page }) => {
+  await page.addInitScript(() => {
+    class Recorder {
+      static isTypeSupported() {
+        return true;
+      }
+      state = "inactive";
+      start() {
+        this.state = "recording";
+      }
+      stop() {
+        this.state = "inactive";
+      }
+    }
+    Object.defineProperty(window, "MediaRecorder", { value: Recorder });
+  });
+  await history(page);
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/?assistant=1");
+  const buttons = page.locator(".assistant-actions .assistant-icon");
+  await expect(buttons).toHaveCount(3);
+  const boxes = await buttons.evaluateAll((nodes) =>
+    nodes.map((node) => node.getBoundingClientRect()),
+  );
+  const field = await page.locator(".assistant-field").evaluate((node) =>
+    node.getBoundingClientRect(),
+  );
+  // The three controls share one row, keep an even gap and end at the
+  // field edge, so a narrow panel never moves a single button on its own.
+  expect(new Set(boxes.map((box) => Math.round(box.top))).size).toBe(1);
+  expect(Math.round(boxes[1].left - boxes[0].right)).toBe(12);
+  expect(Math.round(boxes[2].left - boxes[1].right)).toBe(12);
+  expect(Math.round(boxes[2].right)).toBe(Math.round(field.right));
+  expect(boxes[0].left).toBeGreaterThan(field.left);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});

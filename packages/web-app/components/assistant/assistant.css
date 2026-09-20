@@ -51,6 +51,13 @@
   align-items: flex-end;
   gap: var(--space-3);
 }
+.assistant-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-inline-start: auto;
+}
 .assistant-icon {
   display: inline-flex;
   align-items: center;
@@ -285,12 +292,4 @@
 }
 .assistant-markdown ol {
   list-style: decimal;
-}
-@media (max-width: 600px) {
-  .assistant-field {
-    flex-basis: 100%;
-  }
-  .assistant-composer .assistant-icon-primary {
-    margin-inline-start: auto;
-  }
 }
