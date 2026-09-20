@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: { globalNotFound: true },
-  serverExternalPackages: ["@mastra/*"],
+  serverExternalPackages: ["@mastra/*", "chat"],
   transpilePackages: ["@holpro/db"],
   output: "standalone",
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),

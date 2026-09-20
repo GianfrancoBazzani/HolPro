@@ -26,6 +26,7 @@ ENV DATABASE_URL=mysql://build:build@127.0.0.1:3306/build
 ENV BETTER_AUTH_URL=http://build-placeholder.invalid
 ENV BETTER_AUTH_SECRET=build-only-placeholder-not-a-runtime-secret-00000000
 RUN pnpm run build
+RUN node packages/web-app/scripts/check-standalone-telegram.mjs
 
 # Stage 2: Runtime
 FROM cgr.dev/chainguard/node:latest-dev
