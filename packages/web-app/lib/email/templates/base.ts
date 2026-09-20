@@ -22,7 +22,22 @@ const sans = "Manrope,system-ui,-apple-system,'Segoe UI',Arial,sans-serif";
 const spacer = (height: number) =>
   `<tr><td style="height:${height}px;line-height:${height}px;font-size:0">&nbsp;</td></tr>`;
 const rule = `<tr><td style="height:1px;line-height:1px;font-size:0;background:${hairline}">&nbsp;</td></tr>`;
-export type EmailKind = "magic" | "verify" | "reset";
+export type EmailKind =
+  | "magic"
+  | "verify"
+  | "reset"
+  | "draft_ready"
+  | "plan_approved"
+  | "plan_rejected";
+// Each kind states its own closing line; nothing is derived from a literal list.
+const footerKeys = {
+  magic: "footer.ignore",
+  verify: "footer.ignore",
+  reset: "footer.ignore",
+  draft_ready: "footer.onboarding",
+  plan_approved: "footer.onboarding",
+  plan_rejected: "footer.onboarding",
+} as const satisfies Record<EmailKind, string>;
 export async function emailTemplate(
   { url, portal, locale }: TemplateParams,
   kind: EmailKind,
@@ -33,9 +48,10 @@ export async function emailTemplate(
   const message = t(`${kind}.message`);
   const label = t(`portal.${portal.key}`);
   const href = escape(url);
+  const footer = t(footerKeys[kind]);
   return {
     subject,
-    text: `${label}\n\n${subject}\n${message}\n\n${button}: ${url}\n\n${t("footer.ignore")}\n\n${t("footer.tagline")}`,
+    text: `${label}\n\n${subject}\n${message}\n\n${button}: ${url}\n\n${footer}\n\n${t("footer.tagline")}`,
     html: `<!doctype html>
 <html lang="${locale}" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -83,7 +99,7 @@ ${spacer(8)}
 ${spacer(20)}
 ${rule}
 ${spacer(20)}
-<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(t("footer.ignore"))}</td></tr>
+<tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(footer)}</td></tr>
 ${spacer(8)}
 <tr><td style="font-family:${sans};font-size:13px;line-height:1.5;color:${muted}">${escape(t("footer.tagline"))}</td></tr>
 </table>

@@ -34,6 +34,7 @@ beforeEach(() => {
   memory.threads.clear();
   vi.mocked(auth.api.getSession).mockResolvedValue({
     user: { id: "u" },
+    session: { id: "session" },
   } as Awaited<ReturnType<typeof auth.api.getSession>>);
   vi.mocked(loadUserWithRoles).mockResolvedValue(
     user as Awaited<ReturnType<typeof loadUserWithRoles>>,

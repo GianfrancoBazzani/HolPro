@@ -13,6 +13,8 @@ const toolLabels = {
   listPlanDocuments: "tool.listPlanDocuments",
   readPlanDocument: "tool.readPlanDocument",
   searchCoaches: "tool.searchCoaches",
+  requestCoachOnboarding: "tool.requestCoachOnboarding",
+  getOnboardingStatus: "tool.getOnboardingStatus",
 } as const;
 function failedTask(part: UIMessage["parts"][number]) {
   return (

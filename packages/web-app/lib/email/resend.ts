@@ -4,12 +4,15 @@ if (process.env.NODE_ENV === "production" && !process.env.RESEND_API_KEY)
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : undefined;
-export async function sendEmail(message: {
-  to: string;
-  subject: string;
-  html: string;
-  text: string;
-}) {
+export async function sendEmail(
+  message: {
+    to: string;
+    subject: string;
+    html: string;
+    text: string;
+  },
+  idempotencyKey?: string,
+) {
   if (!resend) {
     console.info(
       "[HolPro development email]",
@@ -19,10 +22,13 @@ export async function sendEmail(message: {
     );
     return;
   }
-  const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM ?? "HolPro <hello@holpro.health>",
-    ...message,
-  });
+  const { error } = await resend.emails.send(
+    {
+      from: process.env.EMAIL_FROM ?? "HolPro <hello@holpro.health>",
+      ...message,
+    },
+    idempotencyKey ? { idempotencyKey } : undefined,
+  );
   if (error) throw new Error(`Email delivery failed: ${error.name}`);
 }
 // Delivery errors must not reveal whether an account exists. Never log token URLs in production.

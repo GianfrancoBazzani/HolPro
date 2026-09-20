@@ -13,6 +13,7 @@ import { loadClientPlan } from "@/lib/pro/repository";
 import { PlanEditor } from "./plan-editor";
 import "@/components/dashboard/dashboard.css";
 import "./pro.css";
+import { coachEngagementHref } from "@/lib/notifications/links";
 export async function ClientPanel({
   locale,
   engagementId,
@@ -60,6 +61,12 @@ export async function ClientPanel({
             <span>{t("clients.since", { date: since })}</span>
           </div>
         </header>
+        <a
+          className="button button-secondary"
+          href={coachEngagementHref(engagementId)}
+        >
+          {t("client.reviewPlans")}
+        </a>
         <div className="dashboard-main">
           <section className="dashboard-panel">
             <span className="eyebrow">{d("calendar.eyebrow")}</span>

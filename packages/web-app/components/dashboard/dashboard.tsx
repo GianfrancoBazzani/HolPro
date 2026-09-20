@@ -1,3 +1,4 @@
+import { OnboardingPanel } from "@/components/onboarding/onboarding-panel";
 import { loadPlanView } from "@/lib/plans/view";
 import { PlanArtifact } from "@/components/plans/plan-artifact";
 import { PlanLive } from "@/components/plans/plan-live";
@@ -50,6 +51,7 @@ export async function Dashboard({
         />
         <div className="dashboard-layout">
           <div className="dashboard-main">
+            <OnboardingPanel role="coachee" />
             <PlanArtifact
               view={documents}
               role="coachee"

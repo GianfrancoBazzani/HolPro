@@ -156,7 +156,17 @@
     "footer.fallback": "Si el botón no funciona, copia este enlace en tu navegador.",
     "footer.ignore": "Si no lo has solicitado, ignora este correo.",
     "footer.tagline": "HolPro — Descubre tu potencial.",
-    "brand.name": "HolPro"
+    "brand.name": "HolPro",
+    "draft_ready.subject": "El borrador de un nuevo cliente está listo para revisar",
+    "draft_ready.message": "Abre HolPro para revisar la información guardada y el borrador del plan.",
+    "draft_ready.button": "Abrir HolPro",
+    "plan_approved.subject": "Tu coach ha aprobado tu plan",
+    "plan_approved.message": "Tu plan aprobado ya está disponible en HolPro.",
+    "plan_approved.button": "Abrir HolPro",
+    "plan_rejected.subject": "Tu borrador necesita otra revisión",
+    "plan_rejected.message": "Tu coach descartó el borrador. No se ha publicado un plan nuevo.",
+    "plan_rejected.button": "Abrir HolPro",
+    "footer.onboarding": "Has recibido esta actualización sobre tu actividad de coaching en HolPro."
   },
   "language": {
     "label": "Idioma",
@@ -260,7 +270,33 @@
     "plan.draftVersion": "Borrador, enviado el {submittedAt}",
     "plan.confirmDiscard": "Confirmar descarte",
     "plan.keepDraft": "Conservar borrador",
-    "plan.previewLabel": "Vista previa del plan"
+    "plan.previewLabel": "Vista previa del plan",
+    "onboarding.title": "Solicitudes de coaching y notificaciones",
+    "onboarding.requested": "Tu solicitud a {coachName} está en cola.",
+    "onboarding.preparing": "El asistente de {coachName} está preparando un borrador.",
+    "onboarding.awaiting_review": "Esperando a que {coachName} revise y apruebe el borrador.",
+    "onboarding.approved": "Tu plan con {coachName} está aprobado.",
+    "onboarding.rejected": "{coachName} descartó el borrador; no se ha publicado un plan nuevo.",
+    "onboarding.failed": "No se pudo preparar el borrador para {coachName}. Puedes reintentarlo.",
+    "onboarding.retry": "Reintentar la preparación",
+    "onboarding.customer": "Ver cliente",
+    "onboarding.empty": "Aún no hay novedades sobre el coaching.",
+    "notification.draft_ready.title": "El borrador de un nuevo cliente está listo para revisar",
+    "notification.draft_ready.body": "Abre HolPro para revisar la información guardada y el borrador del plan.",
+    "notification.plan_approved.title": "Tu coach ha aprobado tu plan",
+    "notification.plan_approved.body": "Tu plan aprobado ya está disponible en HolPro.",
+    "notification.plan_rejected.title": "Tu borrador necesita otra revisión",
+    "notification.plan_rejected.body": "Tu coach descartó el borrador. No se ha publicado un plan nuevo.",
+    "notification.unread": "Sin leer",
+    "notification.enablePush": "Activar notificaciones push",
+    "notification.disablePush": "Desactivar notificaciones push",
+    "notification.error": "No se pudo completar esta acción. Comprueba la conexión y los permisos de notificación e inténtalo de nuevo.",
+    "onboarding.coach.requested": "La solicitud de {clientName} está en cola.",
+    "onboarding.coach.preparing": "Tu asistente está preparando un borrador para {clientName}.",
+    "onboarding.coach.awaiting_review": "Revisa y aprueba el borrador para {clientName}.",
+    "onboarding.coach.approved": "El plan para {clientName} está aprobado.",
+    "onboarding.coach.rejected": "Has descartado el borrador para {clientName}.",
+    "onboarding.coach.failed": "No se pudo preparar el borrador para {clientName}. Puedes reintentarlo."
   },
   "pro": {
     "topbar.eyebrow": "Para coaches",
@@ -369,7 +405,8 @@
     "validation.invalid": "Revisa este campo.",
     "error.notFound": "Este registro ya no está disponible.",
     "error.generic": "Algo salió mal. Inténtalo de nuevo.",
-    "error.draftChanged": "Este borrador ha cambiado. Revisa la última vista previa e inténtalo de nuevo."
+    "error.draftChanged": "Este borrador ha cambiado. Revisa la última vista previa e inténtalo de nuevo.",
+    "client.reviewPlans": "Revisar los documentos del plan"
   },
   "assistant": {
     "eyebrow": "Tu asistente",
@@ -410,7 +447,9 @@
     "tool.planPublished": "Borrador enviado para tu revisión",
     "tool.listPlanDocuments": "Leyendo los planes publicados",
     "tool.readPlanDocument": "Leyendo el documento del plan",
-    "tool.searchCoaches": "Buscando coaches"
+    "tool.searchCoaches": "Buscando coaches",
+    "tool.requestCoachOnboarding": "Enviando tu solicitud al coach",
+    "tool.getOnboardingStatus": "Consultando tu solicitud de coaching"
   },
   "telegram": {
     "linked.coach": "Ya estás conectado como coach, {name}.",

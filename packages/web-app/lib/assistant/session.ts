@@ -14,11 +14,18 @@ export async function requireAssistantUser(request: Request) {
   const user = await loadUserWithRoles(session.user.id);
   if (!user || isBlocked(user)) return null;
   const portal = new URL(request.url).searchParams.get("portal");
-  if (portal !== null && portal !== "coach" && portal !== "coachee") return null;
+  if (portal !== null && portal !== "coach" && portal !== "coachee")
+    return null;
   const role = roleOf(user, portal ?? undefined);
   if (!role) return null;
   const actor: Actor = { role, userId: user.id };
-  return { user, role, actor, locale: resolveLocale(request.headers) };
+  return {
+    user,
+    role,
+    actor,
+    sessionId: session.session.id,
+    locale: resolveLocale(request.headers),
+  };
 }
 export const unauthorized = () =>
   Response.json({ error: "unauthorized" }, { status: 401 });

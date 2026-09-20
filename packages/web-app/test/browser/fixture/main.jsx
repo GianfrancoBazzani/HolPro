@@ -1,3 +1,4 @@
+import { OnboardingPanel } from "@/components/onboarding/onboarding-panel";
 import React from "react";
 import { TelegramFixture } from "./telegram";
 import { PlanFixture } from "./plans";
@@ -27,7 +28,9 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <I18nProvider locale={locale} messages={messages}>
       <main className="container dashboard coach-dashboard">
-        {query.has("telegram") ? (
+        {query.has("onboarding") ? (
+          <OnboardingPanel role={query.get("role") || "coachee"} />
+        ) : query.has("telegram") ? (
           <TelegramFixture />
         ) : query.has("plans") ? (
           <PlanFixture locale={locale} messages={messages} />

@@ -6,3 +6,4 @@ export * from "./plans";
 export * from "./agenda";
 
 export * from "./telegram";
+export * from "./onboarding";

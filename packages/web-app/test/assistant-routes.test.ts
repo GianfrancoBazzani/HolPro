@@ -69,6 +69,7 @@ const request = (body: unknown) =>
 function login() {
   vi.mocked(auth.api.getSession).mockResolvedValue({
     user: { id: "u" },
+    session: { id: "session" },
   } as Awaited<ReturnType<typeof auth.api.getSession>>);
 }
 it.each([GET, POST, transcribe, speech, tasks])(

@@ -1,3 +1,4 @@
+import { OnboardingPanel } from "@/components/onboarding/onboarding-panel";
 import { loadPlanView } from "@/lib/plans/view";
 import { PlanArtifact } from "@/components/plans/plan-artifact";
 import { PlanLive } from "@/components/plans/plan-live";
@@ -64,6 +65,7 @@ export async function CoachHome({
         />
         <div className="dashboard-layout">
           <div className="dashboard-main">
+            <OnboardingPanel role="coach" />
             <Agenda
               key={data.month}
               data={data}

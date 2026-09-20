@@ -16,11 +16,15 @@ it("revalidates sessions in the database rather than trusting cached cookies", a
 });
 
 it("uses the requested portal for dual-role users and rejects unowned roles", async () => {
-  vi.mocked(auth.api.getSession).mockResolvedValue({ user: { id: "u" } } as Awaited<ReturnType<typeof auth.api.getSession>>);
+  vi.mocked(auth.api.getSession).mockResolvedValue({ user: { id: "u" }, session: { id: "session" } } as Awaited<ReturnType<typeof auth.api.getSession>>);
   const user = { id: "u", status: "active", deletedAt: null, coach: {}, coachee: {} };
   vi.mocked(loadUserWithRoles).mockResolvedValue(user as Awaited<ReturnType<typeof loadUserWithRoles>>);
   const request = (portal: string) => new Request(`http://localhost/api/assistant/chat?portal=${portal}`);
-  expect(await requireAssistantUser(request("coachee"))).toMatchObject({ role: "coachee" });
+  expect(await requireAssistantUser(request("coachee"))).toMatchObject({
+    role: "coachee",
+    actor: { userId: "u", role: "coachee" },
+    sessionId: "session",
+  });
   expect(await requireAssistantUser(request("coach"))).toMatchObject({ role: "coach" });
   expect(await requireAssistantUser(request("invalid"))).toBeNull();
   vi.mocked(loadUserWithRoles).mockResolvedValue({ ...user, coach: null } as Awaited<ReturnType<typeof loadUserWithRoles>>);

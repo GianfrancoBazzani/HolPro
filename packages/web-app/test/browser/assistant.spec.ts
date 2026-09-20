@@ -6,7 +6,7 @@ const streamHeaders = {
 function reply(text: string) {
   return (
     [
-      { type: "start", messageId: "reply-1" },
+      { type: "start", messageId: crypto.randomUUID() },
       { type: "text-start", id: "text-1" },
       { type: "text-delta", id: "text-1", delta: text },
       { type: "text-end", id: "text-1" },

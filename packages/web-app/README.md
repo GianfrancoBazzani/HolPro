@@ -320,3 +320,59 @@ The test refuses a nonempty database and creates the repository schema in that
 disposable database. Manually check a real development bot for link/chat/long
 task completion, `/stop`, role replacement, and both polling/webhook delivery.
 Spanish and Italian Telegram copy is an agent draft requiring native review.
+
+## Coach onboarding handoff
+
+After the user confirms a coach returned by `searchCoaches`, the assistant calls
+`requestCoachOnboarding`. It saves the selection and a snapshot of the existing
+intake goals, creates or reuses the active engagement, and persists one request
+per coach/client pair. Repeated confirmations return the existing request.
+`getOnboardingStatus` reads progress instead of promising that a coach has acted.
+
+The Node instrumentation starts a worker every five seconds (disable on a web
+replica with `ONBOARDING_WORKER_ENABLED=false`). Keep at least one long-lived
+Node replica enabled. The existing Docker deployment supports this; a serverless
+runtime that freezes between requests would need a separately scheduled worker.
+MySQL row locks and five-minute leases coordinate replicas and recover jobs after
+restarts. Preparation is bounded to three minutes and three attempts; a visible
+failed state lets the client or owning coach retry from the dashboard.
+
+The intake agent receives only that request's goals, the client's locale/timezone,
+and the selected coach's skills. It has no general coach tools, cross-client
+memory, messaging or approval capability. Its HTML is reduced to static semantic
+content with brand styling. Saving the draft, advancing the request and creating
+the coach's notification happen in one transaction. Existing coach approval
+publishes the plan, updates the request, and queues the client's notification
+atomically. Discarding marks the request rejected; it does not auto-regenerate.
+
+Deploy the generated `packages/db/drizzle/0009_coach_onboarding.sql` migration
+**before** starting the updated server (`pnpm --filter @holpro/db db:migrate`
+against the intended database). No production migration is applied by tests.
+The dashboard polls persisted state every ten seconds and links to the customer
+and draft; in-app notifications do not depend on push or email delivery.
+
+For browser push, generate keys once with
+`pnpm --filter web-app exec web-push generate-vapid-keys`, then configure
+`WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, and `WEB_PUSH_SUBJECT` (a contact
+`mailto:` URL). Each coach enables notifications on their device from the
+coaching updates panel. HTTPS (or localhost) and browser permission are required;
+platform installation requirements still apply. Public push endpoints for
+Chrome/FCM, Firefox, Apple and Windows are allowed; arbitrary URLs are rejected.
+Subscriptions are bound to the login session: expiration stops delivery and logout deletes the binding. Each new account or session must explicitly enable push. The service worker opens the authenticated draft URL. Payloads contain generic
+localized coaching updates, without intake answers or plan content.
+
+Email is optional: set `ONBOARDING_EMAIL_ENABLED=true` with `RESEND_API_KEY` and
+`EMAIL_FROM` configured. Delivery uses the recipient's stored locale and email.
+Email retries carry a stable provider idempotency key. Push is at-least-once with
+a stable notification tag. Delivery failures retry independently up to five times;
+the persisted in-app notification remains available after retries are exhausted.
+No API keys or live recipients are used in automated delivery tests.
+
+Validation: `pnpm --filter web-app test`, `pnpm --filter web-app lint`,
+`pnpm --filter web-app typecheck`, and
+`pnpm --filter web-app exec playwright test test/browser/onboarding.spec.ts`.
+For real transaction/recovery tests, set `ONBOARDING_TEST_DATABASE_URL` to a
+**disposable** MySQL database named exactly `holpro_onboarding_test` and run
+`pnpm --filter web-app exec vitest run test/onboarding-mysql.test.ts`.
+That test applies migrations and clears its test records between scenarios.
+Italian and Spanish additions are draft translations requiring native review.

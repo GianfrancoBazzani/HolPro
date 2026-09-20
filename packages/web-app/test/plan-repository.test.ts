@@ -313,5 +313,20 @@ it("reads the next version with a locking read after waiting for another approva
   });
   // A plain MAX query would use the snapshot established by scope discovery,
   // potentially missing a version committed while waiting on the engagement.
-  expect(fake.locks).toEqual(["update", "update", "update", "update"]);
+  expect(fake.locks.slice(0, 4)).toEqual(["update", "update", "update", "update"]);
+});
+
+it("approval completes onboarding and queues a notification for its coachee", async () => {
+  reviewRows(null);
+  fake.rows.push([], [{id:"request",coacheeId:"u",status:"awaiting_review"}]);
+  await approvePlanDraft("coach",planId,"d1");
+  expect(fake.writes).toContainEqual({status:"approved"});
+  expect(fake.writes).toContainEqual(expect.objectContaining({userId:"u",requestId:"request",kind:"plan_approved",href:`/app?plan=${planId}`}));
+});
+it("discard marks onboarding rejected without making a plan available", async () => {
+  reviewRows(null);
+  fake.rows.push([{id:"request",coacheeId:"u",status:"awaiting_review"}]);
+  await discardPlanDraft("coach",planId,"d1");
+  expect(fake.writes).toContainEqual({status:"rejected"});
+  expect(fake.writes).toContainEqual(expect.objectContaining({userId:"u",kind:"plan_rejected"}));
 });

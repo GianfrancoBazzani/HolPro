@@ -84,6 +84,7 @@ for (const locale of localeKeys)
       await ClientPanel({ locale, engagementId: "e" }),
     );
     const d = (await getDictionary(locale)).pro;
+    expect(html).toContain("/pro?engagement=e");
     expect(html).toContain("Client Name");
     expect(html).toContain("Well done");
     expect(html).toContain(d["plan.addItem"]);

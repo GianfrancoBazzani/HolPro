@@ -156,7 +156,17 @@
     "footer.fallback": "Se il pulsante non funziona, copia questo link nel browser.",
     "footer.ignore": "Se non hai richiesto tu questa email, ignorala.",
     "footer.tagline": "HolPro — Libera il tuo potenziale.",
-    "brand.name": "HolPro"
+    "brand.name": "HolPro",
+    "draft_ready.subject": "La bozza di un nuovo cliente è pronta per la revisione",
+    "draft_ready.message": "Apri HolPro per verificare le informazioni raccolte e la bozza del piano.",
+    "draft_ready.button": "Apri HolPro",
+    "plan_approved.subject": "Il tuo coach ha approvato il piano",
+    "plan_approved.message": "Il piano approvato è ora disponibile su HolPro.",
+    "plan_approved.button": "Apri HolPro",
+    "plan_rejected.subject": "La tua bozza richiede un’ulteriore revisione",
+    "plan_rejected.message": "Il tuo coach ha scartato la bozza. Non è stato pubblicato un nuovo piano.",
+    "plan_rejected.button": "Apri HolPro",
+    "footer.onboarding": "Hai ricevuto questo aggiornamento sulla tua attività di coaching su HolPro."
   },
   "language": {
     "label": "Lingua",
@@ -260,7 +270,33 @@
     "plan.draftVersion": "Bozza, inviata il {submittedAt}",
     "plan.confirmDiscard": "Conferma eliminazione",
     "plan.keepDraft": "Mantieni bozza",
-    "plan.previewLabel": "Anteprima del piano"
+    "plan.previewLabel": "Anteprima del piano",
+    "onboarding.title": "Richieste di coaching e notifiche",
+    "onboarding.requested": "La tua richiesta a {coachName} è in coda.",
+    "onboarding.preparing": "L’assistente di {coachName} sta preparando una bozza.",
+    "onboarding.awaiting_review": "In attesa che {coachName} verifichi e approvi la bozza.",
+    "onboarding.approved": "Il tuo piano con {coachName} è stato approvato.",
+    "onboarding.rejected": "{coachName} ha scartato la bozza; non è stato pubblicato un nuovo piano.",
+    "onboarding.failed": "Non è stato possibile preparare la bozza per {coachName}. Puoi riprovare.",
+    "onboarding.retry": "Riprova la preparazione",
+    "onboarding.customer": "Visualizza cliente",
+    "onboarding.empty": "Non ci sono ancora aggiornamenti sul coaching.",
+    "notification.draft_ready.title": "La bozza di un nuovo cliente è pronta per la revisione",
+    "notification.draft_ready.body": "Apri HolPro per verificare le informazioni raccolte e la bozza del piano.",
+    "notification.plan_approved.title": "Il tuo coach ha approvato il piano",
+    "notification.plan_approved.body": "Il piano approvato è ora disponibile su HolPro.",
+    "notification.plan_rejected.title": "La tua bozza richiede un’ulteriore revisione",
+    "notification.plan_rejected.body": "Il tuo coach ha scartato la bozza. Non è stato pubblicato un nuovo piano.",
+    "notification.unread": "Da leggere",
+    "notification.enablePush": "Attiva le notifiche push",
+    "notification.disablePush": "Disattiva le notifiche push",
+    "notification.error": "Impossibile completare l’azione. Controlla la connessione e i permessi delle notifiche, poi riprova.",
+    "onboarding.coach.requested": "La richiesta di {clientName} è in coda.",
+    "onboarding.coach.preparing": "Il tuo assistente sta preparando una bozza per {clientName}.",
+    "onboarding.coach.awaiting_review": "Verifica e approva la bozza per {clientName}.",
+    "onboarding.coach.approved": "Il piano per {clientName} è stato approvato.",
+    "onboarding.coach.rejected": "Hai scartato la bozza per {clientName}.",
+    "onboarding.coach.failed": "Non è stato possibile preparare la bozza per {clientName}. Puoi riprovare."
   },
   "pro": {
     "topbar.eyebrow": "Per i coach",
@@ -369,7 +405,8 @@
     "validation.invalid": "Controlla questo campo.",
     "error.notFound": "Questo record non è più disponibile.",
     "error.generic": "Qualcosa è andato storto. Riprova.",
-    "error.draftChanged": "Questa bozza è cambiata. Controlla l’ultima anteprima e riprova."
+    "error.draftChanged": "Questa bozza è cambiata. Controlla l’ultima anteprima e riprova.",
+    "client.reviewPlans": "Verifica i documenti del piano"
   },
   "assistant": {
     "eyebrow": "Il tuo assistente",
@@ -410,7 +447,9 @@
     "tool.planPublished": "Bozza inviata per la tua revisione",
     "tool.listPlanDocuments": "Lettura dei piani pubblicati",
     "tool.readPlanDocument": "Lettura del documento del piano",
-    "tool.searchCoaches": "Ricerca dei coach in corso"
+    "tool.searchCoaches": "Ricerca dei coach in corso",
+    "tool.requestCoachOnboarding": "Invio della richiesta al coach",
+    "tool.getOnboardingStatus": "Verifica della richiesta di coaching"
   },
   "telegram": {
     "linked.coach": "Sei collegato come coach, {name}.",

@@ -1,3 +1,4 @@
+import { reviewOnboarding } from "@/lib/onboarding/repository";
 import { randomUUID } from "node:crypto";
 import {
   db,
@@ -372,6 +373,7 @@ async function reviewDraft(
         })
         .where(eq(planDocuments.id, planId));
     }
+    await reviewOnboarding(tx, planId, approve);
     await tx
       .delete(planDocumentDrafts)
       .where(eq(planDocumentDrafts.id, draftId));

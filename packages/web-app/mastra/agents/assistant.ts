@@ -1,3 +1,4 @@
+import { requestCoachOnboarding, getOnboardingStatus } from "../tools/coach-onboarding";
 import { createTelegramChannels } from "../channels";
 import {
   publishPlanDocument,
@@ -24,6 +25,7 @@ import { searchCoaches } from "../tools/search-coaches";
 function toolsFor(context: AssistantContext): ToolsInput {
   if (context.role === "coach")
     return {
+      getOnboardingStatus,
       listMyClients,
       getClientPlan,
       startLongTask,
@@ -35,6 +37,8 @@ function toolsFor(context: AssistantContext): ToolsInput {
     getMyPlan,
     saveOnboardingGoals,
     searchCoaches,
+    requestCoachOnboarding,
+    getOnboardingStatus,
     startLongTask,
     listPlanDocuments,
     readPlanDocument,

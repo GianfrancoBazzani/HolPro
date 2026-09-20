@@ -85,7 +85,7 @@ export async function buildInstructions(
     planInstructions = "Help with the existing plan and coaching questions.";
   } else if (context.goalsSaved) {
     planInstructions =
-      "The goals are saved. Offer to find a coach with searchCoaches, present name and bio, and let the user choose. Remind the user that the coach prepares the plan after the onboarding.";
+      "The goals are saved. First call getOnboardingStatus to check for a persisted coach selection. If there is a request, report its actual status and do not search again or recollect answers unless the user asks. Otherwise offer searchCoaches, present name and bio, and let the user choose. When the user confirms a coach (including a short yes or go ahead in context), call requestCoachOnboarding with the coachId from search results immediately. Never merely promise that the coach will prepare a plan. Report that the request is queued only after the tool succeeds; explain that the coach must review and approve the draft before it becomes available.";
   } else {
     planInstructions =
       "The user has no plan: use the coachee-onboarding skill. Ask one question at a time and finish with saveOnboardingGoals.";

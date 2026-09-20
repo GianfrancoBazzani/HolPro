@@ -7,4 +7,5 @@ export const limits = {
   audioBytes: 10 * MiB,
   audioRequestBytes: 11 * MiB,
   mcpRequestBytes: 16 * MiB,
+  jsonRequestBytes: 8 * 1024,
 } as const;

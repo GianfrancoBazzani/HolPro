@@ -64,6 +64,13 @@
       "when": 1789885858239,
       "tag": "0008_wild_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1789892081175,
+      "tag": "0009_coach_onboarding",
+      "breakpoints": true
     }
   ]
 }
