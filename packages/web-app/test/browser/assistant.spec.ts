@@ -496,6 +496,26 @@ test("composer controls keep one row in a narrow panel", async ({ page }) => {
   ).toBe(true);
 });
 type Row = { id: string; title: string | null; updatedAt: string };
+test("a new conversation clears a failed chat and its unsent draft", async ({ page }) => {
+  await threads(page, []);
+  await page.route("**/api/assistant/chat?*", (route) =>
+    route.request().method() === "GET"
+      ? route.fulfill({ json: [] })
+      : route.fulfill({ status: 500, json: { error: "assistant_error" } }),
+  );
+  await page.goto("/?assistant=1");
+  const field = page.getByRole("textbox", { name: "Write a message" });
+  await field.fill("Help me");
+  await field.press("Enter");
+  await expect(page.getByRole("alert")).toBeVisible();
+  await field.fill("Draft for the old conversation");
+  await page.getByRole("button", { name: "Start a new conversation" }).click();
+  await expect(page.getByText("Help me", { exact: true })).toBeHidden();
+  await expect(field).toBeEnabled();
+  await expect(page.getByRole("alert")).toBeHidden();
+  await expect(field).toHaveValue("");
+  await expect(field).toBeFocused();
+});
 async function threads(page: Page, list: Row[]) {
   const state = { list, created: 0, deleted: [] as string[] };
   await page.route("**/api/assistant/threads?*", async (route) => {

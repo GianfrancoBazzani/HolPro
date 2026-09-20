@@ -124,6 +124,7 @@ export function AssistantPanel({
     sendMessage,
     regenerate,
     stop,
+    clearError,
     status,
     error,
   } = useChat({
@@ -145,6 +146,8 @@ export function AssistantPanel({
   const selectThread = (id: string | null) => {
     writeStorage(threadKey(role), id);
     spoken.current = new Set();
+    clearError();
+    setValue("");
     setMessages([]);
     setResolvedThread(id);
     setActiveThread(id);

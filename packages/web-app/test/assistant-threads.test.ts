@@ -1,4 +1,6 @@
 import { beforeEach, expect, it, vi } from "vitest";
+import { MemoryMySQL, StoreOperationsMySQL } from "@mastra/mysql";
+import type { Pool } from "mysql2/promise";
 vi.mock("../lib/auth/server", () => ({
   auth: { api: { getSession: vi.fn() } },
 }));
@@ -87,7 +89,28 @@ it("creates an empty thread with the portal in its metadata", async () => {
       metadata: { portal: "coachee" },
     }),
   });
-  expect(memory.threads.get(id)?.title).toBeUndefined();
+  expect(memory.threads.get(id)?.title).toBe("");
+});
+it("creates an untitled conversation through the MySQL adapter without a null title", async () => {
+  const inserts: unknown[][] = [];
+  const pool = {
+    execute: async (_sql: string, args: unknown[]) => {
+      // mastra_threads.title is TEXT NOT NULL; emulate that database constraint.
+      if (args[2] == null) throw new Error("Column 'title' cannot be null");
+      inserts.push(args);
+      return [{ affectedRows: 1 }, []];
+    },
+  } as unknown as Pool;
+  const storage = new MemoryMySQL({
+    pool,
+    operations: new StoreOperationsMySQL({ pool }),
+  });
+  memory.saveThread.mockImplementationOnce((args) => storage.saveThread(args));
+  const response = await POST(request("portal=coachee", "POST"));
+  expect(response.status).toBe(201);
+  const { id } = await response.json();
+  expect(inserts).toHaveLength(1);
+  expect(inserts[0].slice(0, 3)).toEqual([id, "u", ""]);
 });
 it("deletes an owned thread and refuses foreign, Telegram and missing ids", async () => {
   seed("coachee:u:mine", "u", 1);

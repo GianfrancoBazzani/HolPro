@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       thread: {
         id,
         resourceId: session.user.id,
+        title: "",
         createdAt: now,
         updatedAt: now,
         metadata: { portal: session.role },
