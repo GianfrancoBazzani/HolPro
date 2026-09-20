@@ -17,7 +17,9 @@ export function roleOf(
   requested?: PortalKey,
 ): PortalKey | undefined {
   if (requested) return user[requested] ? requested : undefined;
-  return user.coach ? "coach" : user.coachee ? "coachee" : undefined;
+  if (user.coach) return "coach";
+  if (user.coachee) return "coachee";
+  return undefined;
 }
 export function decideGate(
   user: RoleUser | undefined,

@@ -41,11 +41,9 @@ export function preferredLocale(headers: Headers): Locale | undefined {
   const cookies = parseCookies(headers.get("cookie") ?? "");
   const chosen = cookies.get(localeCookie);
   const seen = cookies.get(seenCookie);
-  return hasLocale(chosen)
-    ? chosen
-    : hasLocale(seen)
-      ? seen
-      : matchLocale(parseAcceptLanguage(headers.get("accept-language")));
+  if (hasLocale(chosen)) return chosen;
+  if (hasLocale(seen)) return seen;
+  return matchLocale(parseAcceptLanguage(headers.get("accept-language")));
 }
 export function resolveLocale(headers: Headers): Locale {
   return preferredLocale(headers) ?? defaultLocale;
