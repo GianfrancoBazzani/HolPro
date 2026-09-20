@@ -11,6 +11,14 @@ vi.mock("@holpro/db", async () => ({
 import { loadClients, loadClientPlan, loadAgenda } from "../lib/pro/repository";
 import { MySqlDialect } from "drizzle-orm/mysql-core";
 const dialect = new MySqlDialect();
+it("allows an owned ended engagement when explicitly loading its history", async () => {
+  queries.engagements.findFirst.mockResolvedValue(undefined);
+  await loadClientPlan("coach", "11111111-1111-4111-8111-111111111111", { includeEnded: true });
+  const query = dialect.sqlToQuery(queries.engagements.findFirst.mock.lastCall![0].where);
+  expect(query.params).toContain("coach");
+  expect(query.params).not.toContain("active");
+  queries.engagements.findFirst.mockClear();
+});
 it("rejects invalid and foreign client ids", async () => {
   expect(await loadClientPlan("coach", "bad")).toBeUndefined();
   expect(queries.engagements.findFirst).not.toHaveBeenCalled();

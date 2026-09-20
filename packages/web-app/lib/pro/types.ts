@@ -24,7 +24,11 @@ export type Client = {
   image: string | null;
   startedAt: string;
 };
-export type ClientPlan = { client: Client; calendar: CalendarData };
+export type ClientPlan = {
+  status: "active" | "ended";
+  client: Client;
+  calendar: CalendarData;
+};
 export type ProActionState = {
   ok?: boolean;
   error?: string;

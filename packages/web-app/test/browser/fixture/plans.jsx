@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PlanArtifact } from "@/components/plans/plan-artifact";
 import { PlanLive } from "@/components/plans/plan-live";
 import { framePlanHtml } from "@/lib/plans/frame";
+import { AssistantPanel } from "@/components/assistant/assistant-panel";
 export function PlanFixture({ locale, messages }) {
   const [draftId, setDraftId] = useState("d1");
   useEffect(() => {
@@ -56,8 +57,9 @@ export function PlanFixture({ locale, messages }) {
     framed: framePlanHtml(html),
   };
   return (
-    <>
+    <div className="dashboard-layout">
       <PlanLive role="coach" />
+      <div className="dashboard-main">
       <PlanArtifact
         view={view}
         role="coach"
@@ -66,6 +68,10 @@ export function PlanFixture({ locale, messages }) {
         messages={messages.dashboard}
         month="2026-09"
       />
-    </>
+      </div>
+      <div className="assistant-sidebar">
+        <AssistantPanel name="Coach" role="coach" onboarding={false} timezone="Europe/Malta" engagementId="e1" planId="p1" />
+      </div>
+    </div>
   );
 }

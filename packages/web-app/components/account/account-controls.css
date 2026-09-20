@@ -178,3 +178,54 @@ body:has(.account-settings[open]) {
   white-space: normal;
   text-align: center;
 }
+.push-settings {
+  padding-block-start: var(--space-8);
+  border-top: 1px solid var(--pine-18);
+}
+.push-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+.push-settings-row label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.push-settings-switch {
+  flex: none;
+  width: 64px;
+  height: 44px;
+  padding: 6px;
+  border: 1.5px solid var(--pine);
+  border-radius: var(--radius-pill);
+  background: var(--parchment);
+  color: var(--pine);
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+.push-settings-switch span {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--pine);
+}
+.push-settings-switch[aria-checked="true"] {
+  background: var(--pine);
+}
+.push-settings-switch[aria-checked="true"] span {
+  margin-inline-start: auto;
+  background: var(--parchment);
+}
+.push-settings-switch:enabled:hover {
+  border-color: var(--cumin);
+}
+.push-settings-switch:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .push-settings-switch { transition: none; }
+}

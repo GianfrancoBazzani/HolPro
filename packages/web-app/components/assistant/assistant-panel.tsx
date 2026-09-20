@@ -53,11 +53,15 @@ export function AssistantPanel({
   role,
   onboarding,
   timezone,
+  engagementId,
+  planId,
 }: {
   name: string;
   role: "coachee" | "coach";
   onboarding: boolean;
   timezone: string;
+  engagementId?: string;
+  planId?: string;
 }) {
   // null asks the server for the newest conversation; the answer names it in a header.
   const [activeThread, setActiveThread] = useState<string | null>(() =>
@@ -85,13 +89,15 @@ export function AssistantPanel({
             (requestMetadata as { thread?: string | null } | undefined)?.thread,
           ),
           body: {
+            engagementId,
+            planId,
             messages: messages
               .filter((message) => message.role === "user")
               .slice(-1),
           },
         }),
       }),
-    [role],
+    [role, engagementId, planId],
   );
   const t = useT("assistant"),
     isOnboarding = role === "coachee" && onboarding;

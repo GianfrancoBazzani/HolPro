@@ -126,9 +126,10 @@ test("a new account does not silently inherit browser push consent", async ({
       },
     });
   });
-  await page.goto("/?onboarding");
+  await page.goto("/?telegram&locale=en");
+  await page.locator('[aria-haspopup="dialog"]').click();
   await expect(
-    page.getByRole("button", { name: "Enable push notifications" }),
-  ).toBeVisible();
+    page.getByRole("switch", { name: "Push notifications" }),
+  ).not.toBeChecked();
   expect(mutations).toEqual([]);
 });

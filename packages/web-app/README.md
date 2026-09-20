@@ -125,7 +125,9 @@ Whole-day plan dates are ISO strings and always formatted with `Intl` in UTC to 
 ## Coach dashboard
 
 `/pro` shows the coach’s month agenda and active clients. `/pro/clients/<engagementId>`
-shows one client’s timeline and editable plan outline. Coach filters and row order
+shows one client’s plan documents, draft review, timeline and editable plan outline,
+with the assistant alongside them using the selected client and plan as context.
+Plans are reviewed here rather than on the main coach dashboard. Coach filters and row order
 are local to the page; coachee preferences remain persisted. Forms support creating,
 editing and deleting events, items, checkpoints and periods, with explicit delete confirmation.
 

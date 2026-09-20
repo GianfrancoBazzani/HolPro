@@ -8,8 +8,6 @@ import type { listNotifications } from "@/lib/notifications/repository";
 type Data = {
   requests: Awaited<ReturnType<typeof listOnboarding>>;
   notifications: Awaited<ReturnType<typeof listNotifications>>;
-  pushPublicKey: string | null;
-  pushSubscribed: boolean;
 };
 export function OnboardingPanel({ role }: { role: PortalKey }) {
   const t = useT("dashboard"),
@@ -76,41 +74,6 @@ export function OnboardingPanel({ role }: { role: PortalKey }) {
     },
     [load],
   );
-  const enablePush = () =>
-    run(async () => {
-      if (
-        !("serviceWorker" in navigator) ||
-        !("PushManager" in window) ||
-        !data?.pushPublicKey
-      )
-        throw Error("unsupported");
-      if ((await Notification.requestPermission()) !== "granted")
-        throw Error("permission_denied");
-      await navigator.serviceWorker.register("/notifications-sw.js");
-      const registration = await navigator.serviceWorker.ready;
-      const key = Uint8Array.from(
-        atob(data.pushPublicKey.replace(/-/g, "+").replace(/_/g, "/")),
-        (c) => c.charCodeAt(0),
-      );
-      const subscription =
-        (await registration.pushManager.getSubscription()) ??
-        (await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: key,
-        }));
-      await mutate({
-        action: "subscribe",
-        subscription: subscription.toJSON(),
-      });
-    });
-  const disablePush = () =>
-    run(async () => {
-      const registration = await navigator.serviceWorker.getRegistration("/");
-      const subscription = await registration?.pushManager.getSubscription();
-      if (!subscription) return;
-      await mutate({ action: "unsubscribe", endpoint: subscription.endpoint });
-      await subscription.unsubscribe();
-    });
   const retry = (id: string) => run(() => mutate({ action: "retry", id }));
   const requests = data?.requests.filter((r) => r.status !== "approved") ?? [];
   return (
@@ -157,21 +120,6 @@ export function OnboardingPanel({ role }: { role: PortalKey }) {
       ))}
       {data && requests.length === 0 && data.notifications.length === 0 && (
         <p>{t("onboarding.empty")}</p>
-      )}
-      {data?.pushPublicKey && (
-        <button
-          className="button button-secondary"
-          disabled={busy}
-          onClick={() =>
-            void (data.pushSubscribed ? disablePush() : enablePush())
-          }
-        >
-          {t(
-            data.pushSubscribed
-              ? "notification.disablePush"
-              : "notification.enablePush",
-          )}
-        </button>
       )}
       {error && <p role="status">{t("notification.error")}</p>}
     </section>

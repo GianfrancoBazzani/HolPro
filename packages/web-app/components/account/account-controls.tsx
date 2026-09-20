@@ -11,6 +11,7 @@ import { ProfileForm } from "./profile-form";
 import "./account-controls.css";
 import type { PortalKey } from "@/lib/auth/portals";
 import { TelegramSettings } from "./telegram-settings";
+import { PushSettings } from "./push-settings";
 
 function LanguageForm() {
   const locale = useLocale();
@@ -153,7 +154,10 @@ export function AccountControls({
             <LanguageForm key={`${locale}-${opening}`} />
           </form>
           {isOpen && (
-            <TelegramSettings key={`${locale}-${opening}`} role={role} />
+            <div key={`${locale}-${opening}`} className="account-settings-content">
+              <PushSettings role={role} />
+              <TelegramSettings role={role} />
+            </div>
           )}
         </div>
       </dialog>

@@ -42,6 +42,7 @@ for (const locale of localeKeys) {
     const a = (await getDictionary(locale)).assistant;
     expect(html).toContain(a["greeting.default"].replace("{name}", "Alex"));
     expect(html).toContain(a["panel.expand"]);
+    expect(html).not.toContain("plan-document-heading");
     const d = (await getDictionary(locale)).pro;
     expect(html).toContain(d["agenda.empty"]);
     expect(html).toContain(d["clients.empty"]);

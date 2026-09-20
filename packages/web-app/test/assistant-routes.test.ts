@@ -1,3 +1,7 @@
+vi.mock("../lib/pro/repository", () => ({ loadClientPlan: vi.fn() }));
+vi.mock("../lib/plans/repository", () => ({ findPlanEngagementId: vi.fn() }));
+import { findPlanEngagementId } from "../lib/plans/repository";
+import { loadClientPlan } from "../lib/pro/repository";
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("../lib/auth/server", () => ({
   auth: { api: { getSession: vi.fn() } },
@@ -302,4 +306,36 @@ it("uses a valid thread parameter and refuses a foreign or missing one", async (
     ).toBe(401);
   }
   expect(handle).toHaveBeenCalledTimes(1);
+});
+
+it("rejects unavailable client context before starting the assistant", async () => {
+  login();
+  vi.mocked(loadUserWithRoles).mockResolvedValue({ ...user, coach: {} } as Awaited<ReturnType<typeof loadUserWithRoles>>);
+  vi.mocked(loadClientPlan).mockResolvedValue(undefined);
+  const response = await POST(chat("portal=coach", { ...hello, engagementId: "foreign" }));
+  expect(response.status).toBe(401);
+  expect(handle).not.toHaveBeenCalled();
+});
+it("passes verified client context to the assistant", async () => {
+  login();
+  vi.mocked(loadUserWithRoles).mockResolvedValue({ ...user, coach: {} } as Awaited<ReturnType<typeof loadUserWithRoles>>);
+  vi.mocked(loadClientPlan).mockResolvedValue({ client: { engagementId: "e", name: "Client" } } as NonNullable<Awaited<ReturnType<typeof loadClientPlan>>>);
+  const response = await POST(chat("portal=coach", { ...hello, engagementId: "e" }));
+  expect(response.status).toBe(200);
+  await response.body?.cancel();
+  const [options] = handle.mock.calls[0] as unknown as [{ params: { requestContext: { get: (key: string) => unknown } } }];
+  expect(options.params.requestContext.get("assistant")).toMatchObject({ client: { engagementId: "e", name: "Client" } });
+});
+it("rejects client context on the coachee portal", async () => {
+  login();
+  const response = await POST(chat("portal=coachee", { ...hello, engagementId: "e" }));
+  expect(response.status).toBe(401);
+});
+it("rejects a plan belonging to a different client", async () => {
+  login();
+  vi.mocked(loadUserWithRoles).mockResolvedValue({ ...user, coach: {} } as Awaited<ReturnType<typeof loadUserWithRoles>>);
+  vi.mocked(loadClientPlan).mockResolvedValue({ client: { engagementId: "e", name: "Client" } } as NonNullable<Awaited<ReturnType<typeof loadClientPlan>>>);
+  vi.mocked(findPlanEngagementId).mockResolvedValue("other");
+  expect((await POST(chat("portal=coach", { ...hello, engagementId: "e", planId: "p" }))).status).toBe(401);
+  expect(handle).not.toHaveBeenCalled();
 });

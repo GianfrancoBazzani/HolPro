@@ -1,6 +1,7 @@
 import { OnboardingPanel } from "@/components/onboarding/onboarding-panel";
 import { loadPlanView } from "@/lib/plans/view";
-import { PlanArtifact } from "@/components/plans/plan-artifact";
+import { redirect } from "next/navigation";
+import { coachEngagementHref } from "@/lib/notifications/links";
 import { PlanLive } from "@/components/plans/plan-live";
 import { requirePortalUser } from "@/lib/auth/gate";
 import { portals } from "@/lib/auth/portals";
@@ -32,14 +33,25 @@ export async function CoachHome({
 }) {
   const user = await requirePortalUser(portals.coach),
     timezone = safeTimezone(user.timezone);
-  const [clients, data, messages, documents] = await Promise.all([
+  // Preserve links from existing notifications and bookmarks.
+  if (typeof engagement === "string" || typeof plan === "string") {
+    const documents = await loadPlanView(
+      { userId: user.id, role: "coach" },
+      { engagement, plan, preview },
+    );
+    if (documents.engagementId) {
+      const query = new URLSearchParams();
+      if (documents.selected) query.set("plan", documents.selected.planId);
+      if (typeof preview === "string") query.set("preview", preview);
+      redirect(
+        `${coachEngagementHref(documents.engagementId)}${query.size ? `?${query}` : ""}`,
+      );
+    }
+  }
+  const [clients, data, messages] = await Promise.all([
     loadClients(user.id),
     loadAgenda(user.id, parseMonth(month, todayIn(timezone)), timezone),
     getDictionary(locale),
-    loadPlanView(
-      { userId: user.id, role: "coach" },
-      { engagement, plan, preview },
-    ),
   ]);
   const t = translator(messages, "pro");
   return (
@@ -70,25 +82,12 @@ export async function CoachHome({
               key={data.month}
               data={data}
               clients={clients}
-              selection={{
-                engagement: documents.engagementId,
-                plan: documents.selected?.planId,
-              }}
-            />
-            <PlanArtifact
-              view={documents}
-              role="coach"
-              locale={locale}
-              timezone={timezone}
-              messages={messages.dashboard}
-              month={data.month}
             />
           </div>
           <div className="assistant-sidebar">
             <Clients
               clients={clients}
               locale={locale}
-              timezone={timezone}
               messages={messages.pro}
             />
             <AssistantPanel

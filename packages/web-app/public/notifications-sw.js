@@ -25,7 +25,8 @@ self.addEventListener("notificationclick", (event) => {
   );
   if (
     url.origin !== self.location.origin ||
-    !["/app", "/pro"].includes(url.pathname)
+    (!["/app", "/pro"].includes(url.pathname) &&
+      !/^\/pro\/clients\/[a-zA-Z0-9-]+$/.test(url.pathname))
   )
     return;
   event.waitUntil(self.clients.openWindow(url.href));

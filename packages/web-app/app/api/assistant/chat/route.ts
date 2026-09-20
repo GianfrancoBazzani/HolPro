@@ -11,13 +11,18 @@ import {
   resolveThread,
 } from "@/lib/assistant/session";
 import { limits } from "@/lib/assistant/limits";
+import { loadClientPlan } from "@/lib/pro/repository";
+import { findPlanEngagementId } from "@/lib/plans/repository";
 import { loadOnboardingState } from "@/lib/assistant/onboarding";
 import { buildAssistantContext, toRequestContext } from "@/mastra/context";
 import { withSseHeartbeat } from "@/lib/assistant/sse";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Only user text crosses this boundary. Tool results, roles and identity are server-owned.
+// Only user text and selection IDs cross this boundary. Selection access is
+// verified below; tool results, roles and identity remain server-owned.
 const bodySchema = z.object({
+  engagementId: z.string().min(1).max(200).optional(),
+  planId: z.string().min(1).max(200).optional(),
   messages: z
     .array(
       z.object({
@@ -43,6 +48,22 @@ export async function POST(request: Request) {
   if (!parsed.success) return invalidInput();
   try {
     const { user, role, locale, actor } = session;
+    let client;
+    if (parsed.data.engagementId) {
+      if (role !== "coach") return unauthorized();
+      const data = await loadClientPlan(user.id, parsed.data.engagementId, { includeEnded: true });
+      if (!data) return unauthorized();
+      if (
+        parsed.data.planId &&
+        await findPlanEngagementId(actor, parsed.data.planId) !== data.client.engagementId
+      ) return unauthorized();
+      client = {
+        engagementId: data.client.engagementId,
+        name: data.client.name,
+        status: data.status,
+        planId: parsed.data.planId,
+      };
+    } else if (parsed.data.planId) return invalidInput();
     const { mastra, getAssistantMemory } = await import("@/mastra");
     const [state, thread] = await Promise.all([
       role === "coach"
@@ -57,6 +78,7 @@ export async function POST(request: Request) {
     if (!thread) return unauthorized();
     const threadId = thread.id;
     const context = buildAssistantContext(user, role, locale, state);
+    if (client) context.client = client;
     const stream = await handleChatStream({
       mastra,
       agentId: "holpro-assistant",

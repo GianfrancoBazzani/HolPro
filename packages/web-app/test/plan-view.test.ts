@@ -36,6 +36,9 @@ vi.mock("../lib/plans/repository", () => ({
 }));
 import { loadPlanView } from "../lib/plans/view";
 import { readPlan, listPlans } from "../lib/plans/repository";
+it("does not fall back to another client when an explicit client is unavailable", async () => {
+  await expect(loadPlanView({ userId: "c", role: "coach" }, { engagement: "foreign", plan: "p2" })).rejects.toThrow();
+});
 it("infers a coach engagement from an allowed plan and reads only that HTML", async () => {
   vi.clearAllMocks();
   const view = await loadPlanView(

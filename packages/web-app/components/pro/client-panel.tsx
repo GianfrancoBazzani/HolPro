@@ -13,20 +13,31 @@ import { loadClientPlan } from "@/lib/pro/repository";
 import { PlanEditor } from "./plan-editor";
 import "@/components/dashboard/dashboard.css";
 import "./pro.css";
-import { coachEngagementHref } from "@/lib/notifications/links";
+import { loadPlanView } from "@/lib/plans/view";
+import { PlanArtifact } from "@/components/plans/plan-artifact";
+import { PlanLive } from "@/components/plans/plan-live";
+import { AssistantPanel } from "@/components/assistant/assistant-panel";
 export async function ClientPanel({
   locale,
   engagementId,
+  plan,
+  preview,
 }: {
   locale: Locale;
   engagementId: string;
+  plan?: unknown;
+  preview?: unknown;
 }) {
   const user = await requirePortalUser(portals.coach);
   const [data, messages] = await Promise.all([
-    loadClientPlan(user.id, engagementId),
+    loadClientPlan(user.id, engagementId, { includeEnded: true }),
     getDictionary(locale),
   ]);
   if (!data) notFound();
+  const documents = await loadPlanView(
+    { userId: user.id, role: "coach" },
+    { engagement: engagementId, plan, preview },
+  );
   const t = translator(messages, "pro"),
     d = translator(messages, "dashboard"),
     timezone = safeTimezone(user.timezone);
@@ -41,9 +52,11 @@ export async function ClientPanel({
         dashboard: messages.dashboard,
         settings: messages.settings,
         pro: messages.pro,
+        assistant: messages.assistant,
       }}
     >
       <main className="container dashboard coach-dashboard">
+        <PlanLive role="coach" />
         <Topbar
           role="coach"
           locale={locale}
@@ -61,31 +74,48 @@ export async function ClientPanel({
             <span>{t("clients.since", { date: since })}</span>
           </div>
         </header>
-        <a
-          className="button button-secondary"
-          href={coachEngagementHref(engagementId)}
-        >
-          {t("client.reviewPlans")}
-        </a>
-        <div className="dashboard-main">
-          <section className="dashboard-panel">
-            <span className="eyebrow">{d("calendar.eyebrow")}</span>
-            <h2>{t("client.calendarTitle")}</h2>
-            <Timeline
+        <div className="dashboard-layout">
+          <div className="dashboard-main">
+            <PlanArtifact
+              view={documents}
+              role="coach"
+              locale={locale}
+              timezone={timezone}
+              messages={messages.dashboard}
+              editable={data.status === "active"}
+            />
+            <section className="dashboard-panel">
+              <span className="eyebrow">{d("calendar.eyebrow")}</span>
+              <h2>{t("client.calendarTitle")}</h2>
+              <Timeline
+                key={engagementId}
+                data={data.calendar}
+                today={todayIn(timezone)}
+              />
+            </section>
+            {data.status === "active" && (
+              <section className="dashboard-panel">
+                <span className="eyebrow">{d("outline.eyebrow")}</span>
+                <h2>{t("client.planTitle")}</h2>
+                <PlanEditor
+                  engagementId={engagementId}
+                  items={data.calendar.items}
+                  engagements={data.calendar.engagements}
+                />
+              </section>
+            )}
+          </div>
+          <div className="assistant-sidebar">
+            <AssistantPanel
               key={engagementId}
-              data={data.calendar}
-              today={todayIn(timezone)}
-            />
-          </section>
-          <section className="dashboard-panel">
-            <span className="eyebrow">{d("outline.eyebrow")}</span>
-            <h2>{t("client.planTitle")}</h2>
-            <PlanEditor
+              name={user.name}
+              role="coach"
+              onboarding={false}
+              timezone={timezone}
               engagementId={engagementId}
-              items={data.calendar.items}
-              engagements={data.calendar.engagements}
+              planId={documents.selected?.planId}
             />
-          </section>
+          </div>
         </div>
       </main>
     </I18nProvider>

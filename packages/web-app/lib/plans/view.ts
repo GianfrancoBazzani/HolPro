@@ -27,6 +27,10 @@ export async function loadPlanView(
   let engagementId: string | undefined;
   let plans: PlanSummary[];
   if (actor.role === "coach") {
+    if (
+      typeof query.engagement === "string" &&
+      !engagements.some((e) => e.id === query.engagement)
+    ) throw new PlanAccessError();
     engagementId =
       engagements.find((e) => e.id === query.engagement)?.id ??
       (requestedPlan

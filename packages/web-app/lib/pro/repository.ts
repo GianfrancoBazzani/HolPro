@@ -65,13 +65,14 @@ export async function loadAgenda(
 export async function loadClientPlan(
   coachId: string,
   engagementId: string,
+  options: { includeEnded?: boolean } = {},
 ): Promise<ClientPlan | undefined> {
   if (!z.uuid().safeParse(engagementId).success) return undefined;
   const row = await db.query.engagements.findFirst({
     where: and(
       eq(engagements.id, engagementId),
       eq(engagements.coachId, coachId),
-      eq(engagements.status, "active"),
+      options.includeEnded ? undefined : eq(engagements.status, "active"),
     ),
     with: {
       coach: { with: { user: true } },
@@ -81,6 +82,7 @@ export async function loadClientPlan(
   });
   if (!row) return undefined;
   return {
+    status: z.enum(["active", "ended"]).parse(row.status),
     client: {
       engagementId: row.id,
       name: row.coachee.user.name,

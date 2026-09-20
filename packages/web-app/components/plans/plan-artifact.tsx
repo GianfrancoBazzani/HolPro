@@ -4,6 +4,7 @@ import type { PlanView } from "@/lib/plans/view";
 import { portals, type PortalKey } from "@/lib/auth/portals";
 import { SelectField } from "@/components/forms/field";
 import Link from "next/link";
+import { coachEngagementHref } from "@/lib/notifications/links";
 import { PlanDraftControls } from "./plan-draft-controls";
 import { PlanViewer } from "./plan-viewer";
 import "./plans.css";
@@ -14,6 +15,7 @@ export function PlanArtifact({
   timezone,
   messages,
   month,
+  editable = true,
 }: {
   view: PlanView;
   role: PortalKey;
@@ -21,6 +23,7 @@ export function PlanArtifact({
   timezone: string;
   messages: Dictionary["dashboard"];
   month?: string;
+  editable?: boolean;
 }) {
   const t = translator({ dashboard: messages }, "dashboard"),
     multipleEngagements =
@@ -31,12 +34,14 @@ export function PlanArtifact({
       timeStyle: "short",
       timeZone: timezone,
     }).format(new Date(value));
+  const homePath = role === "coach" && view.engagementId
+    ? coachEngagementHref(view.engagementId)
+    : portals[role].homePath;
   const previewHref = (preview: string) => {
     const params = new URLSearchParams({ preview });
-    if (view.engagementId) params.set("engagement", view.engagementId);
     if (view.selected) params.set("plan", view.selected.planId);
     if (month) params.set("month", month);
-    return `${portals[role].homePath}?${params}`;
+    return `${homePath}?${params}`;
   };
   return (
     <section
@@ -44,33 +49,13 @@ export function PlanArtifact({
       aria-labelledby="plan-document-heading"
     >
       <h2 id="plan-document-heading">{t("plan.title")}</h2>
-      {(view.plans.length > 1 ||
-        (role === "coach" && view.engagements.length > 0)) && (
+      {view.plans.length > 1 && (
         <form
           className="plan-selectors"
-          action={portals[role].homePath}
+          action={homePath}
           method="get"
         >
           {month && <input type="hidden" name="month" value={month} />}
-          {role === "coach" && (
-            <SelectField
-              key={view.engagementId}
-              name="engagement"
-              label={t("plan.engagementLabel")}
-              defaultValue={view.engagementId}
-              options={view.engagements.map((e) => ({
-                value: e.id,
-                label: t("plan.engagementOption", {
-                  name: e.coacheeName,
-                  status: t(
-                    e.status === "active"
-                      ? "plan.statusActive"
-                      : "plan.statusEnded",
-                  ),
-                }),
-              }))}
-            />
-          )}
           {view.plans.length > 0 && (
             <SelectField
               key={view.selected?.planId}
@@ -110,12 +95,14 @@ export function PlanArtifact({
                 })
               : t("plan.draftStatusNew")}
           </p>
-          <PlanDraftControls
-            key={view.draft.draftId}
-            planId={view.draft.planId}
-            draftId={view.draft.draftId}
-            published={(view.selected?.versionNumber ?? 0) > 0}
-          />
+          {editable && (
+            <PlanDraftControls
+              key={view.draft.draftId}
+              planId={view.draft.planId}
+              draftId={view.draft.draftId}
+              published={(view.selected?.versionNumber ?? 0) > 0}
+            />
+          )}
           {(view.selected?.versionNumber ?? 0) > 0 && (
             <nav
               className="plan-review-actions"

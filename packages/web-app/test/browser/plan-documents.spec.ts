@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/assistant/threads?*", route => route.fulfill({ json: [] }));
+  await page.route("**/api/assistant/chat?*", route => route.fulfill({ json: [] }));
   await page.addInitScript(() => {
     const state = window as typeof window & {
       fixtureSource?: EventTarget;
@@ -19,6 +21,18 @@ test.beforeEach(async ({ page }) => {
     }
     Object.defineProperty(window, "EventSource", { value: Source });
   });
+});
+test("keeps the client's plan beside the assistant and sends the selected context", async ({ page }) => {
+  await page.setViewportSize({ width: 1360, height: 900 });
+  await page.goto("/?plans=1");
+  const plan = await page.locator(".plan-artifact").boundingBox();
+  const assistant = await page.locator(".assistant-panel").boundingBox();
+  expect(assistant!.x).toBeGreaterThanOrEqual(plan!.x + plan!.width);
+  await expect(page.getByLabel("Choose a client")).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Write a message" }).fill("Update this plan");
+  const sent = page.waitForRequest(request => request.method() === "POST" && request.url().includes("/api/assistant/chat"));
+  await page.getByRole("button", { name: "Send", exact: true }).click();
+  expect((await sent).postDataJSON()).toMatchObject({ engagementId: "e1", planId: "p1" });
 });
 test("executes plan scripts in an opaque sandbox while blocking parent access and fetch", async ({
   page,
@@ -103,7 +117,7 @@ test("submits document selection with the existing calendar month", async ({
   await page.goto("/?plans=1");
   await page.getByLabel("Choose a plan").selectOption("p2");
   await Promise.all([
-    page.waitForURL("**/pro?month=2026-09&engagement=e1&plan=p2"),
+    page.waitForURL("**/pro/clients/e1?month=2026-09&plan=p2"),
     page.getByRole("button", { name: "View plan" }).click(),
   ]);
 });
@@ -165,7 +179,7 @@ test("preview links retain plan, engagement and month", async ({ page }) => {
     page.getByRole("link", { name: "Published version" }),
   ).toHaveAttribute(
     "href",
-    "/pro?preview=published&engagement=e1&plan=p1&month=2026-09",
+    "/pro/clients/e1?preview=published&plan=p1&month=2026-09",
   );
   await expect(
     page.getByText("Preview. Your client does not see this version."),

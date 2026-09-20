@@ -8,20 +8,14 @@ import logomark from "@/public/brand/logomark.png";
 export function Clients({
   clients,
   locale,
-  timezone,
   messages,
 }: {
   clients: Client[];
   locale: Locale;
-  timezone: string;
   messages: Dictionary["pro"];
 }) {
   const t = translator({ pro: messages }, "pro"),
-    collator = new Intl.Collator(locale),
-    date = new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeZone: timezone,
-    });
+    collator = new Intl.Collator(locale);
   return (
     <aside className="dashboard-panel clients-panel">
       <h2 className="eyebrow">{t("clients.eyebrow")}</h2>
@@ -42,24 +36,19 @@ export function Clients({
                     <Image
                       src={client.image}
                       unoptimized
-                      width={64}
-                      height={64}
+                      width={40}
+                      height={40}
                       alt={t("clients.avatarAlt", { name: client.name })}
                     />
                   ) : (
                     <span aria-hidden="true">
                       {initials(client.name, locale) || (
-                        <Image src={logomark} width={64} height={64} alt="" />
+                        <Image src={logomark} width={40} height={40} alt="" />
                       )}
                     </span>
                   )}
                 </span>
                 <strong>{client.name}</strong>
-                <span>
-                  {t("clients.since", {
-                    date: date.format(new Date(client.startedAt)),
-                  })}
-                </span>
               </Link>
             ))}
         </div>
