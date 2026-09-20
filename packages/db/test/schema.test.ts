@@ -26,7 +26,10 @@ describe("migration contract", () => {
     expect(sql).toMatch(/CHECK.*'call'.*'event'/i);
     expect(sql).toMatch(/CHECK.*duration_minutes.*between 5 and 1440/i);
     expect(sql.match(/ON DELETE set null/gi)).toHaveLength(1);
-    expect(sql.match(/ON DELETE restrict/gi)).toHaveLength(2);
+    expect(sql.match(/ON DELETE restrict/gi)).toHaveLength(4);
+    expect(sql).toMatch(/UNIQUE\(`document_id`,`number`\)/);
+    expect(sql).toMatch(/CHECK.*`number` > 0/);
+    expect(sql).toContain("`html` mediumtext NOT NULL");
     expect(sql.match(/ON DELETE cascade/gi)?.length).toBeGreaterThanOrEqual(10);
     expect(sql).toMatch(/UNIQUE.*email/i);
     expect(sql).toMatch(/UNIQUE.*token/i);

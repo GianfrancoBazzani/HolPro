@@ -4,8 +4,10 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const web = path.resolve(root, "../../..");
 const config = {
   root,
+  define: { "process.env.BETTER_AUTH_URL": JSON.stringify("http://localhost:3000") },
   resolve: {
     alias: [
+      { find: "next/navigation", replacement: path.join(root, "navigation.jsx") },
       {
         find: "@/lib/pro/agenda-actions",
         replacement: path.join(root, "actions.ts"),

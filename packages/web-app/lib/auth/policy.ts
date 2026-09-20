@@ -1,4 +1,4 @@
-import type { Portal } from "./portals";
+import type { Portal, PortalKey } from "./portals";
 export type GateDecision = "blocked" | "enter" | "register" | "reject";
 export type RoleUser = {
   status: string;
@@ -10,6 +10,14 @@ export function isBlocked(
   user: Pick<RoleUser, "status" | "deletedAt"> | undefined,
 ) {
   return !user || user.status === "suspended" || !!user.deletedAt;
+}
+// Without an explicit portal, prefer the coach role for dual-role accounts.
+export function roleOf(
+  user: Pick<RoleUser, "coach" | "coachee">,
+  requested?: PortalKey,
+): PortalKey | undefined {
+  if (requested) return user[requested] ? requested : undefined;
+  return user.coach ? "coach" : user.coachee ? "coachee" : undefined;
 }
 export function decideGate(
   user: RoleUser | undefined,

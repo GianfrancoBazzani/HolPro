@@ -60,3 +60,13 @@ export const engagements = mysqlTable(
     index("engagements_coachee_status_idx").on(t.coacheeId, t.status),
   ],
 );
+
+export const coacheeGoals = mysqlTable("coachee_goals", {
+  coacheeId: char("coachee_id", { length: 36 })
+    .primaryKey()
+    .references(() => coachees.userId, { onDelete: "cascade" }),
+  goals: text("goals").notNull(),
+  summary: varchar("summary", { length: 280 }).notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});

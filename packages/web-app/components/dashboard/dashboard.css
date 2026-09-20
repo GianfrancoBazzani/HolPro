@@ -318,10 +318,6 @@
   .dashboard-layout {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   }
-  .dashboard-chat {
-    position: sticky;
-    top: var(--space-8);
-  }
 }
 @media (max-width: 699px) {
   .calendar-scroll {

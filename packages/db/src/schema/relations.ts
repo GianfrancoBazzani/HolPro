@@ -2,6 +2,8 @@ import { relations } from "drizzle-orm";
 import { users, sessions, accounts } from "./auth";
 import { coaches, coachees, coachSpecialties, engagements } from "./coaching";
 import {
+  planDocuments,
+  planDocumentVersions,
   planItems,
   planCheckpoints,
   planPeriods,
@@ -38,6 +40,7 @@ export const specialtiesRelations = relations(coachSpecialties, ({ one }) => ({
   }),
 }));
 export const engagementsRelations = relations(engagements, ({ one, many }) => ({
+  planDocuments: many(planDocuments),
   planItems: many(planItems),
   agendaEvents: many(agendaEvents),
   coach: one(coaches, {
@@ -91,3 +94,29 @@ export const agendaEventsRelations = relations(agendaEvents, ({ one }) => ({
     references: [engagements.id],
   }),
 }));
+
+export const planDocumentsRelations = relations(
+  planDocuments,
+  ({ one, many }) => ({
+    engagement: one(engagements, {
+      fields: [planDocuments.engagementId],
+      references: [engagements.id],
+    }),
+    versions: many(planDocumentVersions, { relationName: "documentVersions" }),
+    currentVersion: one(planDocumentVersions, {
+      fields: [planDocuments.currentVersionId],
+      references: [planDocumentVersions.id],
+      relationName: "currentDocumentVersion",
+    }),
+  }),
+);
+export const planDocumentVersionsRelations = relations(
+  planDocumentVersions,
+  ({ one }) => ({
+    document: one(planDocuments, {
+      fields: [planDocumentVersions.documentId],
+      references: [planDocuments.id],
+      relationName: "documentVersions",
+    }),
+  }),
+);

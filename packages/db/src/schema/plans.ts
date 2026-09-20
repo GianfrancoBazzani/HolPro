@@ -1,6 +1,10 @@
 import { sql } from "drizzle-orm";
 import {
   mysqlTable,
+  int,
+  mediumtext,
+  datetime,
+  uniqueIndex,
   char,
   varchar,
   text,
@@ -109,3 +113,44 @@ export const calendarPreferences = mysqlTable("calendar_preferences", {
     .default(sql`('[]')`),
   updatedAt: updatedAt(),
 });
+
+export const planDocuments = mysqlTable(
+  "plan_documents",
+  {
+    id: id(),
+    engagementId: char("engagement_id", { length: 36 })
+      .notNull()
+      .references(() => engagements.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 160 }).notNull(),
+    currentVersionId: char("current_version_id", { length: 36 }),
+    createdBy: char("created_by", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: datetime("deleted_at", { fsp: 3 }),
+  },
+  (t) => [index("plan_documents_engagement_idx").on(t.engagementId)],
+);
+export const planDocumentVersions = mysqlTable(
+  "plan_document_versions",
+  {
+    id: id(),
+    documentId: char("document_id", { length: 36 })
+      .notNull()
+      .references(() => planDocuments.id, { onDelete: "cascade" }),
+    number: int("number").notNull(),
+    html: mediumtext("html").notNull(),
+    publishedBy: char("published_by", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("plan_document_versions_document_number_uidx").on(
+      t.documentId,
+      t.number,
+    ),
+    check("plan_document_versions_number_check", sql`${t.number} > 0`),
+  ],
+);

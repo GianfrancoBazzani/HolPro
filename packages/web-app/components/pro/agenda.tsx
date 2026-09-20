@@ -9,8 +9,10 @@ import { EventDialog } from "./event-dialog";
 export function Agenda({
   data,
   clients,
+  selection,
 }: {
   data: AgendaData;
+  selection?: { engagement?: string; plan?: string };
   clients: { engagementId: string; name: string }[];
 }) {
   const t = useT("pro"),
@@ -52,6 +54,13 @@ export function Agenda({
   const empty = !Object.entries(data.events).some(
     ([day, events]) => day.startsWith(data.month) && events.length,
   );
+  const monthHref = (month?: string) => {
+    const query = new URLSearchParams();
+    if (month) query.set("month", month);
+    if (selection?.engagement) query.set("engagement", selection.engagement);
+    if (selection?.plan) query.set("plan", selection.plan);
+    return `/pro${query.size ? `?${query}` : ""}`;
+  };
   const previous = shiftMonth(data.month, -1),
     next = shiftMonth(data.month, 1);
   return (
@@ -75,14 +84,14 @@ export function Agenda({
         {t("agenda.timezone", { timezone: data.timezone })}
       </p>
       <nav className="agenda-navigation" aria-label={t("agenda.eyebrow")}>
-        <Link className="calendar-chip" href="/pro">
+        <Link className="calendar-chip" href={monthHref()}>
           {t("agenda.today")}
         </Link>
         <div className="agenda-month-nav">
           {previous >= "1001-01" && (
             <Link
               className="calendar-chip agenda-nav-arrow"
-              href={`/pro?month=${previous}`}
+              href={monthHref(previous)}
               aria-label={t("agenda.previous")}
             >
               <svg
@@ -102,7 +111,7 @@ export function Agenda({
           {next <= "9998-12" && (
             <Link
               className="calendar-chip agenda-nav-arrow"
-              href={`/pro?month=${next}`}
+              href={monthHref(next)}
               aria-label={t("agenda.next")}
             >
               <svg

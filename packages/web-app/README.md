@@ -108,7 +108,7 @@ Unmatched routes use Next.js's documented `experimental.globalNotFound` support 
 
 ## Coachee calendar dashboard
 
-`/app` aggregates the plan items of every active engagement. Coaches see their agenda and clients at `/pro`. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. The plan outline is read-only; the assistant panel is a placeholder.
+`/app` aggregates the plan items of every active engagement. Coaches see their agenda and clients at `/pro`. Calendar filters and manual row order are saved per user in MySQL, and are loaded on every visit. Saves are serialized; a failed save restores the last confirmed view. The plan outline is read-only; the assistant supports chat, voice and published HTML plan documents.
 
 Apply `packages/db/drizzle/0002_aromatic_bulldozer.sql` through the normal migration workflow before using the dashboard. The migration adds `plan_items`, `plan_checkpoints`, `plan_periods`, and `calendar_preferences` without changing existing rows.
 
@@ -163,3 +163,95 @@ These cover dialog focus, failed-submit input retention, pending-action locks,
 and responsive layouts in all languages. `PLAYWRIGHT_CHROMIUM_EXECUTABLE` can
 point to an existing Chromium binary. Live authenticated CRUD still requires a
 migrated development database.
+
+## Assistant chat and voice
+
+`/app` and `/pro` share a localized assistant panel. A coachee with no plan
+items starts in onboarding, expanded unless they saved another preference.
+Saving goals leaves onboarding active until the coach creates a plan item or publishes a plan document.
+The coach's assistant can read those goals only through an owned engagement.
+Assistant and plan-event requests carry the active portal, which is checked
+against current role membership. Dual-role accounts retain separate coach and
+coachee chat histories; MCP tokens preserve the selected role.
+
+Apply `packages/db/drizzle/0004_mature_blur.sql` with the normal migration
+workflow before release. Generation does not apply it. Mastra's MySQLStore
+also creates its own `mastra_*` tables for threads, messages, resource working
+memory, workflow snapshots and background-task metadata. The application
+MySQL user needs permission to create these tables. There is no vector store
+or semantic recall in this version.
+
+Set these server environment variables (also in the example files):
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | required for requests | Model, Whisper transcription and speech |
+| `ASSISTANT_MODEL` | `openai/gpt-5.4-mini` | Mastra model id |
+| `ASSISTANT_VOICE_SPEAKER` | `alloy` | OpenAI TTS speaker |
+| `MOCK_TASK_DURATION_MS` | `120000` | Mock task duration |
+| `ASSISTANT_SKILLS_DIR` | auto-detected | Absolute workspace path containing `skills/` |
+
+Run **one instance** (`pm2 -i 1`, or one container). The task registry and mock
+backend are in memory. A process restart loses mock jobs; persisted workflow
+snapshots cannot reconstruct them. Memory remains in MySQL. Skills are copied
+into the Docker runtime and loaded from `mastra/workspace` when the working
+directory is the app, or `packages/web-app/mastra/workspace` from the repo root.
+The workspace filesystem is read-only and contained.
+
+Use `deploy/nginx.example.conf` to disable proxy buffering and permit long
+streams. Chat sends SSE comment heartbeats every 15 seconds. Voice uses HTTP
+on a secure origin (HTTPS, or localhost): hold the microphone button, or click
+once to start and again to stop. Transcription sends the same text chat turn;
+voice playback is optional. Speech failures retry only the failed audio; after
+a microphone error, use the recording control to try again. Starting another turn stops current playback and
+the current generation, while already-deferred tasks continue in Mastra.
+
+The pinned voice package bundles an older core voice base class, so
+`mastra/voice.ts` adapts it to the current base class. Workflows start via
+`run.stream()` and await `output.result`: `observeStream()` has no events
+before streaming starts in core 1.67.
+
+Spanish and Italian assistant translations are drafts for native review.
+Before release, exercise the design's live checklist with a migrated MySQL
+instance and OpenAI credentials: onboarding by voice, two-minute task progress
+behind nginx, another turn during a task, tab close/reopen with persisted
+results, and the same task flow from the coach dashboard. Unit and browser
+fixture tests do not call OpenAI or apply database migrations.
+
+## Published plan documents and private MCP
+
+Apply migration `0005_gifted_skreet.sql` through the normal migration workflow
+after `0004`. Both migrations are generated, not applied by the build. Set
+`MCP_TOKEN_SECRET` to a dedicated key from `openssl rand -base64 32`; production
+startup rejects a missing, malformed or shorter key. Keep it on the server.
+`BETTER_AUTH_URL` must be the trusted application origin reachable from its own
+server: the assistant uses the real `/api/mcp` endpoint with a short-lived JWT.
+There is no public token issuance endpoint. Tokens are rechecked against current
+user roles and block status on every request.
+
+Coaches publish versioned HTML with the assistant's `publish_plan` tool. Both
+roles can list and read scoped documents. `/pro` retains agenda and client
+controls and adds engagement/document selectors; `/app` displays published
+documents from active engagements. Selecting a document preserves the month.
+Document publication ends coachee onboarding. Metadata lists exclude HTML; only
+the selected document loads its content.
+
+HTML runs in an opaque `sandbox="allow-scripts"` iframe. The server normalizes
+it and inserts CSP before author scripts, removes refresh/base elements, and
+blocks parent access, fetch connections, forms and nested frames. Approved CDN
+scripts/styles, Google fonts and HTTPS images remain allowed: this is isolation,
+not a promise of zero network activity. Arbitrary HTML may navigate its own frame.
+Tool protocol diagnostics are fixed English text for the agent; dashboard labels
+and assistant statuses are translated (Spanish/Italian drafts need native review).
+
+Publication notifications use process-local SSE with session revalidation and
+refresh on connection/reconnection; there is no replay queue. Run one application
+process. Adapt the supplied nginx config for streaming and the 16 MB MCP request
+limit (the HTML schema separately allows up to 2,000,000 UTF-16 units).
+
+Before release, verify against migrated MySQL: concurrent publishes get distinct
+sequential versions; rollback emits no event; foreign/ended engagements are
+filtered; two authenticated browser sessions refresh after publishing; restart
+and reconnect load the latest version; blocked users lose stream access. Exercise
+coach publication through the live model, and confirm iframe behavior behind
+HTTPS/nginx. Automated fixture tests do not replace these live checks.

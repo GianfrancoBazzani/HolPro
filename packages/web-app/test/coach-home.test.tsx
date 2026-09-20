@@ -1,3 +1,5 @@
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: () => {} }) }));
+vi.mock("../lib/plans/view", () => ({ loadPlanView: vi.fn(async () => ({ engagements: [], plans: [], content: null, framed: null })) }));
 import { beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 vi.mock("../lib/auth/gate", () => ({ requirePortalUser: vi.fn() }));
@@ -37,6 +39,9 @@ for (const locale of localeKeys) {
     const html = renderToStaticMarkup(
       await CoachHome({ locale, month: "2026-09" }),
     );
+    const a = (await getDictionary(locale)).assistant;
+    expect(html).toContain(a["greeting.default"].replace("{name}", "Alex"));
+    expect(html).toContain(a["panel.expand"]);
     const d = (await getDictionary(locale)).pro;
     expect(html).toContain(d["agenda.empty"]);
     expect(html).toContain(d["clients.empty"]);

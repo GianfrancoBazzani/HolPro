@@ -1,3 +1,14 @@
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {} }),
+}));
+vi.mock("../lib/plans/view", () => ({
+  loadPlanView: vi.fn(async () => ({
+    engagements: [],
+    plans: [],
+    content: null,
+    framed: null,
+  })),
+}));
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 vi.mock("../lib/auth/gate", () => ({ requirePortalUser: vi.fn() }));
@@ -63,16 +74,15 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 for (const locale of localeKeys) {
-  it(`renders empty dashboard and placeholders in ${locale}`, async () => {
+  it(`renders empty dashboard and assistant in ${locale}`, async () => {
     vi.mocked(loadCalendar).mockResolvedValue(empty);
     const html = renderToStaticMarkup(await Dashboard({ locale }));
     const d = (await getDictionary(locale)).dashboard;
-    for (const key of [
-      "empty.noEngagement",
-      "empty.noItems",
-      "chat.body",
-    ] as const)
+    for (const key of ["empty.noEngagement", "empty.noItems"] as const)
       expect(html).toContain(d[key].replaceAll("'", "&#x27;"));
+    const a = (await getDictionary(locale)).assistant;
+    expect(html).toContain(a["greeting.onboarding"].replace("{name}", "Alex"));
+    expect(html).toContain(a["panel.collapse"]);
     expect(html).not.toContain('role="grid"');
     expect(html).toContain("Alex");
   });
@@ -132,4 +142,42 @@ it("reveals the remaining engagement even when old preferences hide it", async (
   });
   const html = renderToStaticMarkup(await Dashboard({ locale: "en" }));
   expect(html).toContain('role="grid"');
+});
+it("ends onboarding when a published document exists without plan items", async () => {
+  const { loadPlanView } = await import("../lib/plans/view");
+  vi.mocked(loadCalendar).mockResolvedValue(empty);
+  vi.mocked(loadPlanView).mockResolvedValueOnce({
+    engagements: [],
+    engagementId: undefined,
+    selected: {
+      planId: "p",
+      engagementId: "e",
+      title: "Published plan",
+      versionNumber: 1,
+      updatedAt: "2026-09-20T12:00:00Z",
+    },
+    plans: [
+      {
+        planId: "p",
+        engagementId: "e",
+        title: "Published plan",
+        versionNumber: 1,
+        updatedAt: "2026-09-20T12:00:00Z",
+      },
+    ],
+    content: null,
+    framed: null,
+  });
+  const html = renderToStaticMarkup(
+    await Dashboard({ locale: "en", plan: "p" }),
+  );
+  const a = (await getDictionary("en")).assistant;
+  expect(html).not.toContain(
+    a["greeting.onboarding"].replace("{name}", "Alex"),
+  );
+  expect(html).toContain(a["greeting.default"].replace("{name}", "Alex"));
+  expect(loadPlanView).toHaveBeenLastCalledWith(
+    { userId: "user", role: "coachee" },
+    { plan: "p" },
+  );
 });

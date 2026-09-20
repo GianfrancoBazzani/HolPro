@@ -85,3 +85,28 @@ WARNING: The next command deletes the database content permanently.
 ```sh
 docker compose -f deploy/docker-compose.yml --project-directory deploy down -v
 ```
+
+## Assistant streaming
+
+Configure the assistant variables in `.env.example`, apply migration `0004`
+using the migration workflow above, and run one web-app container. Mastra
+creates its storage tables in the existing MySQL database; allow schema
+creation for the application user. The in-memory mock jobs and progress
+registry do not support multiple replicas or recovery after a process restart.
+
+For a reverse proxy, adapt `nginx.example.conf` inside your TLS server block.
+It disables response buffering, allows long SSE connections and accepts the
+10 MB voice upload plus multipart overhead. HTTPS is required for browser
+microphone access outside localhost. See the web-app README for variables and
+the live release checklist.
+
+## Private MCP and plan documents
+
+Set `MCP_TOKEN_SECRET` from `openssl rand -base64 32` in `deploy/.env`; the runtime
+requires this dedicated signing key. The Docker build key is a placeholder only
+and is absent from the runtime stage. Apply migration `0005` after `0004` using
+the migration workflow above. Keep one web-app process for publication SSE.
+`BETTER_AUTH_URL` must resolve to this application from inside its container.
+The dedicated `/api/mcp` nginx location permits 16 MB request bodies; voice
+upload limits remain enforced by their own routes. See the web-app README for
+plan isolation details and the live release checklist.

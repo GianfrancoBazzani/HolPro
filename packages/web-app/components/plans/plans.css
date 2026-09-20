@@ -1,0 +1,25 @@
+.plan-artifact {
+  min-width: 0;
+}
+.plan-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-4);
+}
+.plan-selectors .form-field {
+  flex: 1 1 240px;
+}
+.plan-artifact h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 2.6vw, 38px);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.plan-frame {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-panel);
+  background: var(--parchment);
+}

@@ -7,8 +7,7 @@ import {
   planPeriods,
 } from "@holpro/db";
 import { and, eq } from "drizzle-orm";
-const activeCoach = (coachId: string) =>
-  and(eq(engagements.coachId, coachId), eq(engagements.status, "active"));
+import { activeCoach } from "@/lib/mcp/scope";
 export async function ownsEngagement(coachId: string, id: string) {
   return (
     (

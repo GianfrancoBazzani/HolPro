@@ -1,3 +1,6 @@
+import { loadPlanView } from "@/lib/plans/view";
+import { PlanArtifact } from "@/components/plans/plan-artifact";
+import { PlanLive } from "@/components/plans/plan-live";
 import { requirePortalUser } from "@/lib/auth/gate";
 import { portals } from "@/lib/auth/portals";
 import { loadCalendar } from "@/lib/calendar/repository";
@@ -9,22 +12,34 @@ import { Timeline } from "./timeline";
 import { PlanOutline } from "./plan-outline";
 import { Topbar } from "./topbar";
 import { saveCalendarPreferences } from "@/lib/calendar/actions";
-import { ChatPanel } from "./chat-panel";
+import { AssistantPanel } from "@/components/assistant/assistant-panel";
+import { isOnboarding } from "@/lib/assistant/onboarding";
 import "./dashboard.css";
-export async function Dashboard({ locale }: { locale: Locale }) {
+export async function Dashboard({
+  locale,
+  plan,
+}: {
+  locale: Locale;
+  plan?: unknown;
+}) {
   const user = await requirePortalUser(portals.coachee);
-  const [data, messages] = await Promise.all([
+  const [data, messages, documents] = await Promise.all([
     loadCalendar(user.id),
     getDictionary(locale),
+    loadPlanView({ userId: user.id, role: "coachee" }, { plan }),
   ]);
   const t = translator(messages, "dashboard");
-  const engagementId = data.engagements[0]?.id;
   return (
     <I18nProvider
       locale={locale}
-      messages={{ dashboard: messages.dashboard, settings: messages.settings }}
+      messages={{
+        dashboard: messages.dashboard,
+        settings: messages.settings,
+        assistant: messages.assistant,
+      }}
     >
       <main className="container dashboard">
+        <PlanLive role="coachee" />
         <Topbar
           locale={locale}
           messages={messages.dashboard}
@@ -33,6 +48,13 @@ export async function Dashboard({ locale }: { locale: Locale }) {
         />
         <div className="dashboard-layout">
           <div className="dashboard-main">
+            <PlanArtifact
+              view={documents}
+              role="coachee"
+              locale={locale}
+              timezone={user.timezone}
+              messages={messages.dashboard}
+            />
             <section
               className="dashboard-panel"
               aria-labelledby="calendar-heading"
@@ -51,7 +73,11 @@ export async function Dashboard({ locale }: { locale: Locale }) {
               <PlanOutline items={data.items} engagements={data.engagements} />
             </section>
           </div>
-          <ChatPanel engagementId={engagementId} />
+          <AssistantPanel
+            name={user.name}
+            role="coachee"
+            onboarding={isOnboarding(data, documents.plans.length > 0)}
+          />
         </div>
       </main>
     </I18nProvider>
