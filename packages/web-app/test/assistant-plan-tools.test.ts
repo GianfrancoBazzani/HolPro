@@ -10,6 +10,7 @@ import { toRequestContext } from "../mastra/context";
 const ctx = (role: "coach" | "coachee") => ({
   observe: noopObserve,
   requestContext: toRequestContext({
+    surface: "web",
     userId: "u",
     name: "Alex",
     role,

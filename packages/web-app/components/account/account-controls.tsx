@@ -9,6 +9,8 @@ import { useLocale, useT } from "@/components/i18n/provider";
 import type { CoachProfile } from "@/lib/pro/types";
 import { ProfileForm } from "./profile-form";
 import "./account-controls.css";
+import type { PortalKey } from "@/lib/auth/portals";
+import { TelegramSettings } from "./telegram-settings";
 
 function LanguageForm() {
   const locale = useLocale();
@@ -52,12 +54,19 @@ function LanguageForm() {
   );
 }
 
-export function AccountControls({ profile }: { profile?: CoachProfile }) {
+export function AccountControls({
+  profile,
+  role,
+}: {
+  profile?: CoachProfile;
+  role: PortalKey;
+}) {
   const locale = useLocale();
   const t = useT("settings");
   const dialog = useRef<HTMLDialogElement>(null);
   const id = useId();
   const [opening, setOpening] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Keep the trigger mounted so a successful save restores keyboard focus.
   useEffect(() => {
@@ -72,6 +81,7 @@ export function AccountControls({ profile }: { profile?: CoachProfile }) {
         aria-haspopup="dialog"
         aria-controls={id}
         onClick={() => {
+          setIsOpen(true);
           setOpening((value) => value + 1);
           dialog.current?.showModal();
         }}
@@ -98,6 +108,7 @@ export function AccountControls({ profile }: { profile?: CoachProfile }) {
         </button>
       </form>
       <dialog
+        onClose={() => setIsOpen(false)}
         ref={dialog}
         id={id}
         className="account-settings"
@@ -110,7 +121,8 @@ export function AccountControls({ profile }: { profile?: CoachProfile }) {
             event.clientX > bounds.right ||
             event.clientY < bounds.top ||
             event.clientY > bounds.bottom
-          ) dialog.current?.close();
+          )
+            dialog.current?.close();
         }}
       >
         <div className="account-settings-heading">
@@ -135,10 +147,15 @@ export function AccountControls({ profile }: { profile?: CoachProfile }) {
             </svg>
           </button>
         </div>
-        {profile && <ProfileForm key={opening} profile={profile} />}
-        <form action={chooseLocale} className="account-settings-form">
-          <LanguageForm key={`${locale}-${opening}`} />
-        </form>
+        <div className="account-settings-content">
+          {profile && <ProfileForm key={opening} profile={profile} />}
+          <form action={chooseLocale} className="account-settings-form">
+            <LanguageForm key={`${locale}-${opening}`} />
+          </form>
+          {isOpen && (
+            <TelegramSettings key={`${locale}-${opening}`} role={role} />
+          )}
+        </div>
       </dialog>
     </div>
   );

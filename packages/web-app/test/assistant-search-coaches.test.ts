@@ -8,6 +8,7 @@ const ctx = (role: "coach" | "coachee") => ({
   observe: noopObserve,
   requestContext: toRequestContext({
     userId: "u",
+    surface: "web",
     name: "Alex",
     role,
     locale: "en",
@@ -34,7 +35,8 @@ it("searches with the coachee identity and validates the result", async () => {
     coaches: [{ coachId: "c", name: "Ana", bio: "Strength", specialties: [] }],
   });
   expect(callMcp).toHaveBeenCalledWith(
-    expect.objectContaining({ userId: "u", role: "coachee" }),
+    expect.objectContaining({ userId: "u",
+    surface: "web", role: "coachee" }),
     "search_coaches",
     { query: "strength" },
     expect.any(Object),

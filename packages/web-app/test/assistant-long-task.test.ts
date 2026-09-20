@@ -54,6 +54,7 @@ it("registers a running tool for its owner and removes it after completion", asy
       {
         observe: noopObserve,
         requestContext: toRequestContext({
+          surface: "web",
           userId: "registry-owner",
           name: "Alex",
           role: "coachee",
@@ -92,6 +93,7 @@ it("cancels its workflow and clears registration when the background timeout abo
         observe: noopObserve,
         abortSignal: controller.signal,
         requestContext: toRequestContext({
+          surface: "web",
           userId: "timed-out-owner",
           name: "Alex",
           role: "coachee",

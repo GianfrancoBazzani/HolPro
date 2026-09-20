@@ -180,7 +180,28 @@
     "profile.saved": "Profilo salvato.",
     "save": "Salva modifiche",
     "saving": "Salvataggio…",
-    "signout": "Esci"
+    "signout": "Esci",
+    "telegram.title": "Telegram",
+    "telegram.help": "Parla con il tuo assistente HolPro in una chat privata di Telegram.",
+    "telegram.connect": "Collega Telegram",
+    "telegram.open": "Apri Telegram",
+    "telegram.regenerate": "Genera un nuovo link",
+    "telegram.cancel": "Annulla link",
+    "telegram.disconnect": "Scollega",
+    "telegram.loading": "Caricamento delle impostazioni Telegram…",
+    "telegram.working": "Aggiornamento del collegamento Telegram…",
+    "telegram.error": "Impossibile aggiornare le impostazioni Telegram. Riprova.",
+    "telegram.unavailable": "Telegram non è disponibile al momento.",
+    "telegram.pending": "Questo link scade il {date}.",
+    "telegram.expired": "Questo link è scaduto. Genera un nuovo link per collegarti.",
+    "telegram.reopen": "È stato richiesto un link. Generane uno nuovo per aprire Telegram.",
+    "telegram.connected": "Collegato come @{username} dal {date}.",
+    "telegram.connectedNoUsername": "Collegato a Telegram dal {date}.",
+    "telegram.role.coach": "Telegram è collegato al tuo assistente coach.",
+    "telegram.role.coachee": "Telegram è collegato al tuo assistente coachee.",
+    "telegram.switchRole": "Per cambiare il ruolo dell’assistente, scollegati e ricollegati dall’altro portale.",
+    "telegram.revoked": "Il collegamento è disattivato. Riprova a scollegarti per completare la cancellazione della conversazione.",
+    "telegram.retry": "Riprova"
   },
   "dashboard": {
     "topbar.eyebrow": "Per te",
@@ -365,5 +386,17 @@
     "tool.listPlanDocuments": "Lettura dei piani pubblicati",
     "tool.readPlanDocument": "Lettura del documento del piano",
     "tool.searchCoaches": "Ricerca dei coach in corso"
+  },
+  "telegram": {
+    "linked.coach": "Sei collegato come coach, {name}.",
+    "linked.coachee": "Sei collegato come coachee, {name}.",
+    "linkInvalid": "Questo link non è valido o è scaduto. Apri le impostazioni del tuo account HolPro per crearne uno nuovo.",
+    "alreadyLinked": "Questo account Telegram è già collegato. Scollegalo in HolPro oppure usa prima /stop.",
+    "notLinked": "Collega Telegram dalle impostazioni del tuo account HolPro per parlare con l’assistente.",
+    "unavailable": "Il tuo assistente non è disponibile al momento. Verifica l’accesso al tuo account HolPro.",
+    "textOnly": "Invia un messaggio di testo. Gli allegati e gli altri tipi di messaggio non sono supportati.",
+    "tooLong": "Questo messaggio è troppo lungo. Invia un messaggio più breve.",
+    "unlinked": "Telegram è stato scollegato da HolPro.",
+    "error": "L’assistente non ha potuto completare la richiesta. Riprova."
   }
 }

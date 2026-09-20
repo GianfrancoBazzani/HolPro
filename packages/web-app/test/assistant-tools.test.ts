@@ -41,6 +41,7 @@ import { listMyClients } from "../mastra/tools/list-my-clients";
 import { saveOnboardingGoals } from "../mastra/tools/save-onboarding-goals";
 import { toRequestContext, type AssistantContext } from "../mastra/context";
 const base: AssistantContext = {
+  surface: "web",
   userId: "u",
   name: "Alex",
   role: "coachee",

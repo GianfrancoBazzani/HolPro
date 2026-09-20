@@ -7,7 +7,9 @@ import { localePath } from "@/lib/i18n/routes";
 import { AccountControls } from "@/components/account/account-controls";
 import type { CoachProfile } from "@/lib/pro/types";
 import wordmark from "@/public/brand/wordmark.png";
+import type { PortalKey } from "@/lib/auth/portals";
 export function Topbar({
+  role,
   locale,
   messages,
   eyebrow,
@@ -15,6 +17,7 @@ export function Topbar({
   links = [],
   profile,
 }: {
+  role: PortalKey;
   locale: Locale;
   messages: Dictionary["dashboard"];
   eyebrow: string;
@@ -42,7 +45,7 @@ export function Topbar({
         <span className="eyebrow">{eyebrow}</span>
         <span>{name}</span>
       </div>
-      <AccountControls profile={profile} />
+      <AccountControls profile={profile} role={role} />
     </header>
   );
 }

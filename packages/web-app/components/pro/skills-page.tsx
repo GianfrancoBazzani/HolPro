@@ -28,6 +28,7 @@ export async function SkillsPage({ locale }: { locale: Locale }) {
     >
       <main className="container dashboard coach-dashboard">
         <Topbar
+          role="coach"
           locale={locale}
           messages={messages.dashboard}
           eyebrow={t("topbar.eyebrow")}

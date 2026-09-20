@@ -180,7 +180,28 @@
     "profile.saved": "Perfil guardado.",
     "save": "Guardar cambios",
     "saving": "Guardando…",
-    "signout": "Cerrar sesión"
+    "signout": "Cerrar sesión",
+    "telegram.title": "Telegram",
+    "telegram.help": "Habla con tu asistente de HolPro en un chat privado de Telegram.",
+    "telegram.connect": "Conectar Telegram",
+    "telegram.open": "Abrir Telegram",
+    "telegram.regenerate": "Generar nuevo enlace",
+    "telegram.cancel": "Cancelar enlace",
+    "telegram.disconnect": "Desconectar",
+    "telegram.loading": "Cargando ajustes de Telegram…",
+    "telegram.working": "Actualizando la conexión de Telegram…",
+    "telegram.error": "No se pudieron actualizar los ajustes de Telegram. Inténtalo de nuevo.",
+    "telegram.unavailable": "Telegram no está disponible en este momento.",
+    "telegram.pending": "Este enlace caduca el {date}.",
+    "telegram.expired": "Este enlace ha caducado. Genera uno nuevo para conectarte.",
+    "telegram.reopen": "Se ha solicitado un enlace. Genera uno nuevo para abrir Telegram.",
+    "telegram.connected": "Conectado como @{username} desde el {date}.",
+    "telegram.connectedNoUsername": "Conectado a Telegram desde el {date}.",
+    "telegram.role.coach": "Telegram está conectado a tu asistente de coach.",
+    "telegram.role.coachee": "Telegram está conectado a tu asistente de coachee.",
+    "telegram.switchRole": "Para cambiar el rol del asistente, desconéctate y vuelve a conectarte desde el otro portal.",
+    "telegram.revoked": "La conexión está desactivada. Vuelve a desconectarte para terminar de borrar la conversación.",
+    "telegram.retry": "Reintentar"
   },
   "dashboard": {
     "topbar.eyebrow": "Para ti",
@@ -365,5 +386,17 @@
     "tool.listPlanDocuments": "Leyendo los planes publicados",
     "tool.readPlanDocument": "Leyendo el documento del plan",
     "tool.searchCoaches": "Buscando coaches"
+  },
+  "telegram": {
+    "linked.coach": "Ya estás conectado como coach, {name}.",
+    "linked.coachee": "Ya estás conectado como coachee, {name}.",
+    "linkInvalid": "Este enlace no es válido o ha caducado. Abre los ajustes de tu cuenta de HolPro para crear uno nuevo.",
+    "alreadyLinked": "Esta cuenta de Telegram ya está conectada. Desconéctala en HolPro o usa /stop primero.",
+    "notLinked": "Conecta Telegram desde los ajustes de tu cuenta de HolPro para hablar con el asistente.",
+    "unavailable": "Tu asistente no está disponible en este momento. Comprueba el acceso a tu cuenta de HolPro.",
+    "textOnly": "Envía un mensaje de texto. No se admiten archivos adjuntos ni otros tipos de mensajes.",
+    "tooLong": "Este mensaje es demasiado largo. Envía uno más corto.",
+    "unlinked": "Telegram se ha desconectado de HolPro.",
+    "error": "El asistente no pudo completar esta solicitud. Inténtalo de nuevo."
   }
 }

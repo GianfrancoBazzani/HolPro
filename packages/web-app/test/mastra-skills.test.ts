@@ -16,6 +16,7 @@ import { coachSkillsResolver } from "../mastra/skills";
 import { toRequestContext, type AssistantContext } from "../mastra/context";
 const base: AssistantContext = {
   userId: "u",
+  surface: "web",
   name: "Alex",
   role: "coach",
   locale: "en",

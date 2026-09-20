@@ -1,3 +1,4 @@
+import { createTelegramChannels } from "../channels";
 import {
   publishPlanDocument,
   listPlanDocuments,
@@ -46,6 +47,10 @@ export const assistant = new Agent({
   instructions: ({ requestContext }) =>
     buildInstructions(assistantContext(requestContext)),
   tools: ({ requestContext }) => toolsFor(assistantContext(requestContext)),
+  channels:
+    process.env.NEXT_PHASE === "phase-production-build"
+      ? undefined
+      : createTelegramChannels(),
   memory,
   voice,
   workspace,

@@ -49,6 +49,7 @@ export async function CoachHome({
       <main className="container dashboard coach-dashboard">
         <PlanLive role="coach" />
         <Topbar
+          role="coach"
           locale={locale}
           messages={messages.dashboard}
           eyebrow={t("topbar.eyebrow")}

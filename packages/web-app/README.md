@@ -257,28 +257,57 @@ and reconnect load the latest version; blocked users lose stream access. Exercis
 coach publication through the live model, and confirm iframe behavior behind
 HTTPS/nginx. Automated fixture tests do not replace these live checks.
 
-## Coach profile, assistant skills and coach discovery
 
-Apply migration `0006_certain_preak.sql` through the normal migration workflow
-after `0005`. It adds `coach_skills` without changing existing rows. Generation
-and tests do not apply it.
+## Telegram assistant
 
-Coaches edit their bio and the "I accept new clients" switch in the account
-settings dialog on `/pro`. Coaches manage the skills of their assistant at
-`/pro/skills`: name (lowercase letters, digits and single hyphens, unique per
-coach, never a built-in skill name), a description that says when the skill
-applies, and the instructions. At most 20 skills per coach. The assistant
-loads them per request as inline Mastra skills next to the built-in workspace
-skills; the built-in `client-intake` skill guides the intake of a new client
-and is used by the onboarding flow of the next release.
+Apply generated migration `0007_cynical_venus.sql` through the normal migration
+workflow before enabling the bot. It creates `telegram_links`; builds and tests
+do not apply migrations to your application database.
 
-The private MCP server registers `search_coaches` for the coachee role. It
-returns coaches who accept clients and have an active account, with name, bio
-and specialties, at most 50, filtered by an optional query of up to 200
-characters. Token scopes are now `plans:read`, `coaches:search` and
-`onboarding:apply` for coachees, and `plans:read`, `plans:publish` and
-`onboarding:review` for coaches. The coachee assistant offers a coach search
-after the goals are saved.
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `TELEGRAM_BOT_TOKEN` | unset | BotFather token; unset disables the integration |
+| `TELEGRAM_BOT_USERNAME` | required with token | Bot username without `@` |
+| `TELEGRAM_WEBHOOK_SECRET_TOKEN` | required for webhook | 1–256 letters, digits, `_` or `-`; generate a random secret |
+| `TELEGRAM_MODE` | `webhook` | `webhook` or `polling` |
 
-Spanish and Italian copy for the profile, the skills page and the search label
-are drafts that need native-speaker review.
+Run one long-lived Node process. From `packages/web-app`, with variables exported:
+
+```sh
+node scripts/telegram-set-webhook.mjs --url https://your-host/api/telegram/webhook --dry-run
+node scripts/telegram-set-webhook.mjs --url https://your-host/api/telegram/webhook
+```
+
+The dry run prints no credentials and makes no network call. The route checks
+Telegram’s secret header. Polling starts through Next.js instrumentation and
+requires no public URL; use a separate development bot because polling removes
+that bot’s webhook. Run registration again when switching back to webhook mode.
+Neither mode is started during the production build.
+
+Connect in account settings on `/app` or `/pro`, open the link in Telegram and
+press Start. Only ordinary private text messages are accepted. The connection
+uses the role of that portal and the account’s stored language/timezone. Device
+language may differ. To change role or Telegram account, disconnect first.
+`/stop` also disconnects, even after loss of role access. Tokens expire after
+15 minutes; reopening settings offers regeneration because only the hash is
+stored. Cancellation invalidates that specific pending token.
+
+Telegram has its own transcript (`telegram:<userId>`); the coaching profile is
+shared with the web. Disconnect revokes future delivery and deletes HolPro’s
+Telegram transcript after active work is cancelled. Messages already delivered
+to Telegram remain there. A failed cleanup stays revoked and can be retried.
+SDK subscriptions persist, but locks, deduplication, queues and mock jobs do not;
+restarts can lose acknowledged updates or cause retries. Delivery is best-effort.
+
+The standard unit suite requires no database or bot credentials. For the
+transaction integration test, set `TELEGRAM_TEST_DATABASE_URL` to an **empty,
+disposable MySQL 8 database** and run:
+
+```sh
+pnpm exec vitest run test/telegram-mysql.test.ts
+```
+
+The test refuses a nonempty database and creates the repository schema in that
+disposable database. Manually check a real development bot for link/chat/long
+task completion, `/stop`, role replacement, and both polling/webhook delivery.
+Spanish and Italian Telegram copy is an agent draft requiring native review.

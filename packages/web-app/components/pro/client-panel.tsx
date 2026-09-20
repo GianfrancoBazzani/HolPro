@@ -44,6 +44,7 @@ export async function ClientPanel({
     >
       <main className="container dashboard coach-dashboard">
         <Topbar
+          role="coach"
           locale={locale}
           messages={messages.dashboard}
           eyebrow={t("topbar.eyebrow")}

@@ -180,7 +180,28 @@
     "profile.saved": "Profile saved.",
     "save": "Save changes",
     "saving": "Saving…",
-    "signout": "Sign out"
+    "signout": "Sign out",
+    "telegram.title": "Telegram",
+    "telegram.help": "Talk to your HolPro assistant in a private Telegram chat.",
+    "telegram.connect": "Connect Telegram",
+    "telegram.open": "Open Telegram",
+    "telegram.regenerate": "Generate new link",
+    "telegram.cancel": "Cancel link",
+    "telegram.disconnect": "Disconnect",
+    "telegram.loading": "Loading Telegram settings…",
+    "telegram.working": "Updating Telegram connection…",
+    "telegram.error": "Could not update Telegram settings. Please try again.",
+    "telegram.unavailable": "Telegram is currently unavailable.",
+    "telegram.pending": "This link expires at {date}.",
+    "telegram.expired": "This link has expired. Generate a new link to connect.",
+    "telegram.reopen": "A link was requested. Generate a new link to open Telegram.",
+    "telegram.connected": "Connected as @{username} since {date}.",
+    "telegram.connectedNoUsername": "Connected to Telegram since {date}.",
+    "telegram.role.coach": "Telegram is connected to your coach assistant.",
+    "telegram.role.coachee": "Telegram is connected to your coachee assistant.",
+    "telegram.switchRole": "To change assistant role, disconnect and reconnect from the other portal.",
+    "telegram.revoked": "The connection is disabled. Retry disconnecting to finish clearing the conversation.",
+    "telegram.retry": "Retry"
   },
   "dashboard": {
     "topbar.eyebrow": "For you",
@@ -365,5 +386,17 @@
     "tool.listPlanDocuments": "Reading published plans",
     "tool.readPlanDocument": "Reading the plan document",
     "tool.searchCoaches": "Searching coaches"
+  },
+  "telegram": {
+    "linked.coach": "You are connected as a coach, {name}.",
+    "linked.coachee": "You are connected as a coachee, {name}.",
+    "linkInvalid": "This link is invalid or expired. Open account settings in HolPro to create a new link.",
+    "alreadyLinked": "This Telegram account is already connected. Disconnect it in HolPro or use /stop first.",
+    "notLinked": "Connect Telegram from your HolPro account settings to chat with the assistant.",
+    "unavailable": "Your assistant is currently unavailable. Check your HolPro account access.",
+    "textOnly": "Please send a text message. Attachments and other message types are not supported.",
+    "tooLong": "This message is too long. Please send a shorter message.",
+    "unlinked": "Telegram is now disconnected from HolPro.",
+    "error": "The assistant could not complete this request. Please try again."
   }
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { TelegramFixture } from "./telegram";
 import { PlanFixture } from "./plans";
 import { createRoot } from "react-dom/client";
 import { I18nProvider } from "@/components/i18n/provider";
@@ -26,7 +27,9 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <I18nProvider locale={locale} messages={messages}>
       <main className="container dashboard coach-dashboard">
-        {query.has("plans") ? (
+        {query.has("telegram") ? (
+          <TelegramFixture />
+        ) : query.has("plans") ? (
           <PlanFixture locale={locale} messages={messages} />
         ) : query.has("assistant") ? (
           <div className="dashboard-layout">

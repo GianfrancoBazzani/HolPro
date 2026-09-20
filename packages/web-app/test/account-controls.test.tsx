@@ -18,7 +18,7 @@ async function render(
       locale={locale}
       messages={{ settings: messages.settings, pro: messages.pro }}
     >
-      <AccountControls profile={profile} />
+      <AccountControls profile={profile} role={profile ? "coach" : "coachee"} />
     </I18nProvider>,
   );
 }
