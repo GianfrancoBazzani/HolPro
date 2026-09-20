@@ -351,3 +351,99 @@ test("microphone failure after a completed turn cannot regenerate that turn", as
   await expect(page.getByRole("alert").getByRole("button", { name: "Try again" })).toHaveCount(0);
   await expect(page.getByText("Plan published.", { exact: true })).toBeVisible();
 });
+
+test("composer sizes, keyboard input, pending state and Markdown presentation", async ({ page }) => {
+  let finish: (() => void) | undefined;
+  await page.route("**/api/assistant/chat?*", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: [] });
+    await new Promise<void>((resolve) => { finish = resolve; });
+    await route.fulfill({ headers: streamHeaders, body: reply("**Bold**\n\n- First\n- Second\n\n```js\nconst total = 1;\n```\n\n| A | B |\n|---|---|\n| One | Two |") });
+  });
+  await page.goto("/?assistant=1");
+  const field = page.getByRole("textbox", { name: "Write a message" });
+  await expect(field).toBeEnabled();
+  expect(await field.evaluate((node) => node.tagName)).toBe("TEXTAREA");
+  expect((await field.boundingBox())?.height).toBe(44);
+  await field.fill("First");
+  await field.press("Shift+Enter");
+  await field.press("a");
+  await expect(field).toHaveValue("First\na");
+  expect((await field.boundingBox())!.height).toBeGreaterThan(44);
+  await field.fill(Array(9).fill("line").join("\n"));
+  expect((await field.boundingBox())?.height).toBe(144);
+  await field.fill("My **literal** question");
+  await field.dispatchEvent("keydown", { key: "Enter", isComposing: true });
+  await expect(field).toHaveValue("My **literal** question");
+  await field.focus();
+  expect(await field.evaluate((node) => getComputedStyle(node).outlineStyle)).toBe("solid");
+  await field.press("Enter");
+  await expect(page.getByRole("status")).toHaveText("Thinking…");
+  await expect(field).toBeDisabled();
+  finish!();
+  await expect(page.getByText("Thinking…", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".assistant-message-assistant strong")).toHaveText("Bold");
+  await expect(page.locator(".assistant-message-assistant li")).toHaveCount(2);
+  await expect(page.locator(".hljs-keyword")).toHaveText("const");
+  await expect(page.locator(".assistant-table table")).toBeVisible();
+  const bubble = page.locator(".assistant-message-user");
+  expect((await bubble.boundingBox())!.width).toBeLessThanOrEqual(520);
+  expect(await bubble.evaluate((node) => getComputedStyle(node).borderTopWidth)).toBe("0px");
+  await page.screenshot({ path: "/tmp/holpro-chat-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 375, height: 812 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "/tmp/holpro-chat-mobile.png", fullPage: true });
+});
+
+test("Markdown lists retain markers and wide content stays inside the log", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await history(page, [{ id: "wide", role: "assistant", parts: [{ type: "text", text: "- One\n- Two\n\n1. First\n2. Second\n\n```text\n" + "wide ".repeat(100) + "\n```\n\n| " + Array(12).fill("Column").join(" | ") + " |\n| " + Array(12).fill("---").join(" | ") + " |\n| " + Array(12).fill("content").join(" | ") + " |" }] }]);
+  await page.goto("/?assistant=1");
+  const list = page.locator(".assistant-markdown ul");
+  await expect(list).toBeVisible();
+  expect(await list.evaluate((node) => getComputedStyle(node).listStyleType)).toBe("disc");
+  expect(await page.locator(".assistant-markdown ol").evaluate((node) => getComputedStyle(node).listStyleType)).toBe("decimal");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await page.locator(".assistant-messages").evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+  expect(await page.locator(".assistant-markdown pre").evaluate((node) => node.scrollWidth > node.clientWidth)).toBe(true);
+});
+
+test("textarea fallback grows and shrinks without native field sizing", async ({ page }) => {
+  await page.addInitScript(() => {
+    const supports = CSS.supports.bind(CSS);
+    CSS.supports = ((property: string, value?: string) => property === "field-sizing" ? false : value === undefined ? supports(property) : supports(property, value)) as typeof CSS.supports;
+  });
+  await history(page);
+  await page.goto("/?assistant=1");
+  await page.addStyleTag({ content: ".assistant-field { field-sizing: fixed; }" });
+  const field = page.getByRole("textbox");
+  await expect(field).toBeEnabled();
+  await field.fill(Array(9).fill("line").join("\n"));
+  await expect.poll(async () => (await field.boundingBox())?.height).toBe(144);
+  await field.fill("short");
+  await expect.poll(async () => (await field.boundingBox())?.height).toBe(44);
+});
+
+test("log initially follows history, preserves reading position, and follows a new turn", async ({ page }) => {
+  let finish: (() => void) | undefined;
+  await page.route("**/api/assistant/chat?*", async (route) => {
+    if (route.request().method() === "GET") return route.fulfill({ json: Array.from({ length: 30 }, (_, i) => ({ id: `history-${i}`, role: "assistant", parts: [{ type: "text", text: `Earlier message ${i}` }] })) });
+    await new Promise<void>((resolve) => { finish = resolve; });
+    await route.fulfill({ headers: streamHeaders, body: reply("A new reply") });
+  });
+  await page.goto("/?assistant=1");
+  const log = page.getByRole("log");
+  await expect(page.getByText("Earlier message 29", { exact: true })).toBeVisible();
+  const remaining = () => log.evaluate((node) => node.scrollHeight - node.scrollTop - node.clientHeight);
+  await expect.poll(remaining).toBeLessThan(2);
+  await page.getByRole("textbox").fill("Question");
+  await page.getByRole("textbox").press("Enter");
+  await expect(page.getByText("Thinking…", { exact: true })).toBeVisible();
+  await log.evaluate((node) => { node.scrollTop = 0; node.dispatchEvent(new Event("scroll")); });
+  finish!();
+  await expect(page.getByText("Thinking…", { exact: true })).toHaveCount(0);
+  expect(await log.evaluate((node) => node.scrollTop)).toBe(0);
+  await page.getByRole("textbox").fill("Follow-up");
+  await page.getByRole("textbox").press("Enter");
+  await expect.poll(remaining).toBeLessThan(2);
+  finish!();
+});

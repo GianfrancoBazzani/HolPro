@@ -311,6 +311,7 @@
     "composer.voiceOn": "Attiva voce",
     "composer.voiceOff": "Disattiva voce",
     "composer.transcribing": "Trascrizione…",
+    "status.thinking": "Sto pensando…",
     "panel.expand": "Espandi assistente",
     "panel.collapse": "Riduci assistente",
     "tool.getMyPlan": "Lettura del tuo piano",

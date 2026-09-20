@@ -10,24 +10,26 @@
 .assistant-messages {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-7);
   max-height: 50vh;
+  padding-inline-end: var(--space-1);
   overflow-y: auto;
   overflow-wrap: anywhere;
+  scroll-behavior: auto;
 }
 .assistant-message {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding-block: var(--space-4);
-  border-top: 1px solid var(--hairline);
-  white-space: pre-wrap;
+  min-width: 0;
 }
 .assistant-message-user {
-  background: var(--pine-10);
+  align-self: flex-end;
+  width: fit-content;
+  max-width: min(100%, 520px);
+  padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-panel);
-  border: 0;
-  padding: var(--space-4);
+  background: var(--pine-10);
 }
 .assistant-status {
   display: inline-block;
@@ -46,44 +48,31 @@
 .assistant-composer {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4);
-}
-.assistant-composer input {
-  min-width: 0;
-  flex: 1 1 240px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--pine);
-  padding: 16px 20px;
-  font: inherit;
-  background: transparent;
-  color: var(--pine);
-}
-.assistant-composer input:focus-visible {
-  border-color: var(--cumin);
+  align-items: flex-end;
+  gap: var(--space-3);
 }
 .assistant-icon {
-  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--pine);
   border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--pine);
   font: inherit;
   cursor: pointer;
+  touch-action: manipulation;
   transition:
     background-color 0.15s,
     color 0.15s,
     border-color 0.15s;
-  width: 44px;
-  flex: 0 0 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid var(--pine);
-  background: transparent;
-  color: var(--pine);
-  touch-action: manipulation;
 }
 .assistant-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -119,5 +108,189 @@
 @media (prefers-reduced-motion: reduce) {
   .assistant-panel * {
     transition: none;
+  }
+}
+
+.assistant-field {
+  min-width: 0;
+  flex: 1 1 200px;
+  min-height: 44px;
+  max-height: 144px;
+  padding: var(--space-2) var(--space-6);
+  border: 1.5px solid var(--pine);
+  border-radius: var(--radius-panel);
+  background: transparent;
+  color: var(--pine);
+  font: inherit;
+  line-height: 25px;
+  resize: none;
+  field-sizing: content;
+  overflow-y: auto;
+}
+
+.assistant-field::placeholder {
+  color: var(--muted);
+}
+
+.assistant-field:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 3px;
+  border-color: var(--cumin);
+}
+
+.assistant-icon-primary {
+  background: var(--pine);
+  border-color: var(--pine);
+  color: var(--parchment);
+}
+
+.assistant-icon-primary:hover:not(:disabled),
+.assistant-icon-primary:focus-visible {
+  background: var(--cumin);
+  border-color: var(--cumin);
+  color: var(--parchment);
+}
+
+.assistant-note {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.assistant-message-user .assistant-markdown > * {
+  max-width: none;
+}
+
+.assistant-markdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.assistant-markdown > * {
+  max-width: 560px;
+  text-wrap: pretty;
+}
+.assistant-message .assistant-markdown h1,
+.assistant-message .assistant-markdown h2,
+.assistant-message .assistant-markdown h3,
+.assistant-message .assistant-markdown h4,
+.assistant-message .assistant-markdown h5,
+.assistant-message .assistant-markdown h6 {
+  font: 400 clamp(28px, 2.6vw, 38px)/1.05 var(--font-serif);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.assistant-markdown ul,
+.assistant-markdown ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-7);
+  margin: 0;
+}
+.assistant-markdown li > * + * {
+  margin-block-start: var(--space-2);
+}
+.assistant-markdown blockquote {
+  padding-inline-start: var(--space-4);
+  border-inline-start: 1.5px solid var(--pine-18);
+  color: var(--muted);
+}
+.assistant-markdown code {
+  font: 400 14px/1.5 var(--font-sans);
+}
+.assistant-markdown :not(pre) > code {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--pine-10);
+}
+.assistant-markdown pre {
+  white-space: pre;
+  text-wrap: nowrap;
+  max-width: 100%;
+  padding: var(--space-6) var(--space-7);
+  border-radius: var(--radius-panel);
+  background: var(--pine);
+  color: var(--parchment);
+  overflow-x: auto;
+}
+.assistant-markdown pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+.assistant-markdown .hljs-keyword,
+.assistant-markdown .hljs-built_in,
+.assistant-markdown .hljs-type,
+.assistant-markdown .hljs-tag,
+.assistant-markdown .hljs-name {
+  color: var(--pistachio);
+}
+.assistant-markdown .hljs-string,
+.assistant-markdown .hljs-attr,
+.assistant-markdown .hljs-number,
+.assistant-markdown .hljs-literal {
+  color: var(--orchid);
+}
+.assistant-markdown .hljs-comment,
+.assistant-markdown .hljs-meta {
+  color: var(--parchment);
+}
+.assistant-markdown table {
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.assistant-markdown th,
+.assistant-markdown td {
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--pine-18);
+  text-align: start;
+}
+.assistant-markdown a {
+  color: var(--pine);
+  text-decoration: none;
+}
+.assistant-markdown a:hover,
+.assistant-markdown a:focus-visible {
+  color: var(--cumin);
+}
+
+.assistant-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: 14px;
+  color: var(--muted);
+}
+.assistant-error p {
+  margin: 0;
+}
+
+.assistant-icon-primary:focus-visible {
+  outline-color: var(--pine);
+}
+.assistant-markdown > * {
+  min-width: 0;
+  margin: 0;
+}
+.assistant-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.assistant-markdown ul {
+  list-style: disc;
+}
+.assistant-markdown ol {
+  list-style: decimal;
+}
+@media (max-width: 600px) {
+  .assistant-field {
+    flex-basis: 100%;
+  }
+  .assistant-composer .assistant-icon-primary {
+    margin-inline-start: auto;
   }
 }

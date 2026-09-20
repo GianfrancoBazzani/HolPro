@@ -1,4 +1,6 @@
 "use client";
+import { useEffect, useRef } from "react";
+import { Markdown } from "./markdown";
 import { isToolUIPart, getToolName, type UIMessage } from "ai";
 import { useLocale, useT } from "@/components/i18n/provider";
 import type { TaskProgress } from "./use-task-progress";
@@ -43,15 +45,33 @@ export function MessageList({
   messages,
   greeting,
   progress,
+  pending,
 }: {
   messages: UIMessage[];
   greeting: string;
   progress: TaskProgress[];
+  pending: boolean;
 }) {
   const t = useT("assistant"),
     locale = useLocale();
+  const log = useRef<HTMLDivElement>(null);
+  const following = useRef(true);
+  const lastUserId = messages.findLast((message) => message.role === "user")?.id;
+  const previousUserId = useRef(lastUserId);
+  useEffect(() => {
+    if (lastUserId !== previousUserId.current) following.current = true;
+    previousUserId.current = lastUserId;
+    const node = log.current;
+    if (node && following.current) node.scrollTop = node.scrollHeight;
+  }, [messages, progress, pending, lastUserId]);
   return (
     <div
+      ref={log}
+      onScroll={(event) => {
+        const node = event.currentTarget;
+        following.current =
+          node.scrollHeight - node.scrollTop - node.clientHeight <= 44;
+      }}
       className="assistant-messages"
       role="log"
       aria-live="polite"
@@ -65,12 +85,7 @@ export function MessageList({
         >
           {message.parts.map((part, index) => {
             if (part.type === "text")
-              return part.text
-                .split(/\n\s*\n/)
-                .filter(Boolean)
-                .map((paragraph, i) => (
-                  <p key={`${index}-${i}`}>{paragraph}</p>
-                ));
+              return <Markdown key={index} text={part.text} />;
             if (!isToolUIPart(part)) return null;
             const name = getToolName(part),
               failed = failedTask(part);
@@ -116,6 +131,11 @@ export function MessageList({
           })}
         </span>
       ))}
+      {pending && (
+        <span className="assistant-status" role="status">
+          {t("status.thinking")}
+        </span>
+      )}
     </div>
   );
 }

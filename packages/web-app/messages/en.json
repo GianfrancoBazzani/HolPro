@@ -311,6 +311,7 @@
     "composer.voiceOn": "Turn voice on",
     "composer.voiceOff": "Turn voice off",
     "composer.transcribing": "Transcribing…",
+    "status.thinking": "Thinking…",
     "panel.expand": "Expand assistant",
     "panel.collapse": "Collapse assistant",
     "tool.getMyPlan": "Reading your plan",

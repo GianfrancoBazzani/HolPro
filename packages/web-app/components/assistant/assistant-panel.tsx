@@ -11,6 +11,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, type UIMessage } from "ai";
 import { useT } from "@/components/i18n/provider";
 import { MessageList, hasRunningTask, runningTaskIds } from "./message-list";
+import { toPlainText } from "@/lib/assistant/plain-text";
 import { Composer } from "./composer";
 import { useSpeaker } from "./use-speaker";
 import { useTaskProgress } from "./use-task-progress";
@@ -86,10 +87,12 @@ export function AssistantPanel({
       if (isAbort || isError || spoken.current.has(message.id)) return;
       spoken.current.add(message.id);
       speaker.speak(
-        message.parts
-          .filter((part) => part.type === "text")
-          .map((part) => part.text)
-          .join("\n"),
+        toPlainText(
+          message.parts
+            .filter((part) => part.type === "text")
+            .map((part) => part.text)
+            .join("\n"),
+        ),
       );
     },
   });
@@ -182,7 +185,7 @@ export function AssistantPanel({
   return (
     <aside ref={panel} className="dashboard-panel assistant-panel">
       <div className="assistant-header">
-        <h2 className="eyebrow">{t("eyebrow")}</h2>
+        <h2>{t("eyebrow")}</h2>
         <button
           className="assistant-icon"
           type="button"
@@ -216,6 +219,7 @@ export function AssistantPanel({
           name,
         })}
         progress={progress}
+        pending={status === "submitted"}
       />
       <Composer
         role={role}
@@ -231,7 +235,7 @@ export function AssistantPanel({
         onMicrophoneError={() => setLocalError("microphone")}
       />
       {(error || localError) && (
-        <div role="alert">
+        <div className="assistant-error" role="alert">
           <p>
             {t(localError === "microphone" ? "error.microphone" : "error.generic")}
           </p>

@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useT } from "@/components/i18n/provider";
 import { limits } from "@/lib/assistant/limits";
 import { usePushToTalk } from "./use-push-to-talk";
@@ -29,29 +29,59 @@ export function Composer({
   }, onMicrophoneError, role);
   const pressedAt = useRef(0),
     startedHere = useRef(false);
+  const field = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const node = field.current;
+    if (!node || CSS.supports("field-sizing", "content")) return;
+    const resize = () => {
+      node.style.height = "auto";
+      const style = getComputedStyle(node);
+      const border = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+      node.style.height = `${Math.min(node.scrollHeight + border, parseFloat(style.maxHeight))}px`;
+    };
+    resize();
+    let width = node.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (node.clientWidth === width) return;
+      width = node.clientWidth;
+      resize();
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [value]);
+  const submit = () => {
+    if (!disabled && value.trim()) onSend(value);
+  };
   return (
     <form
       className="assistant-composer"
       onSubmit={(event) => {
         event.preventDefault();
-        if (value.trim()) onSend(value);
+        submit();
       }}
     >
-      <input
+      <textarea
+        ref={field}
+        className="assistant-field"
+        rows={1}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.nativeEvent.isComposing &&
+            event.nativeEvent.keyCode !== 229
+          ) {
+            event.preventDefault();
+            submit();
+          }
+        }}
         placeholder={t("composer.placeholder")}
         aria-label={t("composer.placeholder")}
         disabled={disabled}
         maxLength={limits.chatTextChars}
       />
-      <button
-        className="button button-primary"
-        type="submit"
-        disabled={disabled || !value.trim()}
-      >
-        {t("composer.send")}
-      </button>
       {recording.supported && (
         <button
           className="assistant-icon"
@@ -100,8 +130,20 @@ export function Composer({
           <path d="M11 4 5 9H2v6h3l6 5ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" />
         </svg>
       </button>
+      <button
+        className="assistant-icon assistant-icon-primary"
+        type="submit"
+        disabled={disabled || !value.trim()}
+        aria-label={t("composer.send")}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 19V5m-7 7 7-7 7 7" />
+        </svg>
+      </button>
       {recording.transcribing && (
-        <p role="status">{t("composer.transcribing")}</p>
+        <p className="assistant-note" role="status">
+          {t("composer.transcribing")}
+        </p>
       )}
     </form>
   );
