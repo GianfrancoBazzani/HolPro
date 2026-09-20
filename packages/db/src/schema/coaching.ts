@@ -7,6 +7,7 @@ import {
   boolean,
   datetime,
   index,
+  uniqueIndex,
   check,
   primaryKey,
 } from "drizzle-orm/mysql-core";
@@ -70,3 +71,20 @@ export const coacheeGoals = mysqlTable("coachee_goals", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+export const coachSkills = mysqlTable(
+  "coach_skills",
+  {
+    id: char("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    coachId: char("coach_id", { length: 36 })
+      .notNull()
+      .references(() => coaches.userId, { onDelete: "cascade" }),
+    name: varchar("name", { length: 64 }).notNull(),
+    description: varchar("description", { length: 1024 }).notNull(),
+    instructions: text("instructions").notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("coach_skills_coach_name_idx").on(t.coachId, t.name)],
+);

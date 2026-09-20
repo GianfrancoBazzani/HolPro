@@ -196,7 +196,8 @@ backend are in memory. A process restart loses mock jobs; persisted workflow
 snapshots cannot reconstruct them. Memory remains in MySQL. Skills are copied
 into the Docker runtime and loaded from `mastra/workspace` when the working
 directory is the app, or `packages/web-app/mastra/workspace` from the repo root.
-The workspace filesystem is read-only and contained.
+The workspace filesystem is read-only and contained. Coach-authored skills come
+from the `coach_skills` table, not from the workspace.
 
 Use `deploy/nginx.example.conf` to disable proxy buffering and permit long
 streams. Chat sends SSE comment heartbeats every 15 seconds. Voice uses HTTP
@@ -255,3 +256,29 @@ filtered; two authenticated browser sessions refresh after publishing; restart
 and reconnect load the latest version; blocked users lose stream access. Exercise
 coach publication through the live model, and confirm iframe behavior behind
 HTTPS/nginx. Automated fixture tests do not replace these live checks.
+
+## Coach profile, assistant skills and coach discovery
+
+Apply migration `0006_certain_preak.sql` through the normal migration workflow
+after `0005`. It adds `coach_skills` without changing existing rows. Generation
+and tests do not apply it.
+
+Coaches edit their bio and the "I accept new clients" switch in the account
+settings dialog on `/pro`. Coaches manage the skills of their assistant at
+`/pro/skills`: name (lowercase letters, digits and single hyphens, unique per
+coach, never a built-in skill name), a description that says when the skill
+applies, and the instructions. At most 20 skills per coach. The assistant
+loads them per request as inline Mastra skills next to the built-in workspace
+skills; the built-in `client-intake` skill guides the intake of a new client
+and is used by the onboarding flow of the next release.
+
+The private MCP server registers `search_coaches` for the coachee role. It
+returns coaches who accept clients and have an active account, with name, bio
+and specialties, at most 50, filtered by an optional query of up to 200
+characters. Token scopes are now `plans:read`, `coaches:search` and
+`onboarding:apply` for coachees, and `plans:read`, `plans:publish` and
+`onboarding:review` for coaches. The coachee assistant offers a coach search
+after the goals are saved.
+
+Spanish and Italian copy for the profile, the skills page and the search label
+are drafts that need native-speaker review.

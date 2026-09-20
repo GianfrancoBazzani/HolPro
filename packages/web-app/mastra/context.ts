@@ -63,7 +63,7 @@ export async function buildInstructions(
     planInstructions = "Help with the existing plan and coaching questions.";
   } else if (context.goalsSaved) {
     planInstructions =
-      "The goals are saved. Answer questions and remind the user that the coach prepares the plan.";
+      "The goals are saved. Offer to find a coach with searchCoaches, present name and bio, and let the user choose. Remind the user that the coach prepares the plan after the onboarding.";
   } else {
     planInstructions =
       "The user has no plan: use the coachee-onboarding skill. Ask one question at a time and finish with saveOnboardingGoals.";

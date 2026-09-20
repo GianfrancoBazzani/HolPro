@@ -9,6 +9,11 @@ export const limits = {
   textMax: 2000,
   durationMin: 5,
   durationMax: 1440,
+  bioMax: 2000,
+  skillNameMax: 64,
+  skillDescriptionMax: 1024,
+  skillInstructionsMax: 20000,
+  skillsMax: 20,
 };
 const uuid = z.uuid({ error: "validation.invalid" });
 const optionalId = z.preprocess(
@@ -96,3 +101,33 @@ export const periodSchema = z
     path: ["endDate"],
     error: "validation.range",
   });
+export const skillNamePattern = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+export const profileSchema = z.object({
+  bio: z.string().trim().max(limits.bioMax, "validation.bio_max"),
+  // An unchecked checkbox is absent from FormData; a checked one sends "on".
+  acceptingClients: z.preprocess(
+    (v) => v === "on" || v === "true" || v === true,
+    z.boolean(),
+  ),
+});
+export const skillSchema = z.object({
+  id: optionalId,
+  name: z
+    .string()
+    .trim()
+    .min(1, "validation.skill_name_required")
+    .max(limits.skillNameMax, "validation.skill_name_max")
+    .regex(skillNamePattern, "validation.skill_name_format"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "validation.skill_description_required")
+    .max(limits.skillDescriptionMax, "validation.skill_description_max"),
+  instructions: z
+    .string()
+    .trim()
+    .min(1, "validation.skill_instructions_required")
+    .max(limits.skillInstructionsMax, "validation.skill_instructions_max"),
+});
+export type SkillInput = z.output<typeof skillSchema>;
+export type ProfileInput = z.output<typeof profileSchema>;

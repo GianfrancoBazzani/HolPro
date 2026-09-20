@@ -1,48 +1,12 @@
-import type { McpServer, AuthInfo } from "@modelcontextprotocol/server";
-import { z } from "zod";
+import type { McpServer } from "@modelcontextprotocol/server";
 import { listPlans, readPlan, publishPlan } from "@/lib/plans/repository";
-import { PlanAccessError } from "@/lib/plans/types";
-import {
-  listPlansSchema,
-  readPlanSchema,
-  publishPlanSchema,
-  roleSchema,
-} from "./schemas";
-const actorSchema = z.object({ userId: z.string().min(1), role: roleSchema });
-function actorFrom(auth?: AuthInfo, publish = false) {
-  const actor = actorSchema.parse(auth?.extra);
-  if (
-    !auth?.scopes.includes("plans:read") ||
-    (publish &&
-      (actor.role !== "coach" || !auth.scopes.includes("plans:publish")))
-  )
-    throw new PlanAccessError();
-  return actor;
-}
-async function result(action: () => Promise<unknown>) {
-  try {
-    const data = await action();
-    return {
-      content: [{ type: "text" as const, text: JSON.stringify(data) }],
-      ...(data && typeof data === "object" && !Array.isArray(data)
-        ? { structuredContent: data as Record<string, unknown> }
-        : {}),
-    };
-  } catch (error) {
-    return {
-      isError: true,
-      content: [
-        {
-          type: "text" as const,
-          text:
-            error instanceof PlanAccessError
-              ? "Plan or engagement not found or not accessible."
-              : "Unable to complete the plan operation.",
-        },
-      ],
-    };
-  }
-}
+import { requireScope } from "./actor";
+import { mcpResult } from "./result";
+import { listPlansSchema, readPlanSchema, publishPlanSchema } from "./schemas";
+const messages = {
+  denied: "Plan or engagement not found or not accessible.",
+  failed: "Unable to complete the plan operation.",
+};
 export function registerPlanTools(server: McpServer) {
   server.registerTool(
     "publish_plan",
@@ -58,7 +22,13 @@ export function registerPlanTools(server: McpServer) {
       },
     },
     (input, ctx) =>
-      result(() => publishPlan(actorFrom(ctx.http?.authInfo, true), input)),
+      mcpResult(() =>
+        publishPlan(
+          requireScope(ctx.http?.authInfo, "plans:read", "plans:publish"),
+          input,
+        ),
+      messages,
+      ),
   );
   server.registerTool(
     "list_plans",
@@ -69,8 +39,12 @@ export function registerPlanTools(server: McpServer) {
       annotations: { readOnlyHint: true },
     },
     (input, ctx) =>
-      result(() =>
-        listPlans(actorFrom(ctx.http?.authInfo), input.engagementId),
+      mcpResult(() =>
+        listPlans(
+          requireScope(ctx.http?.authInfo, "plans:read"),
+          input.engagementId,
+        ),
+      messages,
       ),
   );
   server.registerTool(
@@ -83,8 +57,13 @@ export function registerPlanTools(server: McpServer) {
       annotations: { readOnlyHint: true },
     },
     (input, ctx) =>
-      result(() =>
-        readPlan(actorFrom(ctx.http?.authInfo), input.planId, input.version),
+      mcpResult(() =>
+        readPlan(
+          requireScope(ctx.http?.authInfo, "plans:read"),
+          input.planId,
+          input.version,
+        ),
+      messages,
       ),
   );
 }

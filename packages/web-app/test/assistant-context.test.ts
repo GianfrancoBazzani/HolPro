@@ -49,5 +49,6 @@ it("stops collecting after goals are saved without ending onboarding", async () 
     }),
   );
   expect(instructions).toContain("goals are saved");
+  expect(instructions).toContain("searchCoaches");
   expect(instructions).not.toContain("use the coachee-onboarding");
 });

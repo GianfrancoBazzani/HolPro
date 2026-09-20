@@ -5,19 +5,22 @@ import type { Dictionary } from "@/lib/i18n/dictionary";
 import { translator } from "@/lib/i18n/dictionary";
 import { localePath } from "@/lib/i18n/routes";
 import { AccountControls } from "@/components/account/account-controls";
+import type { CoachProfile } from "@/lib/pro/types";
 import wordmark from "@/public/brand/wordmark.png";
 export function Topbar({
   locale,
   messages,
   eyebrow,
   name,
-  back,
+  links = [],
+  profile,
 }: {
   locale: Locale;
   messages: Dictionary["dashboard"];
   eyebrow: string;
   name: string;
-  back?: { href: string; label: string };
+  links?: { href: string; label: string }[];
+  profile?: CoachProfile;
 }) {
   const t = translator({ dashboard: messages }, "dashboard");
   return (
@@ -30,16 +33,16 @@ export function Topbar({
           priority
         />
       </Link>
-      {back && (
-        <Link className="calendar-chip" href={back.href}>
-          {back.label}
+      {links.map((link) => (
+        <Link key={link.href} className="calendar-chip" href={link.href}>
+          {link.label}
         </Link>
-      )}
+      ))}
       <div className="dashboard-identity">
         <span className="eyebrow">{eyebrow}</span>
         <span>{name}</span>
       </div>
-      <AccountControls />
+      <AccountControls profile={profile} />
     </header>
   );
 }

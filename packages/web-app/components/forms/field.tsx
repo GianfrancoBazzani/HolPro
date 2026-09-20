@@ -6,9 +6,27 @@ import {
   type TextareaHTMLAttributes,
 } from "react";
 import "./forms.css";
-type Shared = { name: string; label: string; errors?: string[] };
+type Shared = {
+  name: string;
+  label: string;
+  help?: string;
+  errors?: string[];
+};
+// Help text and errors are announced with the control through aria-describedby.
+function describedBy(id: string, help?: string, errors?: string[]) {
+  const ids = [help && `${id}-help`, errors?.length && `${id}-errors`];
+  return ids.filter(Boolean).join(" ") || undefined;
+}
+function Help({ id, help }: { id: string; help?: string }) {
+  return help ? (
+    <p id={`${id}-help`} className="form-help">
+      {help}
+    </p>
+  ) : null;
+}
 export function Field({
   label,
+  help,
   errors,
   ...props
 }: Shared & InputHTMLAttributes<HTMLInputElement>) {
@@ -16,11 +34,12 @@ export function Field({
   return (
     <div className="form-field">
       <label htmlFor={id}>{label}</label>
+      <Help id={id} help={help} />
       <input
         {...props}
         id={id}
         aria-invalid={!!errors?.length}
-        aria-describedby={errors?.length ? `${id}-errors` : undefined}
+        aria-describedby={describedBy(id, help, errors)}
       />
       <Errors id={id} errors={errors} />
     </div>
@@ -28,6 +47,7 @@ export function Field({
 }
 export function SelectField({
   label,
+  help,
   errors,
   options,
   ...props
@@ -39,11 +59,12 @@ export function SelectField({
   return (
     <div className="form-field">
       <label htmlFor={id}>{label}</label>
+      <Help id={id} help={help} />
       <select
         {...props}
         id={id}
         aria-invalid={!!errors?.length}
-        aria-describedby={errors?.length ? `${id}-errors` : undefined}
+        aria-describedby={describedBy(id, help, errors)}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -57,6 +78,7 @@ export function SelectField({
 }
 export function TextareaField({
   label,
+  help,
   errors,
   ...props
 }: Shared & TextareaHTMLAttributes<HTMLTextAreaElement>) {
@@ -64,11 +86,12 @@ export function TextareaField({
   return (
     <div className="form-field">
       <label htmlFor={id}>{label}</label>
+      <Help id={id} help={help} />
       <textarea
         {...props}
         id={id}
         aria-invalid={!!errors?.length}
-        aria-describedby={errors?.length ? `${id}-errors` : undefined}
+        aria-describedby={describedBy(id, help, errors)}
       />
       <Errors id={id} errors={errors} />
     </div>

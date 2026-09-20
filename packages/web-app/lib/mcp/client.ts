@@ -3,17 +3,27 @@ import {
   StreamableHTTPClientTransport,
 } from "@modelcontextprotocol/client";
 import { baseURL } from "@/lib/auth/portals";
-import type { PlanActor } from "@/lib/plans/types";
+import type { McpActor } from "./actor";
 import { mintMcpToken } from "./token";
-export async function callPlanMcp(
-  actor: PlanActor,
-  name: "publish_plan" | "list_plans" | "read_plan",
+export type McpToolName =
+  | "publish_plan"
+  | "list_plans"
+  | "read_plan"
+  | "search_coaches";
+export type McpCallOptions = { signal?: AbortSignal; timeoutMs?: number };
+// The assistant reaches the app's own MCP endpoint with a short-lived token.
+// Every call opens and closes one client; the timeout covers connect and call.
+export async function callMcp(
+  actor: McpActor,
+  name: McpToolName,
   args: Record<string, unknown>,
-  signal?: AbortSignal,
+  options: McpCallOptions = {},
 ) {
+  const timeout = options.timeoutMs ?? 30_000,
+    signal = options.signal;
   const token = await mintMcpToken(actor.userId, actor.role);
   const url = new URL("/api/mcp", baseURL);
-  const client = new Client({ name: "holpro-agent", version: "1.0.0" });
+  const client = new Client({ name: "holpro-agent", version: "1.1.0" });
   const transport = new StreamableHTTPClientTransport(url, {
     requestInit: {
       headers: { Authorization: `Bearer ${token}` },
@@ -21,16 +31,16 @@ export async function callPlanMcp(
     },
   });
   try {
-    await client.connect(transport, { signal, timeout: 30_000 });
+    await client.connect(transport, { signal, timeout });
     const result = await client.callTool(
       { name, arguments: args },
-      { signal, timeout: 30_000 },
+      { signal, timeout },
     );
     const text = result.content
       .filter((part) => part.type === "text")
       .map((part) => part.text)
       .join("\n");
-    if (result.isError) throw new Error(text || "Plan operation failed.");
+    if (result.isError) throw new Error(text || "MCP tool call failed.");
     return JSON.parse(text) as unknown;
   } finally {
     await client.close();

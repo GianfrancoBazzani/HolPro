@@ -1,6 +1,12 @@
 import { relations } from "drizzle-orm";
 import { users, sessions, accounts } from "./auth";
-import { coaches, coachees, coachSpecialties, engagements } from "./coaching";
+import {
+  coaches,
+  coachees,
+  coachSpecialties,
+  coachSkills,
+  engagements,
+} from "./coaching";
 import {
   planDocuments,
   planDocumentVersions,
@@ -20,8 +26,15 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 export const coachesRelations = relations(coaches, ({ one, many }) => ({
   user: one(users, { fields: [coaches.userId], references: [users.id] }),
   specialties: many(coachSpecialties),
+  skills: many(coachSkills),
   engagements: many(engagements),
   agendaEvents: many(agendaEvents),
+}));
+export const coachSkillsRelations = relations(coachSkills, ({ one }) => ({
+  coach: one(coaches, {
+    fields: [coachSkills.coachId],
+    references: [coaches.userId],
+  }),
 }));
 export const coacheesRelations = relations(coachees, ({ one, many }) => ({
   user: one(users, { fields: [coachees.userId], references: [users.id] }),

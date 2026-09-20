@@ -1,9 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { engagements } from "@holpro/db/schema";
-import type { PlanActor } from "@/lib/plans/types";
+import type { McpActor } from "./actor";
 export const activeCoach = (coachId: string) =>
   and(eq(engagements.coachId, coachId), eq(engagements.status, "active"));
-export function readScope(actor: PlanActor) {
+export function readScope(actor: McpActor) {
   return actor.role === "coach"
     ? eq(engagements.coachId, actor.userId)
     : and(
@@ -11,4 +11,4 @@ export function readScope(actor: PlanActor) {
         eq(engagements.status, "active"),
       );
 }
-export const publishScope = (actor: PlanActor) => activeCoach(actor.userId);
+export const publishScope = (actor: McpActor) => activeCoach(actor.userId);

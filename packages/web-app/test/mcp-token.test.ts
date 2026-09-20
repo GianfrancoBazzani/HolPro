@@ -3,6 +3,7 @@ import { SignJWT } from "jose";
 vi.mock("../lib/auth/repository", () => ({ loadUserWithRoles: vi.fn() }));
 import { loadUserWithRoles } from "../lib/auth/repository";
 import { mintMcpToken, verifyMcpToken } from "../lib/mcp/token";
+import { scopesFor } from "../lib/mcp/token-scopes";
 const secret = Buffer.alloc(32, 7).toString("base64");
 const user = {
   id: "u",
@@ -26,9 +27,18 @@ it("mints trusted role scopes without exposing a browser endpoint", async () => 
   const auth = await verifyMcpToken(token);
   expect(auth).toMatchObject({
     clientId: "holpro-agent",
-    scopes: ["plans:read", "plans:publish"],
+    scopes: scopesFor("coach"),
     extra: { userId: "u", role: "coach" },
   });
+});
+it("mints coachee scopes for the requested role", async () => {
+  vi.mocked(loadUserWithRoles).mockResolvedValue({
+    ...user,
+    coach: null,
+    coachee: {},
+  } as Awaited<ReturnType<typeof loadUserWithRoles>>);
+  const auth = await verifyMcpToken(await mintMcpToken("u", "coachee"));
+  expect(auth?.scopes).toEqual(scopesFor("coachee"));
 });
 it("rejects tokens after role revocation or blocking", async () => {
   const token = await mintMcpToken("u");
@@ -93,7 +103,7 @@ it("grants coachees only read access", async () => {
   } as Awaited<ReturnType<typeof loadUserWithRoles>>);
   expect(
     await verifyMcpToken(await mintMcpToken("u")),
-  ).toMatchObject({ scopes: ["plans:read"], extra: { role: "coachee" } });
+  ).toMatchObject({ scopes: scopesFor("coachee"), extra: { role: "coachee" } });
 });
 it("rejects a different signing algorithm", async () => {
   const now = Math.floor(Date.now() / 1000);
@@ -114,7 +124,7 @@ it("rejects a different signing algorithm", async () => {
 it("preserves a dual-role user's selected coachee role and revokes it independently", async () => {
   vi.mocked(loadUserWithRoles).mockResolvedValue({ ...user, coachee: {} } as Awaited<ReturnType<typeof loadUserWithRoles>>);
   const token = await mintMcpToken("u", "coachee");
-  expect(await verifyMcpToken(token)).toMatchObject({ scopes: ["plans:read"], extra: { role: "coachee" } });
+  expect(await verifyMcpToken(token)).toMatchObject({ scopes: scopesFor("coachee"), extra: { role: "coachee" } });
   vi.mocked(loadUserWithRoles).mockResolvedValue(user as Awaited<ReturnType<typeof loadUserWithRoles>>);
   expect(await verifyMcpToken(token)).toBeUndefined();
   await expect(mintMcpToken("u", "coachee")).rejects.toThrow();

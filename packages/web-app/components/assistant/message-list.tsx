@@ -12,6 +12,7 @@ const toolLabels = {
   getClientPlan: "tool.getClientPlan",
   listPlanDocuments: "tool.listPlanDocuments",
   readPlanDocument: "tool.readPlanDocument",
+  searchCoaches: "tool.searchCoaches",
 } as const;
 function failedTask(part: UIMessage["parts"][number]) {
   return (

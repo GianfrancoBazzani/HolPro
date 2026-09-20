@@ -1,13 +1,20 @@
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import { registerPlanTools } from "@/lib/mcp/tools";
+import { registerCoachTools } from "@/lib/mcp/coach-tools";
 import { verifyMcpToken } from "@/lib/mcp/token";
 import { boundedMcpRequest } from "@/lib/mcp/body";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const handler = createMcpHandler(registerPlanTools, {
-  serverInfo: { name: "holpro-plans", version: "1.0.0" },
-  maxSubscriptions: 0,
-});
+const handler = createMcpHandler(
+  (server) => {
+    registerPlanTools(server);
+    registerCoachTools(server);
+  },
+  {
+    serverInfo: { name: "holpro", version: "1.1.0" },
+    maxSubscriptions: 0,
+  },
+);
 const authenticated = withMcpAuth(
   async (request) => {
     const bounded =

@@ -111,6 +111,45 @@ body:has(.account-settings[open]) {
 .account-settings .button-primary:disabled {
   background: var(--pine);
 }
+.account-settings-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.account-settings-fieldset legend {
+  padding: 0;
+  margin-block-end: var(--space-4);
+}
+.account-settings-fieldset .form-field label {
+  font-weight: 600;
+}
+.account-settings-fieldset + .account-settings-form {
+  padding-block-start: var(--space-8);
+  border-top: 1px solid var(--pine-18);
+}
+.account-settings-check {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: var(--space-4);
+  align-items: center;
+}
+.account-settings-check input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--pine);
+}
+.account-settings-check p {
+  grid-column: 2;
+}
+.account-settings [role="status"] {
+  color: var(--pine);
+  font-weight: 600;
+}
 @media (max-width: 599px) {
   .account-settings {
     padding: var(--space-8);

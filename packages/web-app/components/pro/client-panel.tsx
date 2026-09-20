@@ -5,6 +5,7 @@ import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/config";
 import { I18nProvider } from "@/components/i18n/provider";
 import { Topbar } from "@/components/dashboard/topbar";
+import { coachProfile } from "@/lib/pro/profile";
 import { Timeline } from "@/components/dashboard/timeline";
 import { todayIn } from "@/lib/calendar/dates";
 import { safeTimezone } from "@/lib/pro/dates";
@@ -47,7 +48,8 @@ export async function ClientPanel({
           messages={messages.dashboard}
           eyebrow={t("topbar.eyebrow")}
           name={user.name}
-          back={{ href: "/pro", label: t("topbar.back") }}
+          profile={coachProfile(user)}
+          links={[{ href: "/pro", label: t("topbar.back") }]}
         />
         <header className="client-heading">
           <span className="eyebrow">{t("client.eyebrow")}</span>

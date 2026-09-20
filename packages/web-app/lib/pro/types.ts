@@ -34,3 +34,11 @@ export type ProAction = (
   state: ProActionState,
   form: FormData,
 ) => Promise<ProActionState>;
+export type CoachProfile = { bio: string; acceptingClients: boolean };
+export type CoachSkill = {
+  id: string;
+  name: string;
+  description: string;
+  instructions: string;
+  updatedAt: string;
+};

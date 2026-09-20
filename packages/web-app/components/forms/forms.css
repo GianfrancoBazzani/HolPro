@@ -59,6 +59,10 @@
 .form-field [role="alert"] {
   font-size: 14px;
 }
+.form-help {
+  color: var(--muted);
+  font-size: 14px;
+}
 .form-actions {
   display: flex;
   align-items: center;

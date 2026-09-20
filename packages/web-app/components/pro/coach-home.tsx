@@ -7,6 +7,7 @@ import { getDictionary, translator } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/config";
 import { I18nProvider } from "@/components/i18n/provider";
 import { Topbar } from "@/components/dashboard/topbar";
+import { coachProfile } from "@/lib/pro/profile";
 import { todayIn } from "@/lib/calendar/dates";
 import { parseMonth, safeTimezone } from "@/lib/pro/dates";
 import { loadClients, loadAgenda } from "@/lib/pro/repository";
@@ -52,6 +53,8 @@ export async function CoachHome({
           messages={messages.dashboard}
           eyebrow={t("topbar.eyebrow")}
           name={user.name}
+          profile={coachProfile(user)}
+          links={[{ href: "/pro/skills", label: t("skills.link") }]}
         />
         <div className="dashboard-layout">
           <div className="dashboard-main">

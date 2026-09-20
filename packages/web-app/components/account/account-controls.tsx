@@ -6,6 +6,8 @@ import { signOut } from "@/lib/auth/actions";
 import { chooseLocale } from "@/lib/i18n/actions";
 import { localeKeys, locales, type Locale } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/components/i18n/provider";
+import type { CoachProfile } from "@/lib/pro/types";
+import { ProfileForm } from "./profile-form";
 import "./account-controls.css";
 
 function LanguageForm() {
@@ -50,7 +52,7 @@ function LanguageForm() {
   );
 }
 
-export function AccountControls() {
+export function AccountControls({ profile }: { profile?: CoachProfile }) {
   const locale = useLocale();
   const t = useT("settings");
   const dialog = useRef<HTMLDialogElement>(null);
@@ -133,6 +135,7 @@ export function AccountControls() {
             </svg>
           </button>
         </div>
+        {profile && <ProfileForm key={opening} profile={profile} />}
         <form action={chooseLocale} className="account-settings-form">
           <LanguageForm key={`${locale}-${opening}`} />
         </form>

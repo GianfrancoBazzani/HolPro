@@ -1,7 +1,7 @@
 import { noopObserve } from "@mastra/core/tools";
 import { expect, it, vi } from "vitest";
-vi.mock("../lib/mcp/client", () => ({ callPlanMcp: vi.fn() }));
-import { callPlanMcp } from "../lib/mcp/client";
+vi.mock("../lib/mcp/client", () => ({ callMcp: vi.fn() }));
+import { callMcp } from "../lib/mcp/client";
 import {
   publishPlanDocument,
   listPlanDocuments,
@@ -30,15 +30,15 @@ it("refuses coachee publication before minting or calling MCP", async () => {
       ctx("coachee"),
     ),
   ).rejects.toThrow("forbidden");
-  expect(callPlanMcp).not.toHaveBeenCalled();
+  expect(callMcp).not.toHaveBeenCalled();
 });
 it("takes list identity from trusted request context", async () => {
-  vi.mocked(callPlanMcp).mockResolvedValueOnce([]);
+  vi.mocked(callMcp).mockResolvedValueOnce([]);
   expect(await listPlanDocuments.execute!({}, ctx("coachee"))).toEqual([]);
-  expect(callPlanMcp).toHaveBeenCalledWith(
+  expect(callMcp).toHaveBeenCalledWith(
     expect.objectContaining({ userId: "u", role: "coachee" }),
     "list_plans",
     {},
-    undefined,
+    expect.any(Object),
   );
 });

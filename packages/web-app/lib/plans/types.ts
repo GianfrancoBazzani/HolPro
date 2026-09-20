@@ -1,10 +1,8 @@
 import type { z } from "zod";
-import type { PortalKey } from "@/lib/auth/portals";
 import type {
   planContentSchema,
   planSummarySchema,
 } from "@/lib/mcp/schemas";
-export type PlanActor = { userId: string; role: PortalKey };
 export type PlanEngagement = {
   id: string;
   coachName: string;

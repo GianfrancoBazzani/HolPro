@@ -7,6 +7,7 @@ import { isBlocked, roleOf } from "@/lib/auth/policy";
 import type { PortalKey } from "@/lib/auth/portals";
 import { roleSchema } from "./schemas";
 import { mcpSecret } from "./secret";
+import { scopesFor } from "./token-scopes";
 const claimsSchema = z
   .object({
     sub: z.string().min(1),
@@ -57,8 +58,7 @@ export async function verifyMcpToken(
     return {
       token,
       clientId: "holpro-agent",
-      scopes:
-        role === "coach" ? ["plans:read", "plans:publish"] : ["plans:read"],
+      scopes: scopesFor(role),
       expiresAt: claims.exp,
       extra: { userId: claims.sub, role },
     };

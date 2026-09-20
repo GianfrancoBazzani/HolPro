@@ -22,7 +22,7 @@ vi.mock("../lib/plans/repository", () => ({
 }));
 import { POST, GET } from "../app/api/mcp/route";
 import { mintMcpToken } from "../lib/mcp/token";
-import { callPlanMcp } from "../lib/mcp/client";
+import { callMcp } from "../lib/mcp/client";
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -41,10 +41,10 @@ it("connects the real SDK client and closes it on success and tool failure", asy
     }),
   );
   expect(
-    await callPlanMcp({ userId: "coach", role: "coach" }, "list_plans", {}),
+    await callMcp({ userId: "coach", role: "coach" }, "list_plans", {}),
   ).toEqual([]);
   await expect(
-    callPlanMcp({ userId: "coach", role: "coach" }, "read_plan", {
+    callMcp({ userId: "coach", role: "coach" }, "read_plan", {
       planId: "11111111-1111-4111-8111-111111111111",
     }),
   ).rejects.toThrow("Unable to complete");

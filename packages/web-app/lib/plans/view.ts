@@ -4,11 +4,12 @@ import {
   listPlans,
   readPlan,
 } from "./repository";
-import type { PlanActor, PlanSummary } from "./types";
+import type { PlanSummary } from "./types";
+import type { McpActor } from "@/lib/mcp/actor";
 import { framePlanHtml } from "./frame";
 export type PlanSelection = { engagement?: unknown; plan?: unknown };
 export async function loadPlanView(
-  actor: PlanActor,
+  actor: McpActor,
   query: PlanSelection = {},
 ) {
   const requestedPlan = typeof query.plan === "string" ? query.plan : undefined;

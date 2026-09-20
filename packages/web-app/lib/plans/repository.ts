@@ -9,10 +9,10 @@ import {
 import { and, eq, isNull, isNotNull, desc, max } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { readScope, publishScope } from "@/lib/mcp/scope";
+import type { McpActor } from "@/lib/mcp/actor";
 import { publishPlanSchema, type PublishPlanInput } from "@/lib/mcp/schemas";
 import {
   PlanAccessError,
-  type PlanActor,
   type PlanSummary,
   type PlanContent,
   type PlanEngagement,
@@ -28,7 +28,7 @@ const currentVersion = () =>
     eq(planDocumentVersions.id, planDocuments.currentVersionId),
     eq(planDocumentVersions.documentId, planDocuments.id),
   );
-export async function canReadPlans(actor: PlanActor, engagementId: string) {
+export async function canReadPlans(actor: McpActor, engagementId: string) {
   const [row] = await db
     .select({ id: engagements.id })
     .from(engagements)
@@ -36,7 +36,7 @@ export async function canReadPlans(actor: PlanActor, engagementId: string) {
     .limit(1);
   return !!row;
 }
-export async function findPlanEngagementId(actor: PlanActor, planId: string) {
+export async function findPlanEngagementId(actor: McpActor, planId: string) {
   const [row] = await db
     .select({ engagementId: planDocuments.engagementId })
     .from(planDocuments)
@@ -47,7 +47,7 @@ export async function findPlanEngagementId(actor: PlanActor, planId: string) {
   return row?.engagementId;
 }
 export async function listPlanEngagements(
-  actor: PlanActor,
+  actor: McpActor,
 ): Promise<PlanEngagement[]> {
   const coach = alias(users, "plan_coach"),
     coachee = alias(users, "plan_coachee");
@@ -65,7 +65,7 @@ export async function listPlanEngagements(
     .orderBy(desc(engagements.startedAt), desc(engagements.id));
 }
 export async function listPlans(
-  actor: PlanActor,
+  actor: McpActor,
   engagementId?: string,
 ): Promise<PlanSummary[]> {
   if (engagementId && !(await canReadPlans(actor, engagementId)))
@@ -96,7 +96,7 @@ export async function listPlans(
   }));
 }
 export async function readPlan(
-  actor: PlanActor,
+  actor: McpActor,
   planId: string,
   version?: number,
 ): Promise<PlanContent> {
@@ -141,7 +141,7 @@ export async function hasPublishedPlan(userId: string) {
     .limit(1);
   return !!row;
 }
-export async function publishPlan(actor: PlanActor, input: PublishPlanInput) {
+export async function publishPlan(actor: McpActor, input: PublishPlanInput) {
   const parsed = publishPlanSchema.parse(input);
   if (actor.role !== "coach") throw new PlanAccessError();
   const committed = await db.transaction(async (tx) => {

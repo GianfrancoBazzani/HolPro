@@ -10,7 +10,7 @@ import {
   planContentSchema,
   publishResultSchema,
 } from "@/lib/mcp/schemas";
-import { callPlanMcp } from "@/lib/mcp/client";
+import { callMcp } from "@/lib/mcp/client";
 const summaries = z.array(planSummarySchema);
 export const publishPlanDocument = createTool({
   id: "publishPlanDocument",
@@ -20,11 +20,11 @@ export const publishPlanDocument = createTool({
   outputSchema: publishResultSchema,
   execute: async (input, { requestContext, abortSignal }) =>
     publishResultSchema.parse(
-      await callPlanMcp(
+      await callMcp(
         requireRole(requestContext, "coach"),
         "publish_plan",
         input,
-        abortSignal,
+        { signal: abortSignal },
       ),
     ),
 });
@@ -36,11 +36,11 @@ export const listPlanDocuments = createTool({
   outputSchema: summaries,
   execute: async (input, { requestContext, abortSignal }) =>
     summaries.parse(
-      await callPlanMcp(
+      await callMcp(
         assistantContext(requestContext),
         "list_plans",
         input,
-        abortSignal,
+        { signal: abortSignal },
       ),
     ),
 });
@@ -52,11 +52,11 @@ export const readPlanDocument = createTool({
   outputSchema: planContentSchema,
   execute: async (input, { requestContext, abortSignal }) =>
     planContentSchema.parse(
-      await callPlanMcp(
+      await callMcp(
         assistantContext(requestContext),
         "read_plan",
         input,
-        abortSignal,
+        { signal: abortSignal },
       ),
     ),
 });

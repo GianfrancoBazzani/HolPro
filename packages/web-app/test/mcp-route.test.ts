@@ -1,18 +1,23 @@
 import { beforeEach, expect, it, vi } from "vitest";
-vi.mock("../lib/mcp/token", () => ({
-  verifyMcpToken: vi.fn(async (token?: string) =>
-    token
-      ? {
-          token,
-          clientId: "holpro-agent",
-          scopes:
-            token === "coach"
-              ? ["plans:read", "plans:publish"]
-              : ["plans:read"],
-          extra: { userId: token, role: token },
-        }
-      : undefined,
-  ),
+vi.mock("../lib/mcp/token", async () => {
+  const { scopesFor } = await import("../lib/mcp/token-scopes");
+  return {
+    verifyMcpToken: vi.fn(async (token?: string) =>
+      token === "coach" || token === "coachee"
+        ? {
+            token,
+            clientId: "holpro-agent",
+            scopes: scopesFor(token),
+            extra: { userId: token, role: token },
+          }
+        : undefined,
+    ),
+  };
+});
+vi.mock("../lib/coaches/repository", () => ({
+  searchCoaches: vi.fn(async () => [
+    { coachId: "c", name: "Ana", bio: "Strength", specialties: ["strength"] },
+  ]),
 }));
 vi.mock("../lib/plans/repository", () => ({
   listPlans: vi.fn(async () => []),
@@ -27,6 +32,7 @@ vi.mock("../lib/plans/repository", () => ({
 }));
 import { POST } from "../app/api/mcp/route";
 import { publishPlan } from "../lib/plans/repository";
+import { searchCoaches } from "../lib/coaches/repository";
 const engagementId = "11111111-1111-4111-8111-111111111111";
 function request(method: string, params: unknown, token = "coach") {
   return new Request("http://localhost/api/mcp", {
@@ -54,12 +60,13 @@ beforeEach(() => vi.clearAllMocks());
 it("requires a bearer token", async () => {
   expect((await POST(request("tools/list", {}, ""))).status).toBe(401);
 });
-it("registers all three real MCP tools", async () => {
+it("registers the four real MCP tools", async () => {
   const data = await json(await POST(request("tools/list", {})));
   expect(data.result.tools.map((tool: { name: string }) => tool.name)).toEqual([
     "publish_plan",
     "list_plans",
     "read_plan",
+    "search_coaches",
   ]);
 });
 it("publishes valid HTML through the real protocol", async () => {
@@ -113,4 +120,40 @@ it("rejects coachee writes and hides raw backend errors", async () => {
   );
   expect(failed.result.isError).toBe(true);
   expect(JSON.stringify(failed)).not.toContain("database secret");
+});
+it("searches coaches for coachees and denies coaches", async () => {
+  const found = await json(
+    await POST(
+      request(
+        "tools/call",
+        { name: "search_coaches", arguments: { query: "strength" } },
+        "coachee",
+      ),
+    ),
+  );
+  expect(found.result.isError).not.toBe(true);
+  expect(JSON.parse(found.result.content[0].text)).toEqual({
+    coaches: [
+      { coachId: "c", name: "Ana", bio: "Strength", specialties: ["strength"] },
+    ],
+  });
+  expect(searchCoaches).toHaveBeenCalledWith("strength");
+  const denied = await json(
+    await POST(
+      request("tools/call", { name: "search_coaches", arguments: {} }, "coach"),
+    ),
+  );
+  expect(denied.result.isError).toBe(true);
+  expect(searchCoaches).toHaveBeenCalledTimes(1);
+  const tooLong = await json(
+    await POST(
+      request(
+        "tools/call",
+        { name: "search_coaches", arguments: { query: "x".repeat(201) } },
+        "coachee",
+      ),
+    ),
+  );
+  expect(tooLong.result?.isError || tooLong.error).toBeTruthy();
+  expect(searchCoaches).toHaveBeenCalledTimes(1);
 });

@@ -13,11 +13,13 @@ import {
 import { memory } from "../memory";
 import { voice } from "../voice";
 import { workspace } from "../workspace";
+import { coachSkillsResolver } from "../skills";
 import { getMyPlan } from "../tools/get-my-plan";
 import { saveOnboardingGoals } from "../tools/save-onboarding-goals";
 import { listMyClients } from "../tools/list-my-clients";
 import { getClientPlan } from "../tools/get-client-plan";
 import { startLongTask } from "../tools/start-long-task";
+import { searchCoaches } from "../tools/search-coaches";
 function toolsFor(context: AssistantContext): ToolsInput {
   if (context.role === "coach")
     return {
@@ -31,6 +33,7 @@ function toolsFor(context: AssistantContext): ToolsInput {
   return {
     getMyPlan,
     saveOnboardingGoals,
+    searchCoaches,
     startLongTask,
     listPlanDocuments,
     readPlanDocument,
@@ -46,6 +49,7 @@ export const assistant = new Agent({
   memory,
   voice,
   workspace,
+  skills: coachSkillsResolver,
   inputProcessors: [
     new SkillSearchProcessor({ workspace, search: { topK: 3, minScore: 0.1 } }),
   ],

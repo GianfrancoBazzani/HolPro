@@ -36,3 +36,16 @@ export const publishResultSchema = z.object({
   publishedAt: z.string(),
 });
 export type PublishPlanInput = z.infer<typeof publishPlanSchema>;
+export const searchCoachesSchema = z.object({
+  query: z.string().trim().max(200).optional(),
+});
+export const coachSummarySchema = z.object({
+  coachId: z.string(),
+  name: z.string(),
+  bio: z.string(),
+  specialties: z.array(z.string()),
+});
+export const searchCoachesResultSchema = z.object({
+  coaches: z.array(coachSummarySchema),
+});
+export type CoachSummary = z.infer<typeof coachSummarySchema>;

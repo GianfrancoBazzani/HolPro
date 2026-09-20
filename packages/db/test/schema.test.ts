@@ -36,6 +36,8 @@ describe("migration contract", () => {
     expect(sql).toContain("rate_limits");
     expect(sql).toMatch(/locale.*varchar\(12\).*DEFAULT 'en'.*NOT NULL/i);
     expect(sql).toMatch(/updated_at.*ON UPDATE CURRENT_TIMESTAMP\(3\)/i);
+    expect(sql).toMatch(/CREATE TABLE `coach_skills`/);
+    expect(sql).toMatch(/coach_skills_coach_name_idx/);
   });
   it("has no schema drift", () => {
     const temp = mkdtempSync(join(tmpdir(), "holpro-drift-"));
