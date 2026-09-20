@@ -33,3 +33,25 @@ it("does not turn a committed publish into a failure when a listener throws", ()
   ).not.toThrow();
   stop();
 });
+
+it.each([false, true])("reports subscriber failures and continues delivery (async: %s)", async (asyncFailure) => {
+  const error = new Error("subscriber failed");
+  const log = vi.spyOn(console, "error").mockImplementation(() => {});
+  const delivered = vi.fn();
+  const stopFailed = subscribe("coach", () => {
+    if (asyncFailure) return Promise.reject(error);
+    throw error;
+  });
+  const stopHealthy = subscribe("coach", delivered);
+  try {
+    const event = { planId: "p", engagementId: "e", coachId: "coach", coacheeId: "u" };
+    expect(() => publishEvent(event)).not.toThrow();
+    await Promise.resolve();
+    expect(delivered).toHaveBeenCalledWith(event);
+    expect(log).toHaveBeenCalledExactlyOnceWith("Plan event listener failed.", error);
+  } finally {
+    stopFailed();
+    stopHealthy();
+    log.mockRestore();
+  }
+});
